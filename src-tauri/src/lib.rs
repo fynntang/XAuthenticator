@@ -21,6 +21,12 @@ pub fn run() {
                     .set_focus();
             }));
     }
+
+    #[cfg(any(mobile, target_os = "android", target_os = "ios"))]
+    {
+        builder = builder.plugin(tauri_plugin_barcode_scanner::init())
+    }
+
     builder
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -34,7 +40,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_sql::Builder::new().build())
-        .plugin(tauri_plugin_barcode_scanner::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
             let salt_path = app
