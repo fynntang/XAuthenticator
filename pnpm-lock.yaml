@@ -9,35 +9,35 @@ importers:
   .:
     dependencies:
       '@tauri-apps/api':
-        specifier: ^2
+        specifier: ^2.8.0
         version: 2.8.0
       '@tauri-apps/plugin-opener':
-        specifier: ^2
+        specifier: ^2.5.0
         version: 2.5.0
     devDependencies:
       '@sveltejs/adapter-static':
-        specifier: ^3.0.6
+        specifier: ^3.0.10
         version: 3.0.10(@sveltejs/kit@2.46.2(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.39.9)(vite@6.3.6))(svelte@5.39.9)(vite@6.3.6))
       '@sveltejs/kit':
         specifier: ^2.46.2
         version: 2.46.2(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.39.9)(vite@6.3.6))(svelte@5.39.9)(vite@6.3.6)
       '@sveltejs/vite-plugin-svelte':
-        specifier: ^5.0.0
+        specifier: ^5.1.1
         version: 5.1.1(svelte@5.39.9)(vite@6.3.6)
       '@tauri-apps/cli':
-        specifier: ^2
+        specifier: ^2.8.4
         version: 2.8.4
       svelte:
-        specifier: ^5.0.0
+        specifier: ^5.39.9
         version: 5.39.9
       svelte-check:
-        specifier: ^4.0.0
+        specifier: ^4.3.2
         version: 4.3.2(picomatch@4.0.3)(svelte@5.39.9)(typescript@5.9.3)
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
       vite:
-        specifier: ^6.0.3
+        specifier: ^6.3.6
         version: 6.3.6
 
 packages:
