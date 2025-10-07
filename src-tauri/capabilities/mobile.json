@@ -12,6 +12,7 @@
     "clipboard-manager:default",
     "barcode-scanner:default",
     "barcode-scanner:allow-scan",
-    "barcode-scanner:allow-cancel"
+    "barcode-scanner:allow-cancel",
+    "biometric:default"
   ]
 }

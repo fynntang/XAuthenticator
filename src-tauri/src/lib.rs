@@ -9,7 +9,9 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_persisted_scope::init())
+        .plugin(tauri_plugin_biometric::init());
     #[cfg(desktop)]
     {
         builder = builder
