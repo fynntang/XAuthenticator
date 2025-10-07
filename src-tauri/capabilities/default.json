@@ -14,6 +14,7 @@
     "sql:default",
     "store:default",
     "stronghold:default",
-    "log:default"
+    "log:default",
+    "clipboard-manager:default"
   ]
 }

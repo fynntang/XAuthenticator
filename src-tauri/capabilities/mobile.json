@@ -8,6 +8,7 @@
     "main"
   ],
   "permissions": [
-    "log:default"
+    "log:default",
+    "clipboard-manager:default"
   ]
 }
