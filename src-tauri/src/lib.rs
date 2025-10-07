@@ -9,9 +9,7 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default()
-        .plugin(tauri_plugin_persisted_scope::init())
-        .plugin(tauri_plugin_biometric::init());
+    let mut builder = tauri::Builder::default();
     #[cfg(desktop)]
     {
         builder = builder
@@ -26,7 +24,9 @@ pub fn run() {
 
     #[cfg(any(mobile, target_os = "android", target_os = "ios"))]
     {
-        builder = builder.plugin(tauri_plugin_barcode_scanner::init())
+        builder = builder
+            .plugin(tauri_plugin_barcode_scanner::init())
+            .plugin(tauri_plugin_biometric::init())
     }
 
     builder
@@ -43,6 +43,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_persisted_scope::init())
         .setup(|app| {
             let salt_path = app
                 .path()
