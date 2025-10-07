@@ -33,7 +33,7 @@
 **XAuthenticator** 是一款跨平台的 **双重身份验证 (2FA)** 管理工具，支持多种验证协议（TOTP/HOTP），并以现代化的界面与安全的本地加密存储，让你的数字身份更加安全。
 
 > English version is available below.  
-> 👉 [Jump to English version](#english-version)
+> 👉 [Jump to English version](./README_English.md)
 
 ---
 
@@ -96,7 +96,7 @@ pnpm tauri dev
 
 ### 🧾 开源协议 | License
 
-本项目基于 MIT License 开源。
+本项目基于 [MIT License](./LICENSE) 开源。
 
 You are free to use, modify and distribute this project under the MIT license.
 
