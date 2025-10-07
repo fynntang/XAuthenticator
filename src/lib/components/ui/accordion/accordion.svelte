@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Accordion as AccordionPrimitive } from "bits-ui";
+    import {Accordion as AccordionPrimitive} from "bits-ui";
 
-	let {
+    let {
 		ref = $bindable(null),
 		value = $bindable(),
 		...restProps

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Progress as ProgressPrimitive } from "bits-ui";
-	import { cn, type WithoutChildrenOrChild } from "$lib/utils.js";
+    import {Progress as ProgressPrimitive} from "bits-ui";
+    import {cn, type WithoutChildrenOrChild} from "$lib/utils.js";
 
-	let {
+    let {
 		ref = $bindable(null),
 		class: className,
 		max = 100,

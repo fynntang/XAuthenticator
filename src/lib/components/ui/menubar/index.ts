@@ -1,4 +1,4 @@
-import { Menubar as MenubarPrimitive } from "bits-ui";
+import {Menubar as MenubarPrimitive} from "bits-ui";
 import Root from "./menubar.svelte";
 import CheckboxItem from "./menubar-checkbox-item.svelte";
 import Content from "./menubar-content.svelte";

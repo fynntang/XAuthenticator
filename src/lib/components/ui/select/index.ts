@@ -1,4 +1,4 @@
-import { Select as SelectPrimitive } from "bits-ui";
+import {Select as SelectPrimitive} from "bits-ui";
 
 import Group from "./select-group.svelte";
 import Label from "./select-label.svelte";

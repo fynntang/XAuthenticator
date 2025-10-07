@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { cn } from "$lib/utils.js";
-	import type { HTMLFieldsetAttributes } from "svelte/elements";
+    import {cn} from "$lib/utils.js";
+    import type {HTMLFieldsetAttributes} from "svelte/elements";
 
-	let { class: className, children, ...restProps }: HTMLFieldsetAttributes = $props();
+    let { class: className, children, ...restProps }: HTMLFieldsetAttributes = $props();
 </script>
 
 <fieldset

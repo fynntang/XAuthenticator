@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { cn } from "$lib/utils.js";
-	import type { HTMLAttributes } from "svelte/elements";
-	import type { Snippet } from "svelte";
+    import {cn} from "$lib/utils.js";
+    import type {HTMLAttributes} from "svelte/elements";
+    import type {Snippet} from "svelte";
 
-	let {
+    let {
 		class: className,
 		child,
 		...restProps
