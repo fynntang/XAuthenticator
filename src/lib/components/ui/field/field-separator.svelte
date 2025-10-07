@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Separator } from "$lib/components/ui/separator/index.js";
-	import { cn } from "$lib/utils.js";
-	import type { HTMLAttributes } from "svelte/elements";
-	import type { Snippet } from "svelte";
+    import {Separator} from "$lib/components/ui/separator/index.js";
+    import {cn} from "$lib/utils.js";
+    import type {HTMLAttributes} from "svelte/elements";
+    import type {Snippet} from "svelte";
 
-	let {
+    let {
 		class: className,
 		children,
 		...restProps
