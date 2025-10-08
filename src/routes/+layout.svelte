@@ -6,9 +6,15 @@
     import {Button} from "$lib/components/ui/button";
     import {appSheetStore} from "$lib/stores/app-sheet";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
+    import {onMount} from "svelte";
+    import {migrationsPath} from "$lib/constants";
 
 
     let {children} = $props();
+
+    onMount(() => {
+        console.log(migrationsPath);
+    })
 
 </script>
 
