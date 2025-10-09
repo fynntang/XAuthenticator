@@ -22,10 +22,13 @@
         "minHeight": 600,
         "maxWidth": 1920,
         "maxHeight": 1080,
+        "center": true,
         "decorations": false,
         "resizable": true,
         "fullscreen": false,
         "transparent": true,
+        "maximizable": false,
+        "minimizable": false,
         "windowEffects": {
           "effects": [
             "hudWindow",
