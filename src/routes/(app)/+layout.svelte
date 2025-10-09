@@ -6,7 +6,8 @@
 
     import Logo from "$lib/assets/tiny-logo.png";
     import {onMount} from "svelte";
-    import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import {getCurrentWindow} from "@tauri-apps/api/window";
+    import {goto} from "$app/navigation";
 
     const appWindow = getCurrentWindow();
 
@@ -21,34 +22,7 @@
     }
 
     const openSettings = async () => {
-        const settingWindow = await Window.getByLabel("settings")
-        console.log("settingWindow:", settingWindow)
-
-        if (settingWindow) {
-            await settingWindow.setFocus();
-            return settingWindow;
-        }
-
-        // 创建新窗口
-        const settingsWindow = new Window('settings', {
-            title: 'Settings',
-            width: 500,
-            height: 400,
-            center: true,
-            resizable: true,
-            parent: Window.getCurrent(),  // 设置父窗口
-            decorations: false,  // 无边框窗口
-            transparent: true,  // 透明背景
-            alwaysOnTop: true  // 保持在最上层
-        });
-        await settingsWindow.once('tauri://created', () => {
-            console.log('设置窗口已创建');
-        });
-        await settingsWindow.once('tauri://error', (e) => {
-            console.error('设置窗口创建失败:', e);
-        });
-
-        return settingsWindow;
+        await goto("/settings");
     }
 
 

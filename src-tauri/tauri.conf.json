@@ -18,52 +18,26 @@
         "label": "main",
         "width": 1366,
         "height": 768,
-        "minWidth": 800,
-        "minHeight": 600,
-        "maxWidth": 1920,
-        "maxHeight": 1080,
-        "titleBarStyle": "Overlay",
         "center": true,
         "decorations": false,
         "resizable": true,
         "fullscreen": false,
-        "transparent": true,
-        "maximizable": false,
-        "minimizable": false,
-        "visible": true,
-        "windowEffects": {
-          "effects": [
-            "hudWindow",
-            "acrylic",
-            "mica"
-          ],
-          "radius": 12
-        }
+        "visible": true
       },
       {
         "title": "Settings",
         "label": "settings",
         "url": "/settings",
-        "parent": "main",
         "width": 600,
-        "height": 400,
-        "titleBarStyle": "Overlay",
+        "height": 800,
         "center": true,
         "decorations": false,
         "resizable": false,
         "fullscreen": false,
-        "transparent": true,
-        "maximizable": false,
-        "minimizable": false,
         "visible": false,
-        "windowEffects": {
-          "effects": [
-            "hudWindow",
-            "acrylic",
-            "mica"
-          ],
-          "radius": 12
-        }
+        "titleBarStyle": "Overlay",
+        "focus": true,
+        "visibleOnAllWorkspaces": true
       }
     ],
     "security": {
