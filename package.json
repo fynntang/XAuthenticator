@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "description": "",
   "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.20.0",
+    "pnpm": ">=10.x"
+  },
+  "repository": {
+    "url": "https://github.com/fynntang/XAuthenticator.git"
+  },
+  "author": {
+    "name": "Fynn Tang",
+    "email": "fzpying@gmail.com",
+    "url": "https://github.com/fynntang"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -11,7 +24,6 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig tsconfig.json --watch",
     "tauri": "tauri"
   },
-  "license": "MIT",
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-barcode-scanner": "~2",
@@ -59,6 +71,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
       "esbuild"
     ]
   }
