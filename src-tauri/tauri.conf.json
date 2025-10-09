@@ -10,18 +10,44 @@
     "frontendDist": "../build"
   },
   "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "XAuthenticator",
+        "label": "main",
         "width": 1366,
         "height": 768,
+        "center": true,
         "decorations": false,
-        "resizable": false,
+        "resizable": true,
+        "fullscreen": false,
         "visible": true
+      },
+      {
+        "title": "Settings",
+        "label": "settings",
+        "url": "/settings",
+        "width": 600,
+        "height": 768,
+        "center": true,
+        "decorations": false,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": false,
+        "titleBarStyle": "Overlay",
+        "focus": true,
+        "visibleOnAllWorkspaces": true,
+        "skipTaskbar": true
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": [
+        "default",
+        "desktop-capability",
+        "mobile-capability"
+      ]
     }
   },
   "bundle": {
@@ -33,6 +59,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "resources": [
+      "resources/migrations"
     ]
-  }
+  },
+  "plugins": {}
 }

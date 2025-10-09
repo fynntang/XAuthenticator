@@ -128,5 +128,6 @@
     body {
         --header-height: calc(var(--spacing) * 12);
         --body-height: calc(100vh - var(--header-height));
+        @apply select-none;
     }
 }
