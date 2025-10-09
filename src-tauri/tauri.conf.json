@@ -29,15 +29,16 @@
         "label": "settings",
         "url": "/settings",
         "width": 600,
-        "height": 800,
+        "height": 768,
         "center": true,
         "decorations": false,
-        "resizable": false,
+        "resizable": true,
         "fullscreen": false,
         "visible": false,
         "titleBarStyle": "Overlay",
         "focus": true,
-        "visibleOnAllWorkspaces": true
+        "visibleOnAllWorkspaces": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

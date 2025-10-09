@@ -6,14 +6,13 @@
 
     import Logo from "$lib/assets/tiny-logo.png";
     import {onMount} from "svelte";
-    import {getCurrentWindow} from "@tauri-apps/api/window";
-    import {goto} from "$app/navigation";
+    import {getCurrentWindow, Window} from "@tauri-apps/api/window";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
-    let isAlwaysOnTop = $state(false);
     let title = $state("XAuthenticator");
+    let isAlwaysOnTop = $state(false);
 
 
     const toggleAlwaysOnTop = () => {
@@ -22,7 +21,18 @@
     }
 
     const openSettings = async () => {
-        await goto("/settings");
+        const existWindow = await Window.getByLabel("settings");
+        if (existWindow) {
+            if (await existWindow.isVisible()) {
+                await existWindow.hide()
+                return
+            }
+            await existWindow.show();
+            await existWindow.setFocus();
+            return
+        }
+
+        throw new Error("Settings window not found");
     }
 
 
@@ -61,9 +71,7 @@
                         <Pin/>
                     {/if}
                 </Button>
-                <Button variant="ghost" size="icon" class="mr-2" onclick={()=>{
-                    openSettings()
-                }}>
+                <Button variant="ghost" size="icon" class="mr-2" onclick={()=>openSettings()}>
                     <Settings/>
                 </Button>
                 <Separator orientation="vertical" class="h-8 mx-1"/>

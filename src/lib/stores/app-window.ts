@@ -1,6 +1,8 @@
 import {writable} from "svelte/store";
 
-function createAppSettingsStore() {
+// windows
+
+function createAppWindowStore() {
     const {subscribe, set, update} = writable<boolean>(false);
 
     return {
@@ -12,4 +14,4 @@ function createAppSettingsStore() {
     }
 }
 
-export const appSettingsStore = createAppSettingsStore();
+export const appWindowStore = createAppWindowStore();

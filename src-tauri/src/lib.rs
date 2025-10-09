@@ -1,14 +1,10 @@
 mod commands;
 
-use log::{error, info};
+use log::{error, info, warn};
 use tauri::tray::TrayIconBuilder;
 use tauri::Manager;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -18,10 +14,21 @@ pub fn run() {
         builder = builder
             .plugin(tauri_plugin_window_state::Builder::new().build())
             .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-                let _ = app
-                    .get_webview_window("main")
-                    .expect("no main window")
-                    .set_focus();
+                let windows = app.webview_windows();
+                for (name, window) in windows {
+                    if name == "main" {
+                        if let Err(e) = window.show() {
+                            warn!("Failed to show main window: {}", e);
+                        }
+                        if let Err(e) = window.unminimize() {
+                            warn!("Failed to unminimize main window: {}", e);
+                        }
+                        if let Err(e) = window.set_focus() {
+                            warn!("Failed to focus main window: {}", e);
+                        }
+                        break;
+                    }
+                }
             }));
     }
 
@@ -48,6 +55,13 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .setup(|app| {
+            let windows = app.webview_windows();
+            for (name, window) in &windows {
+                if name != "main" {
+                    window.hide().expect("failed to hide window");
+                }
+            }
+
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .build(app)?;
@@ -64,6 +78,7 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| match event {
+            tauri::WindowEvent::Resized { .. } => {}
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 api.prevent_close();
                 if window.is_visible().unwrap() {
