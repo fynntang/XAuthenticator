@@ -22,6 +22,7 @@
         "minHeight": 600,
         "maxWidth": 1920,
         "maxHeight": 1080,
+        "titleBarStyle": "Overlay",
         "center": true,
         "decorations": false,
         "resizable": true,
@@ -29,6 +30,32 @@
         "transparent": true,
         "maximizable": false,
         "minimizable": false,
+        "visible": true,
+        "windowEffects": {
+          "effects": [
+            "hudWindow",
+            "acrylic",
+            "mica"
+          ],
+          "radius": 12
+        }
+      },
+      {
+        "title": "Settings",
+        "label": "settings",
+        "url": "/settings",
+        "parent": "main",
+        "width": 600,
+        "height": 400,
+        "titleBarStyle": "Overlay",
+        "center": true,
+        "decorations": false,
+        "resizable": false,
+        "fullscreen": false,
+        "transparent": true,
+        "maximizable": false,
+        "minimizable": false,
+        "visible": false,
         "windowEffects": {
           "effects": [
             "hudWindow",
