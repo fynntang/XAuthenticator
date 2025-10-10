@@ -1,6 +1,8 @@
 @import "tailwindcss";
-
 @import "tw-animate-css";
+
+@import '@fontsource/jetbrains-mono';
+@import '@fontsource/fira-sans';
 
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
@@ -121,6 +123,7 @@
 
     body {
         @apply bg-background text-foreground;
+        font-family: 'JetBrains Mono', 'Fira Sans', monospace;
     }
 }
 
