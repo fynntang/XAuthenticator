@@ -1,0 +1,14 @@
+[package]
+name = "xauthenticator-repository"
+version = { workspace = true }
+edition ={ workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+description = { workspace = true }
+
+[lib]
+name = "xauthenticator_repository"
+path = "src/lib.rs"
+
+
+[dependencies]
