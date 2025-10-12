@@ -8,8 +8,9 @@ use tauri::menu::{
     AboutMetadata, AboutMetadataBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, NativeIcon,
     PredefinedMenuItem,
 };
-use tauri::tray::TrayIconBuilder;
-use tauri::Manager;
+use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
+use tauri::{Manager, Webview};
+use tauri_plugin_opener::OpenerExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -70,26 +71,30 @@ pub fn run() {
             }
 
             let menu = MenuBuilder::new(app)
+                .text("open", "Open App")
                 .text("official_website", "Official Website")
-                .about(Option::from(
-                    AboutMetadataBuilder::new()
-                        .name(Option::from(app.config().product_name.clone().unwrap()))
-                        .short_version(Option::from(app.config().version.clone().unwrap()))
-                        .authors(Option::from(vec!["XAuthenticator Team".to_string()]))
-                        .website(Option::from(
-                            "https://github.com/fynntang/XAuthenticator".to_string(),
-                        ))
-                        .copyright(Option::from(format!(
-                            "Copyright © {} XAuthenticator Contributors",
-                            chrono::Local::now().year()
-                        )))
-                        .license(Option::from("MIT License"))
-                        .build(),
-                ))
+                .about_with_text(
+                    "About",
+                    Option::from(
+                        AboutMetadataBuilder::new()
+                            .name(Option::from(app.config().product_name.clone().unwrap()))
+                            .short_version(Option::from(app.config().version.clone().unwrap()))
+                            .authors(Option::from(vec!["XAuthenticator Team".to_string()]))
+                            .website(Option::from(
+                                "https://github.com/fynntang/XAuthenticator".to_string(),
+                            ))
+                            .copyright(Option::from(format!(
+                                "Copyright © {} XAuthenticator Contributors",
+                                chrono::Local::now().year()
+                            )))
+                            .license(Option::from("MIT License"))
+                            .build(),
+                    ),
+                )
                 .separator()
                 .paste()
                 .separator()
-                .text("open", "Open App")
+                .text("settings", "Settings")
                 .quit_with_text("Quit App")
                 .build()?;
 
@@ -98,16 +103,41 @@ pub fn run() {
                 .tooltip("XAuthenticator")
                 .show_menu_on_left_click(false)
                 .menu(&menu)
-                .on_menu_event(|app, event| match event.id.as_ref() {
+                .on_menu_event(|app_handle, event| match event.id.as_ref() {
                     "open" => {
-                        let app_window = app.get_webview_window("main").unwrap();
+                        let app_window = app_handle.get_webview_window("main").unwrap();
                         app_window.show().unwrap();
                         app_window.unminimize().unwrap();
                         app_window.set_focus().unwrap()
                     }
+                    "official_website" => {
+                        // app.opener().open_url("https://github.com/fynntang/XAuthenticator", None::<&str>).expect("failed to open url");
+                    }
                     _ => {
                         println!("menu item {:?} not handled", event.id);
                     }
+                })
+                .on_tray_icon_event(|icon, event| match event {
+                    TrayIconEvent::Click {
+                        id,
+                        position,
+                        rect,
+                        button,
+                        button_state,
+                    } => {
+                        info!(
+                            "id: {:?} position: {:?} rect: {:?} button: {:?} button_state: {:?}",
+                            id, position, rect, button, button_state
+                        );
+                        if button == MouseButton::Left {
+                            let app_window = icon.app_handle().get_webview_window("main").unwrap();
+                            app_window.show().unwrap();
+                            app_window.unminimize().unwrap();
+                            app_window.set_focus().unwrap();
+                            return;
+                        }
+                    }
+                    _ => {}
                 })
                 .build(app)?;
 
