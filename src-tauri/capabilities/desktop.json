@@ -9,7 +9,6 @@
     "*"
   ],
   "permissions": [
-    "window-state:default",
     "log:default",
     "clipboard-manager:default",
     "core:window:default",

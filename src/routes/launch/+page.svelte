@@ -10,11 +10,14 @@
     import img7899206 from "$lib/assets/launch/7899206.avif";
     import img8258264 from "$lib/assets/launch/8258264.avif";
     import img9059825 from "$lib/assets/launch/9059825.avif";
+    import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 
     let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
     let progress = $state(0);
 
     const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+    const currentWindow = getCurrentWindow();
 
 
     async function runInitialization() {
@@ -36,6 +39,12 @@
             }
 
             await wait(300);
+
+            const mainWindow = await Window.getByLabel(WebviewWindowLabels.Main);
+            mainWindow?.show();
+            mainWindow?.setFocus();
+
+            await currentWindow.hide();
         } catch (e) {
             console.error(e);
         }
