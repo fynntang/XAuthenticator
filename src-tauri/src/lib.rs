@@ -3,11 +3,6 @@ mod constants;
 mod initialize;
 
 use chrono::Datelike;
-use log::info;
-use tauri::menu::{
-    AboutMetadataBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, NativeIcon, PredefinedMenuItem,
-};
-use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -16,7 +11,6 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder
-            .plugin(tauri_plugin_window_state::Builder::new().build())
             .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
                 // let windows = app.webview_windows();
                 // for (name, window) in windows {
