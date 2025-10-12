@@ -3,37 +3,34 @@ use sea_orm_migration::{prelude::*, schema::*};
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
+#[derive(DeriveIden)]
+enum Account {
+    Table,
+    Id, // UUID
+    Issuer,
+    Label,
+    Type,      // TOTP | HOTP
+    Algorithm, // SHA1 | SHA256 | SHA512
+    Digits,
+    Period,       // TOTP 专用（单位 秒）
+    Counter,      // HOTP 专用
+    SecretCipher, // AEAD ciphertext
+    SecretNonce,  // nonce (XChaCha20-Poly1305 24 bytes)
+    Icon,         // optional
+    Note,
+    CreatedAt,
+    UpdatedAt,
+}
+
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
-// -- accounts: 存储每个 OTP 条目的 metadata 与加密 ciphertext
-// CREATE TABLE IF NOT EXISTS accounts
-// (
-//     id            TEXT PRIMARY KEY, -- UUID
-//     issuer        TEXT,
-//     label         TEXT    NOT NULL,
-//     type          TEXT    NOT NULL, -- 'TOTP' | 'HOTP'
-//     algorithm     TEXT    NOT NULL, -- 'SHA1' | 'SHA256' | 'SHA512'
-//     digits        INTEGER NOT NULL,
-//     period        INTEGER,          -- TOTP 专用（单位 秒）
-//     counter       INTEGER,          -- HOTP 专用
-//     secret_cipher BLOB    NOT NULL, -- AEAD ciphertext
-//     secret_nonce  BLOB    NOT NULL, -- nonce (XChaCha20-Poly1305 24 bytes)
-//     created_at    INTEGER NOT NULL,
-//     updated_at    INTEGER NOT NULL,
-//     icon          BLOB,             -- optional
-//     note          TEXT
-// );
-
-        
-
         manager
             .create_table(
                 Table::create()
                     .table(Account::Table)
                     .if_not_exists()
-                    .col(pk_auto(Account::Id))
+                    .col(uuid_uniq(Account::Id))
                     .col(string(Account::Issuer))
                     .col(string(Account::Label))
                     .col(string(Account::Type))
@@ -53,30 +50,8 @@ impl MigrationTrait for Migration {
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
-        todo!();
-
         manager
             .drop_table(Table::drop().table(Account::Table).to_owned())
             .await
     }
-}
-
-#[derive(DeriveIden)]
-enum Account {
-    Table,
-    Id,
-    Issuer,
-    Label,
-    Type,
-    Algorithm,
-    Digits,
-    Period,
-    Counter,
-    SecretCipher,
-    SecretNonce,
-    Icon,
-    Note,
-    CreatedAt,
-    UpdatedAt,
 }

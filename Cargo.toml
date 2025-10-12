@@ -15,12 +15,14 @@ xauthenticator-entity = { path = "plugins/entity" }
 xauthenticator-migration = { path = "plugins/migration" }
 xauthenticator-repository = { path = "plugins/repository" }
 
+chrono = "0.4"
 tokio = { version = "1", features = ["full"] }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1.18", features = ["v7"] }
 rand = "0.9"
+rand_core = "0.9"
 sea-orm = { version = "2.0.0-rc", features = [
     "sqlx-sqlite",
     "runtime-tokio-rustls",
@@ -31,7 +33,7 @@ sea-orm = { version = "2.0.0-rc", features = [
     "with-json",
     "debug-print",
 ] }
-
+sea-orm-cli = { version = "2.0.0-rc" }
 
 # default to small, optimized release binaries
 [profile.release]

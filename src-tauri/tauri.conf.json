@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "xauthenticator",
+  "productName": "XAuthenticator",
   "version": "0.1.0",
-  "identifier": "io.xauthenticator.app",
+  "identifier": "XAuthenticator",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -59,9 +59,6 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "resources": [
-      "resources/migrations"
     ]
   },
   "plugins": {}

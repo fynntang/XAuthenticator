@@ -1,4 +1,4 @@
-use rand::RngCore;
+use rand_core::TryRngCore;
 use serde::Serialize;
 use std::fs;
 use std::io::Write;
@@ -30,7 +30,9 @@ pub fn init_app(app: tauri::AppHandle) -> Result<InitResult, String> {
     if !salt_path.exists() {
         // 16 bytes random salt; Argon2 accepts arbitrary-length salts
         let mut salt = [0u8; 16];
-        rand::rngs::OsRng.fill_bytes(&mut salt);
+        rand_core::OsRng
+            .try_fill_bytes(&mut salt)
+            .expect("failed to generate random salt");
         let mut file = fs::File::create(&salt_path)
             .map_err(|e| format!("failed to create salt.txt: {}", e))?;
         file.write_all(&salt)

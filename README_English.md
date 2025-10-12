@@ -35,7 +35,7 @@ It supports TOTP and HOTP tokens, secure local encryption, optional cloud sync, 
 ## ✨ Features
 
 - 🔐 **TOTP & HOTP support** — Compatible with major authenticator apps
-- 💾 **Encrypted local storage** — AES-256 + PBKDF2 secure key storage
+- 💾 **Encrypted local storage** — secure key storage
 - ☁️ **Sync & backup** — Encrypted file or cloud synchronization
 - 🧩 **Easy import** — QR scanning, manual entry, or import from Google Authenticator
 - 🧱 **Cross-platform** — Runs on Windows, macOS, and Linux
@@ -73,7 +73,7 @@ Or download the latest release from the [Releases page](https://github.com/fynnt
 | UI                    | [SvelteKit](https://kit.svelte.dev/) + [shadcn-svelte](https://ui.shadcn.com/) |
 | Desktop Runtime       | [Tauri v2](https://tauri.app/)                                                 |
 | Terminal dependencies | Rust + SQLite                                                                  |
-| Crypto                | AES-256  / HMAC-SHA1 / Ed25519                                                 |
+| Crypto                |                                                  |
 | Icons & UI            | TailwindCSS + Lucide Icons                                                     |
 
 ---

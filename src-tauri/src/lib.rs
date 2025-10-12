@@ -1,10 +1,15 @@
 mod commands;
+mod initialize;
 
-use log::{error, info, warn};
-use tauri::menu::{Menu, MenuItem};
+use chrono::Datelike;
+use log::{info, warn};
+use std::sync::Mutex;
+use tauri::menu::{
+    AboutMetadata, AboutMetadataBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, NativeIcon,
+    PredefinedMenuItem,
+};
 use tauri::tray::TrayIconBuilder;
 use tauri::Manager;
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -55,6 +60,8 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .setup(|app| {
+            initialize::init_app(app).expect("failed to initialize app");
+
             let windows = app.webview_windows();
             for (name, window) in &windows {
                 if name != "main" {
@@ -62,12 +69,34 @@ pub fn run() {
                 }
             }
 
-            let open_i = MenuItem::with_id(app, "open", "Open", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&open_i, &quit_i])?;
+            let menu = MenuBuilder::new(app)
+                .text("official_website", "Official Website")
+                .about(Option::from(
+                    AboutMetadataBuilder::new()
+                        .name(Option::from(app.config().product_name.clone().unwrap()))
+                        .short_version(Option::from(app.config().version.clone().unwrap()))
+                        .authors(Option::from(vec!["XAuthenticator Team".to_string()]))
+                        .website(Option::from(
+                            "https://github.com/fynntang/XAuthenticator".to_string(),
+                        ))
+                        .copyright(Option::from(format!(
+                            "Copyright © {} XAuthenticator Contributors",
+                            chrono::Local::now().year()
+                        )))
+                        .license(Option::from("MIT License"))
+                        .build(),
+                ))
+                .separator()
+                .paste()
+                .separator()
+                .text("open", "Open App")
+                .quit_with_text("Quit App")
+                .build()?;
 
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
+                .tooltip("XAuthenticator")
+                .show_menu_on_left_click(false)
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "open" => {
@@ -75,10 +104,6 @@ pub fn run() {
                         app_window.show().unwrap();
                         app_window.unminimize().unwrap();
                         app_window.set_focus().unwrap()
-                    }
-                    "quit" => {
-                        println!("quit menu item was clicked");
-                        app.exit(0);
                     }
                     _ => {
                         println!("menu item {:?} not handled", event.id);
