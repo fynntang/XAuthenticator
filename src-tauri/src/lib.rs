@@ -1,16 +1,14 @@
 mod commands;
+mod constants;
 mod initialize;
 
 use chrono::Datelike;
-use log::{info, warn};
-use std::sync::Mutex;
+use log::info;
 use tauri::menu::{
-    AboutMetadata, AboutMetadataBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, NativeIcon,
-    PredefinedMenuItem,
+    AboutMetadataBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, NativeIcon, PredefinedMenuItem,
 };
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
-use tauri::{Manager, Webview};
-use tauri_plugin_opener::OpenerExt;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -22,19 +20,20 @@ pub fn run() {
             .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
                 let windows = app.webview_windows();
                 for (name, window) in windows {
-                    if name == "main" {
-                        if let Err(e) = window.show() {
-                            warn!("Failed to show main window: {}", e);
-                        }
-                        if let Err(e) = window.unminimize() {
-                            warn!("Failed to unminimize main window: {}", e);
-                        }
-                        if let Err(e) = window.set_focus() {
-                            warn!("Failed to focus main window: {}", e);
-                        }
-                        break;
+                    info!("window name: {}", name);
+                    if name != constants::webview_window::WebviewWindow::Launch.to_string() {
+                        window.hide().expect("failed to hide window");
                     }
                 }
+
+                let _ = app
+                    .get_webview_window(
+                        constants::webview_window::WebviewWindow::Main
+                            .to_string()
+                            .as_str(),
+                    )
+                    .expect("no main window")
+                    .set_focus();
             }));
     }
 
@@ -61,14 +60,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .setup(|app| {
-            initialize::init_app(app).expect("failed to initialize app");
-
-            let windows = app.webview_windows();
-            for (name, window) in &windows {
-                if name != "main" {
-                    window.hide().expect("failed to hide window");
-                }
-            }
+            // initialize::init_app(app).expect("failed to initialize app");
 
             let menu = MenuBuilder::new(app)
                 .text("open", "Open App")
