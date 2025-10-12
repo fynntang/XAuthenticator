@@ -46,11 +46,7 @@
         "decorations": false,
         "resizable": true,
         "fullscreen": false,
-        "visible": false,
-        "titleBarStyle": "Overlay",
-        "focus": true,
-        "visibleOnAllWorkspaces": true,
-        "skipTaskbar": true
+        "visible": false
       }
     ],
     "security": {
