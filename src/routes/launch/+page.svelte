@@ -49,6 +49,7 @@
     });
 </script>
 <div class="relative w-screen h-screen flex flex-col from-white to-gray-50 dark:from-neutral-900 dark:to-neutral-950">
+    <div data-tauri-drag-region class="absolute top-0 left-0 w-full h-full z-10"></div>
     <div class="relative flex w-full h-full">
         <div class="relative flex flex-col w-3/5 p-6 pr-0">
             <div class="relative flex">

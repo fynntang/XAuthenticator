@@ -18,22 +18,22 @@ pub fn run() {
         builder = builder
             .plugin(tauri_plugin_window_state::Builder::new().build())
             .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-                let windows = app.webview_windows();
-                for (name, window) in windows {
-                    info!("window name: {}", name);
-                    if name != constants::webview_window::WebviewWindow::Launch.to_string() {
-                        window.hide().expect("failed to hide window");
-                    }
-                }
-
-                let _ = app
-                    .get_webview_window(
-                        constants::webview_window::WebviewWindow::Main
-                            .to_string()
-                            .as_str(),
-                    )
-                    .expect("no main window")
-                    .set_focus();
+                // let windows = app.webview_windows();
+                // for (name, window) in windows {
+                //     info!("window name: {}", name);
+                //     if name != constants::webview_window::WebviewWindow::Launch.to_string() {
+                //         window.hide().expect("failed to hide window");
+                //     }
+                // }
+                //
+                // let _ = app
+                //     .get_webview_window(
+                //         constants::webview_window::WebviewWindow::Main
+                //             .to_string()
+                //             .as_str(),
+                //     )
+                //     .expect("no main window")
+                //     .set_focus();
             }));
     }
 
@@ -62,86 +62,86 @@ pub fn run() {
         .setup(|app| {
             // initialize::init_app(app).expect("failed to initialize app");
 
-            let menu = MenuBuilder::new(app)
-                .text("open", "Open App")
-                .text("official_website", "Official Website")
-                .about_with_text(
-                    "About",
-                    Option::from(
-                        AboutMetadataBuilder::new()
-                            .name(Option::from(app.config().product_name.clone().unwrap()))
-                            .short_version(Option::from(app.config().version.clone().unwrap()))
-                            .authors(Option::from(vec!["XAuthenticator Team".to_string()]))
-                            .website(Option::from(
-                                "https://github.com/fynntang/XAuthenticator".to_string(),
-                            ))
-                            .copyright(Option::from(format!(
-                                "Copyright © {} XAuthenticator Contributors",
-                                chrono::Local::now().year()
-                            )))
-                            .license(Option::from("MIT License"))
-                            .build(),
-                    ),
-                )
-                .separator()
-                .paste()
-                .separator()
-                .text("settings", "Settings")
-                .quit_with_text("Quit App")
-                .build()?;
+            // let menu = MenuBuilder::new(app)
+            //     .text("open", "Open App")
+            //     .text("official_website", "Official Website")
+            //     .about_with_text(
+            //         "About",
+            //         Option::from(
+            //             AboutMetadataBuilder::new()
+            //                 .name(Option::from(app.config().product_name.clone().unwrap()))
+            //                 .short_version(Option::from(app.config().version.clone().unwrap()))
+            //                 .authors(Option::from(vec!["XAuthenticator Team".to_string()]))
+            //                 .website(Option::from(
+            //                     "https://github.com/fynntang/XAuthenticator".to_string(),
+            //                 ))
+            //                 .copyright(Option::from(format!(
+            //                     "Copyright © {} XAuthenticator Contributors",
+            //                     chrono::Local::now().year()
+            //                 )))
+            //                 .license(Option::from("MIT License"))
+            //                 .build(),
+            //         ),
+            //     )
+            //     .separator()
+            //     .paste()
+            //     .separator()
+            //     .text("settings", "Settings")
+            //     .quit_with_text("Quit App")
+            //     .build()?;
+            //
+            // let _tray = TrayIconBuilder::new()
+            //     .icon(app.default_window_icon().unwrap().clone())
+            //     .tooltip("XAuthenticator")
+            //     .show_menu_on_left_click(false)
+            //     .menu(&menu)
+            //     .on_menu_event(|app_handle, event| match event.id.as_ref() {
+            //         "open" => {
+            //             let app_window = app_handle.get_webview_window("main").unwrap();
+            //             app_window.show().unwrap();
+            //             app_window.unminimize().unwrap();
+            //             app_window.set_focus().unwrap()
+            //         }
+            //         "official_website" => {
+            //             // app.opener().open_url("https://github.com/fynntang/XAuthenticator", None::<&str>).expect("failed to open url");
+            //         }
+            //         _ => {
+            //             println!("menu item {:?} not handled", event.id);
+            //         }
+            //     })
+            //     .on_tray_icon_event(|icon, event| match event {
+            //         TrayIconEvent::Click {
+            //             id,
+            //             position,
+            //             rect,
+            //             button,
+            //             button_state,
+            //         } => {
+            //             info!(
+            //                 "id: {:?} position: {:?} rect: {:?} button: {:?} button_state: {:?}",
+            //                 id, position, rect, button, button_state
+            //             );
+            //             if button == MouseButton::Left {
+            //                 let app_window = icon.app_handle().get_webview_window("main").unwrap();
+            //                 app_window.show().unwrap();
+            //                 app_window.unminimize().unwrap();
+            //                 app_window.set_focus().unwrap();
+            //                 return;
+            //             }
+            //         }
+            //         _ => {}
+            //     })
+            //     .build(app)?;
 
-            let _tray = TrayIconBuilder::new()
-                .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("XAuthenticator")
-                .show_menu_on_left_click(false)
-                .menu(&menu)
-                .on_menu_event(|app_handle, event| match event.id.as_ref() {
-                    "open" => {
-                        let app_window = app_handle.get_webview_window("main").unwrap();
-                        app_window.show().unwrap();
-                        app_window.unminimize().unwrap();
-                        app_window.set_focus().unwrap()
-                    }
-                    "official_website" => {
-                        // app.opener().open_url("https://github.com/fynntang/XAuthenticator", None::<&str>).expect("failed to open url");
-                    }
-                    _ => {
-                        println!("menu item {:?} not handled", event.id);
-                    }
-                })
-                .on_tray_icon_event(|icon, event| match event {
-                    TrayIconEvent::Click {
-                        id,
-                        position,
-                        rect,
-                        button,
-                        button_state,
-                    } => {
-                        info!(
-                            "id: {:?} position: {:?} rect: {:?} button: {:?} button_state: {:?}",
-                            id, position, rect, button, button_state
-                        );
-                        if button == MouseButton::Left {
-                            let app_window = icon.app_handle().get_webview_window("main").unwrap();
-                            app_window.show().unwrap();
-                            app_window.unminimize().unwrap();
-                            app_window.set_focus().unwrap();
-                            return;
-                        }
-                    }
-                    _ => {}
-                })
-                .build(app)?;
+            // let salt_path = app
+            //     .path()
+            //     .app_local_data_dir()
+            //     .expect("could not resolve app local data path")
+            //     .join("salt.txt");
+            // info!("salt_path: {:?}", salt_path);
 
-            let salt_path = app
-                .path()
-                .app_local_data_dir()
-                .expect("could not resolve app local data path")
-                .join("salt.txt");
-            info!("salt_path: {:?}", salt_path);
-
-            app.handle()
-                .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
+            // app.handle()
+            //     .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
             Ok(())
         })
         .on_window_event(|window, event| match event {
