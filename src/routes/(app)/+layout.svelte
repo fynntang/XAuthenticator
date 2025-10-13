@@ -3,10 +3,9 @@
     import {Button} from "$lib/components/ui/button";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Separator} from "$lib/components/ui/separator";
-
-    import Logo from "$lib/assets/tiny-logo.png";
     import {onMount} from "svelte";
     import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import logo from "$lib/assets/logo.png";
 
     const appWindow = getCurrentWindow();
 
@@ -46,9 +45,13 @@
     <header class="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) flex shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear select-none">
         <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
             <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
-                <div class="flex flex-none items-center gap-2 select-none">
-                    <img src={Logo} alt="XAuthenticator Logo" class="size-8">
-                    <h1 class="flex-none text-base font-medium">{title}</h1>
+                <div data-tauri-drag-region class="flex flex-none items-center gap-2 select-none">
+                    <div data-tauri-drag-region class="flex-none size-10"
+                         style:background-image="url({logo})"
+                         style:background-size="cover"
+                         style:background-position="center"
+                    ></div>
+                    <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{title}</h1>
                 </div>
                 <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
                     <InputGroupInput placeholder="Search..."/>

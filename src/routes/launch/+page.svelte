@@ -61,8 +61,8 @@
     <div data-tauri-drag-region class="absolute top-0 left-0 w-full h-full z-10"></div>
     <div class="relative flex w-full h-full">
         <div class="relative flex flex-col w-3/5 p-6 pr-0">
-            <div class="relative flex">
-                <div class="flex-none w-9 h-9 rounded-lg mr-4"
+            <div class="relative flex gap-4">
+                <div class="flex-none size-9"
                      style:background-image="url({logo})"
                      style:background-size="cover"
                      style:background-position="center"
