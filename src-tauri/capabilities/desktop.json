@@ -11,6 +11,7 @@
   "permissions": [
     "log:default",
     "clipboard-manager:default",
+    "core:app:allow-default-window-icon",
     "core:window:default",
     "core:window:allow-start-dragging",
     "core:window:allow-set-always-on-top",

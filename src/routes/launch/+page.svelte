@@ -1,6 +1,5 @@
 <script lang="ts">
     import {onMount} from 'svelte';
-    import {browser} from '$app/environment';
     import logo from '$lib/assets/logo.png';
     import {Progress} from "$lib/components/ui/progress";
     import img1845852 from "$lib/assets/launch/1845852.avif";
@@ -11,38 +10,42 @@
     import img8258264 from "$lib/assets/launch/8258264.avif";
     import img9059825 from "$lib/assets/launch/9059825.avif";
     import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import {initialize} from "$lib/initialize";
+    import {appState, initApp} from "$lib/api/api";
+    import {wait} from "$lib/utils";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 
     let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
     let progress = $state(0);
-
-    const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+    const initialized = initialize();
     const currentWindow = getCurrentWindow();
 
+    type CopyrightKeys = 'date' | 'name';
 
-    async function runInitialization() {
+
+    const runInitialization = async () => {
         try {
-            progress = 0;
-            await wait(300);
-            const steps = [
-                {msg: '检查运行环境', ms: 300},
-                {msg: '加载应用配置', ms: 400},
-                {msg: '初始化本地存储', ms: 350},
-                {msg: '预热数据库连接', ms: 450},
-                {msg: '载入用户偏好', ms: 300}
-            ];
-
-            for (let i = 0; i < steps.length; i++) {
-                const step = steps[i];
-                await wait(step.ms);
-                progress = Math.round(((i + 1) / steps.length) * 100);
+            progress = 10;
+            let state = await appState();
+            progress += 10;
+            while (state && !state.is_initialized) {
+                await initApp()
+                progress += 10;
+                state = await appState();
+                progress += 10;
+                if (state && state.is_initialized) {
+                    await initialized.createTray();
+                    progress += 10;
+                }
+                await wait(1000)
             }
-
-            await wait(300);
-
+            progress = 90;
+            await wait(300)
             const mainWindow = await Window.getByLabel(WebviewWindowLabels.Main);
             mainWindow?.show();
             mainWindow?.setFocus();
+
+            progress = 100;
 
             await currentWindow.hide();
         } catch (e) {
@@ -52,9 +55,7 @@
 
 
     onMount(() => {
-        if (browser) {
-            runInitialization();
-        }
+        runInitialization()
     });
 </script>
 <div class="relative w-screen h-screen flex flex-col from-white to-gray-50 dark:from-neutral-900 dark:to-neutral-950">
@@ -70,7 +71,12 @@
                 <h1 class="flex text-3xl font-bold">XAuthenticator</h1>
             </div>
             <div class="flex mt-auto mb-4 text-gray-500 dark:text-gray-400">
-                Copyright © {(new Date()).getFullYear()} XAuthenticator Contributors
+                {__COPYRIGHT__.replace(/\{([^{}]+)\}/g, (match, placeholder: CopyrightKeys) => {
+                    return {
+                        date: (new Date()).getFullYear().toString(),
+                        name: __NAME__,
+                    }[placeholder] || match;
+                })}
             </div>
         </div>
         <div class="flex w-2/5 h-full"

@@ -11,6 +11,7 @@ description = "A modern, secure and easy-to-use two-factor authentication (2FA) 
 
 
 [workspace.dependencies]
+xauthenticator-config = { path = "plugins/config" }
 xauthenticator-entity = { path = "plugins/entity" }
 xauthenticator-migration = { path = "plugins/migration" }
 xauthenticator-repository = { path = "plugins/repository" }
@@ -20,6 +21,7 @@ tokio = { version = "1", features = ["full"] }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_yaml = "0.9"
 uuid = { version = "1.18", features = ["v7"] }
 rand = "0.9"
 rand_core = "0.9"

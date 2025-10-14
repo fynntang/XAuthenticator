@@ -1,9 +1,10 @@
 {
+  "appName": "XAuthenticator",
   "name": "xauthenticator",
   "version": "0.1.0",
   "description": "",
   "type": "module",
-  "license": "MIT",
+  "license": "MIT license",
   "engines": {
     "node": ">=22.20.0",
     "pnpm": ">=10.x"
@@ -25,7 +26,6 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@fontsource/fira-sans": "^5.2.7",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-barcode-scanner": "~2",
@@ -75,5 +75,6 @@
       "@tailwindcss/oxide",
       "esbuild"
     ]
-  }
+  },
+  "copyright": "Copyright © {date} {name} Contributors."
 }

@@ -3,12 +3,13 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/plugins/entity/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/entity/target" />
       <sourceFolder url="file://$MODULE_DIR$/plugins/migration/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/migration/target" />
       <sourceFolder url="file://$MODULE_DIR$/plugins/repository/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/repository/target" />
       <sourceFolder url="file://$MODULE_DIR$/src-tauri/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/config/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/entity/target" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/migration/target" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/repository/target" />
       <excludeFolder url="file://$MODULE_DIR$/src-tauri/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

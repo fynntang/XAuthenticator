@@ -4,13 +4,14 @@
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Separator} from "$lib/components/ui/separator";
     import {onMount} from "svelte";
-    import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import {getCurrentWindow} from "@tauri-apps/api/window";
     import logo from "$lib/assets/logo.png";
+    import {showWindow} from "$lib/window";
+    import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
-    let title = $state("XAuthenticator");
     let isAlwaysOnTop = $state(false);
 
 
@@ -19,24 +20,9 @@
         isAlwaysOnTop = !isAlwaysOnTop;
     }
 
-    const openSettings = async () => {
-        const existWindow = await Window.getByLabel("settings");
-        if (existWindow) {
-            if (await existWindow.isVisible()) {
-                await existWindow.hide()
-                return
-            }
-            await existWindow.show();
-            await existWindow.setFocus();
-            return
-        }
-
-        throw new Error("Settings window not found");
-    }
-
 
     onMount(async () => {
-        title = await appWindow.title();
+
     })
 
 </script>
@@ -46,12 +32,12 @@
         <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
             <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
                 <div data-tauri-drag-region class="flex flex-none items-center gap-2 select-none">
-                    <div data-tauri-drag-region class="flex-none size-10"
+                    <div data-tauri-drag-region class="flex-none size-8"
                          style:background-image="url({logo})"
                          style:background-size="cover"
                          style:background-position="center"
                     ></div>
-                    <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{title}</h1>
+                    <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{__NAME__}</h1>
                 </div>
                 <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
                     <InputGroupInput placeholder="Search..."/>
@@ -74,7 +60,7 @@
                         <Pin/>
                     {/if}
                 </Button>
-                <Button variant="ghost" size="icon" class="mr-2" onclick={()=>openSettings()}>
+                <Button variant="ghost" size="icon" class="mr-2" onclick={()=>showWindow(WebviewWindowLabels.Settings)}>
                     <Settings/>
                 </Button>
                 <Separator orientation="vertical" class="h-8 mx-1"/>

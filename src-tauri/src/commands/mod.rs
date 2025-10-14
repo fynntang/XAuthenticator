@@ -1,55 +1,135 @@
-use rand_core::TryRngCore;
-use serde::Serialize;
+use crate::state::AppState;
+use crate::utils::{AppDataDir, CheckFileExists};
+use log::info;
+use sea_orm::{Database, DatabaseConnection};
+use sea_orm_cli::cli;
 use std::fs;
-use std::io::Write;
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 use tauri::Manager;
 
-#[derive(Serialize)]
-pub struct InitResult {
-    data_dir: String,
-    db_path: String,
-    salt_path: String,
-}
-
 #[tauri::command]
-pub fn init_app(app: tauri::AppHandle) -> Result<InitResult, String> {
-    // Resolve app local data directory
-    let data_dir: PathBuf = app
+pub fn init_app(app: tauri::AppHandle) {
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let mut app_state = state.lock().unwrap();
+
+    let current_version = format!("v{}", app.config().version.clone().unwrap());
+    info!("app config version: {:?}", current_version);
+    let app_data_dir: PathBuf = app
         .path()
         .app_local_data_dir()
         .expect("could not resolve app local data path");
 
-    // Ensure the data directory exists
-    if !data_dir.exists() {
-        fs::create_dir_all(&data_dir).map_err(|e| format!("failed to create data dir: {}", e))?;
+    if !app_data_dir.exists() {
+        fs::create_dir_all(&app_data_dir).expect("failed to create app data directory");
     }
 
-    // Ensure salt.txt exists with random bytes
-    let salt_path = data_dir.join("salt.txt");
-    if !salt_path.exists() {
-        // 16 bytes random salt; Argon2 accepts arbitrary-length salts
-        let mut salt = [0u8; 16];
-        rand_core::OsRng
-            .try_fill_bytes(&mut salt)
-            .expect("failed to generate random salt");
-        let mut file = fs::File::create(&salt_path)
-            .map_err(|e| format!("failed to create salt.txt: {}", e))?;
-        file.write_all(&salt)
-            .map_err(|e| format!("failed to write salt.txt: {}", e))?;
-    }
+    let version_path = app_data_dir.join("version.txt");
+    let first_time = if !version_path.exists() {
+        // 情况1: version.txt 不存在，创建文件并写入当前版本
+        info!("version.txt not found, creating new file");
+        fs::write(&version_path, current_version.as_str())
+            .expect("failed to write version to version.txt");
+        info!(
+            "created version.txt file: {} and wrote version {}",
+            version_path.to_str().unwrap(),
+            current_version
+        );
+        true
+    } else {
+        // 情况2: version.txt 存在，读取并比对版本
+        let stored_version =
+            fs::read_to_string(&version_path).expect("failed to read version.txt file");
+        info!("stored version: {}", stored_version);
+        if stored_version.trim() == current_version.as_str() {
+            false
+        } else {
+            // 版本不一致，更新版本文件
+            info!(
+                "version mismatch: stored={}, current={}, updating version.txt",
+                stored_version.trim(),
+                current_version
+            );
+            fs::write(&version_path, current_version.as_str())
+                .expect("failed to update version in version.txt");
+            info!(
+                "updated version.txt file: {} to: {}",
+                version_path.to_str().unwrap(),
+                current_version
+            );
+            true
+        }
+    };
 
-    // Ensure a local SQLite database file exists
-    let db_path = data_dir.join("xauthenticator.db");
+    let db_path = app_data_dir.join(format!(
+        "{}.db",
+        app.config().identifier.to_lowercase().clone()
+    ));
     if !db_path.exists() {
-        fs::File::create(&db_path).map_err(|e| format!("failed to create database file: {}", e))?;
+        info!("database file not found, creating new file");
+        fs::File::create(&db_path).expect("failed to create database file");
+        info!("created database file: {}", db_path.to_str().unwrap());
     }
 
-    Ok(InitResult {
-        data_dir: data_dir.to_string_lossy().to_string(),
-        db_path: db_path.to_string_lossy().to_string(),
-        salt_path: salt_path.to_string_lossy().to_string(),
-    })
+    tauri::async_runtime::block_on(async {
+        let db: DatabaseConnection =
+            Database::connect(format!("sqlite:{}", db_path.to_str().unwrap()))
+                .await
+                .expect("failed to connect to database");
+
+        if first_time {
+            info!("running migrations...");
+            xauthenticator_migration::run_migrate(
+                &db,
+                Option::from(cli::MigrateSubcommands::Up { num: None }),
+                false,
+            )
+            .await
+            .expect("failed to run migrations");
+            info!("migrations completed");
+        }
+
+        app_state.db = Some(db);
+    });
+
+    let config_path = app_data_dir.join("config.yaml");
+    let cfg = xauthenticator_config::Config::init(config_path).load();
+
+    app_state.config = cfg;
+
+    info!("app state initialized");
+
+    if first_time {
+        info!("performing initialization...");
+
+        // TODO: 在这里添加具体的初始化代码
+        // 例如:
+        // - 初始化数据库
+        // - 创建必要的配置文件
+        // - 设置默认设置
+        // - 迁移旧数据等
+
+        info!("initialization completed");
+    }
+
+    app_state.is_initialized = true;
+}
+
+#[tauri::command]
+pub fn app_state(app: tauri::AppHandle) -> Result<AppState, String> {
+    let app_state = app.state::<Arc<Mutex<AppState>>>();
+    let mut app_state = app_state.lock().unwrap();
+    // if !app_state.is_initialized() && !app_state.config.is_initialized() {
+    //     let app_name = app.config().product_name.clone().unwrap();
+    //     let app_local_data_dir = app.path().app_local_data_dir().unwrap();
+    //     let app_data_dir = app_local_data_dir.clone();
+    //     if CheckFileExists::new(app_local_data_dir).all(app_name) {
+    //         app_state.config =
+    //             xauthenticator_config::Config::init(AppDataDir::new(app_data_dir).config()).load();
+    //         app_state.is_initialized = true;
+    //     }
+    // }
+    Ok(app_state.clone())
 }
 
 #[tauri::command]
