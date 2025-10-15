@@ -4,7 +4,6 @@ use log::info;
 use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
 use std::fs;
-use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
 
@@ -15,16 +14,17 @@ pub fn init_app(app: tauri::AppHandle) {
 
     let current_version = format!("v{}", app.config().version.clone().unwrap());
     info!("app config version: {:?}", current_version);
-    let app_data_dir: PathBuf = app
-        .path()
-        .app_local_data_dir()
-        .expect("could not resolve app local data path");
+    let app_data_dir = AppDataDir::new(
+        app.path()
+            .app_local_data_dir()
+            .expect("could not resolve app local data path"),
+    );
 
-    if !app_data_dir.exists() {
-        fs::create_dir_all(&app_data_dir).expect("failed to create app data directory");
+    if !app_data_dir.app().exists() {
+        fs::create_dir_all(&app_data_dir.app()).expect("failed to create app data directory");
     }
 
-    let version_path = app_data_dir.join("version.txt");
+    let version_path = app_data_dir.version();
     let first_time = if !version_path.exists() {
         // 情况1: version.txt 不存在，创建文件并写入当前版本
         info!("version.txt not found, creating new file");
@@ -61,10 +61,7 @@ pub fn init_app(app: tauri::AppHandle) {
         }
     };
 
-    let db_path = app_data_dir.join(format!(
-        "{}.db",
-        app.config().identifier.to_lowercase().clone()
-    ));
+    let db_path = app_data_dir.db(app.config().identifier.to_lowercase().clone());
     if !db_path.exists() {
         info!("database file not found, creating new file");
         fs::File::create(&db_path).expect("failed to create database file");
@@ -92,43 +89,19 @@ pub fn init_app(app: tauri::AppHandle) {
         app_state.db = Some(db);
     });
 
-    let config_path = app_data_dir.join("config.yaml");
-    let cfg = xauthenticator_config::Config::init(config_path).load();
+    let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
 
     app_state.config = cfg;
 
-    info!("app state initialized");
-
-    if first_time {
-        info!("performing initialization...");
-
-        // TODO: 在这里添加具体的初始化代码
-        // 例如:
-        // - 初始化数据库
-        // - 创建必要的配置文件
-        // - 设置默认设置
-        // - 迁移旧数据等
-
-        info!("initialization completed");
-    }
-
     app_state.is_initialized = true;
+
+    info!("app initialized");
 }
 
 #[tauri::command]
 pub fn app_state(app: tauri::AppHandle) -> Result<AppState, String> {
     let app_state = app.state::<Arc<Mutex<AppState>>>();
-    let mut app_state = app_state.lock().unwrap();
-    // if !app_state.is_initialized() && !app_state.config.is_initialized() {
-    //     let app_name = app.config().product_name.clone().unwrap();
-    //     let app_local_data_dir = app.path().app_local_data_dir().unwrap();
-    //     let app_data_dir = app_local_data_dir.clone();
-    //     if CheckFileExists::new(app_local_data_dir).all(app_name) {
-    //         app_state.config =
-    //             xauthenticator_config::Config::init(AppDataDir::new(app_data_dir).config()).load();
-    //         app_state.is_initialized = true;
-    //     }
-    // }
+    let app_state = app_state.lock().unwrap();
     Ok(app_state.clone())
 }
 
