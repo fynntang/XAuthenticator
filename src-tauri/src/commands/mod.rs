@@ -106,35 +106,35 @@ pub fn app_state(app: tauri::AppHandle) -> Result<AppState, String> {
 }
 
 #[tauri::command]
-pub fn unlock_with_password(password: String) {
+pub fn unlock_with_password(app: tauri::AppHandle, password: String) {
     println!("unlock with password: {}", password);
 }
 
 #[tauri::command]
-pub fn unlock_with_biometric() {}
+pub fn unlock_with_biometric(app: tauri::AppHandle) {}
 
 #[tauri::command]
-pub fn lock() {}
+pub fn lock(app: tauri::AppHandle) {}
 
 #[tauri::command]
-pub fn list_accounts() {}
+pub fn list_accounts(app: tauri::AppHandle) {}
 
 #[tauri::command]
-pub fn add_account(auth_url: String) {}
+pub fn add_account(app: tauri::AppHandle, auth_url: String) {}
 
 #[tauri::command]
-pub fn remove_account(account_id: uuid::Uuid) {}
+pub fn remove_account(app: tauri::AppHandle, account_id: uuid::Uuid) {}
 
 #[tauri::command]
-pub fn export_backup(password: String) -> Vec<u8> {
+pub fn export_backup(app: tauri::AppHandle, password: String) -> Vec<u8> {
     Vec::new()
 }
 
 #[tauri::command]
-pub fn import_backup(backup: Vec<u8>, password: String) {}
+pub fn import_backup(app: tauri::AppHandle, backup: Vec<u8>, password: String) {}
 
 #[tauri::command]
-pub fn get_code(account_id: uuid::Uuid) {}
+pub fn get_code(app: tauri::AppHandle, account_id: uuid::Uuid) {}
 
 #[tauri::command]
-pub fn health_check() {}
+pub fn health_check(app: tauri::AppHandle) {}
