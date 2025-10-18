@@ -1,7 +1,10 @@
 use crate::state::AppState;
 use crate::utils::{AppDataDir, CheckFileExists};
 use log::{error, info};
-use sea_orm::{ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{
+    ConnectionTrait, Database, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+    QuerySelect,
+};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
@@ -132,17 +135,22 @@ pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn list_accounts(app: tauri::AppHandle, param: PageParam) -> Result<(), CommonError> {
-    let state = app.state::<Arc<Mutex<AppState>>>();
-    let state = state.lock().unwrap();
-    let db = state.db.as_ref().unwrap();
-    let accounts = xauthenticator_repository::account::list_accounts(db, param)
-        .await
-        .expect("failed to query accounts");
+pub async fn list_accounts(
+    app: tauri::AppHandle,
+    param: PageParam,
+) -> Result<Response<Vec<Model>>, CommonError> {
+    // Get a clone of the DatabaseConnection without holding the mutex across await
+    let db = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        state
+            .db
+            .as_ref()
+            .cloned()
+            .ok_or_else(|| CommonError::RequestError("database not initialized".to_string()))?
+    };
 
-    // accounts
-
-    Ok(())
+    Ok(xauthenticator_repository::account::list_accounts(&db, param).await?)
 }
 
 #[tauri::command]

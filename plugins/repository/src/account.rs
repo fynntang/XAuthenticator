@@ -1,11 +1,12 @@
 use log::error;
+use sea_orm::PaginatorTrait;
 use sea_orm::{ActiveModelTrait, ConnectionTrait, EntityTrait, QuerySelect};
 use xauthenticator_entity::account::{ActiveModel, Entity as AccountEntity, Model};
-use xauthenticator_entity::PageParam;
+use xauthenticator_entity::{PageParam, Response};
 use xauthenticator_error::CommonError;
 
 // List accounts with basic page-based pagination
-pub async fn list_accounts<C>(db: &C, param: PageParam) -> Result<Vec<Model>, CommonError>
+pub async fn list_accounts<C>(db: &C, param: PageParam) -> Result<Response<Vec<Model>>, CommonError>
 where
     C: ConnectionTrait,
 {
@@ -19,7 +20,15 @@ where
             CommonError::DatabaseError(e)
         })?;
 
-    Ok(accounts)
+    let total = AccountEntity::find().count(db).await.map_err(|e| {
+        error!("Failed to query accounts: {:?}", e);
+        CommonError::DatabaseError(e)
+    })?;
+
+    Ok(Response {
+        data: accounts,
+        total,
+    })
 }
 
 // Insert a new account record
@@ -27,13 +36,10 @@ pub async fn add_account<C>(db: &C, account: ActiveModel) -> Result<Model, Commo
 where
     C: ConnectionTrait,
 {
-    let model = account
-        .insert(db)
-        .await
-        .map_err(|e| {
-            error!("Failed to insert account: {:?}", e);
-            CommonError::DatabaseError(e)
-        })?;
+    let model = account.insert(db).await.map_err(|e| {
+        error!("Failed to insert account: {:?}", e);
+        CommonError::DatabaseError(e)
+    })?;
     Ok(model)
 }
 
@@ -57,12 +63,9 @@ pub async fn update_account<C>(db: &C, account: ActiveModel) -> Result<Model, Co
 where
     C: ConnectionTrait,
 {
-    let model = account
-        .update(db)
-        .await
-        .map_err(|e| {
-            error!("Failed to update account: {:?}", e);
-            CommonError::DatabaseError(e)
-        })?;
+    let model = account.update(db).await.map_err(|e| {
+        error!("Failed to update account: {:?}", e);
+        CommonError::DatabaseError(e)
+    })?;
     Ok(model)
 }
