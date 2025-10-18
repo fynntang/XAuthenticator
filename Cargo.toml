@@ -26,7 +26,7 @@ serde_yaml = "0.9"
 uuid = { version = "1.18", features = ["v7"] }
 rand = "0.9"
 rand_core = "0.9"
-sea-orm = { version = "2.0.0-rc", features = [
+sea-orm = { version = "2.0.0-rc.11", features = [
     "sqlx-sqlite",
     "runtime-tokio-rustls",
     "macros",
