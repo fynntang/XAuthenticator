@@ -6,7 +6,7 @@ export const showWindow = async (label: WebviewWindowLabels) => {
         if (!window) return;
         window.show()
         window.unminimize()
-        // window.setFocus()
+        window.setFocus()
     });
 }
 export const hideWindow = async (label: WebviewWindowLabels) => {
