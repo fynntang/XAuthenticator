@@ -18,4 +18,6 @@ export const appState = async () => await invoke<{
             }
         }
     }
+    is_locked: boolean,
+    master_key: string,
 }>("app_state")
