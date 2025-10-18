@@ -23,6 +23,9 @@ impl CheckFileExists {
     pub fn version(&self) -> bool {
         self.dir.version().exists()
     }
+    pub fn master_key(&self) -> bool {
+        self.dir.master_key().exists()
+    }
 
     pub fn all(&self, app_name: String) -> bool {
         self.app() && self.config() && self.db(app_name) && self.version()

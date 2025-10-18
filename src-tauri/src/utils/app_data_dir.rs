@@ -21,4 +21,7 @@ impl AppDataDir {
     pub fn version(&self) -> PathBuf {
         self.app_data_dir.join("version.txt")
     }
+    pub fn master_key(&self) -> PathBuf {
+        self.app_data_dir.join("master.key")
+    }
 }

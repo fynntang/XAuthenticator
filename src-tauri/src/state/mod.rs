@@ -8,6 +8,7 @@ pub struct AppState {
     #[serde(skip)]
     pub db: Option<DatabaseConnection>,
     pub is_locked: bool,
+    pub master_key: Option<[u8; 32]>,
 }
 
 impl AppState {

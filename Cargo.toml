@@ -41,6 +41,9 @@ tempdir = "0"
 tempfile = "3"
 thiserror = "2"
 anyhow = "1"
+chacha20poly1305 = "0"
+getrandom = "0"
+generic-array = "1"
 
 # default to small, optimized release binaries
 [profile.release]

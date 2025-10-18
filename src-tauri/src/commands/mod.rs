@@ -1,6 +1,7 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
 use crate::utils::check_file_exists::CheckFileExists;
+use crate::utils::crypto;
 use crate::utils::parse_otpauth;
 use log::{error, info};
 use sea_orm::ActiveValue::Set;
@@ -98,6 +99,30 @@ pub fn init_app(app: tauri::AppHandle) {
         app_state.db = Some(db);
     });
 
+    let master_key_path = app_data_dir.master_key();
+    if !master_key_path.exists() {
+        info!("master key file not found, creating new file");
+        let mut master_key = [0u8; 32];
+        getrandom::fill(&mut master_key).expect("failed to generate random key");
+        fs::write(&master_key_path, &master_key).expect("failed to write master key");
+        info!(
+            "created master key file: {}",
+            master_key_path.to_str().unwrap()
+        );
+        app_state.master_key = Some(master_key);
+    } else {
+        info!("master key file found");
+        let data = fs::read(&master_key_path).expect("failed to read master key");
+        if data.len() != 32 {
+            error!("invalid master key size: {}", data.len());
+            return;
+        }
+        info!("master key file loaded");
+        let mut key = [0u8; 32];
+        key.copy_from_slice(&data);
+        app_state.master_key = Some(key);
+    }
+
     let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
 
     app_state.config = cfg;
@@ -162,19 +187,11 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
         error!("add_account: auth_url is empty");
         return;
     }
-
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let state = state.lock().unwrap();
     // Clone the DB connection without holding the mutex across potential await
-    let db = {
-        let state = app.state::<Arc<Mutex<AppState>>>();
-        let state = state.lock().unwrap();
-        match state.db.as_ref().cloned() {
-            Some(db) => db,
-            None => {
-                error!("add_account: database not initialized");
-                return;
-            }
-        }
-    };
+    let db = state.db.as_ref().cloned().unwrap();
+    let master_key = state.master_key.as_ref().cloned().unwrap();
 
     // Parse otpauth URL
     let parsed = match parse_otpauth::parse_otpauth(&auth_url) {
@@ -185,7 +202,15 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
         }
     };
 
-    // Build ActiveModel (store secret bytes as-is for now; nonce empty)
+    let (nonce, ciphertext) = match crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key) {
+        Ok(v) => v,
+        Err(e) => {
+            error!("add_account: encryption failed: {:?}", e);
+            return;
+        }
+    };
+
+    // Build ActiveModel with encrypted secret + nonce
     let account = ActiveModel {
         id: Set(uuid::Uuid::new_v7(uuid::Timestamp::now(uuid::NoContext)).to_string()),
         issuer: Set(parsed.issuer),
@@ -195,8 +220,8 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
         digits: Set(parsed.digits),
         period: Set(parsed.period),
         counter: Set(parsed.counter),
-        secret_cipher: Set(parsed.secret),
-        secret_nonce: Set(Vec::new()),
+        secret_cipher: Set(ciphertext),
+        secret_nonce: Set(nonce),
         icon: Set(None),
         note: Set(None),
         created_at: Set(None),
