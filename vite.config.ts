@@ -23,7 +23,7 @@ export default defineConfig(async () => ({
             ignored: [
                 "Cargo.toml",
                 "Cargo.lock",
-                "plugins/**",
+                "crates/**",
                 "**/src-tauri/**",
             ]
         }
