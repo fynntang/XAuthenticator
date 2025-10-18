@@ -2756,6 +2756,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "2.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4c7245a08504955605670dbf141fceab975f15ca21570696aebe9d2e71576bd"
+
+[[package]]
 name = "infer"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4240,6 +4246,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pluralizer"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b3eba432a00a1f6c16f39147847a870e94e2e9b992759b503e330efec778cbe"
+dependencies = [
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "png"
 version = "0.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4331,6 +4347,16 @@ name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
+
+[[package]]
+name = "prettyplease"
+version = "0.2.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.106",
+]
 
 [[package]]
 name = "proc-macro-crate"
@@ -5167,14 +5193,15 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-cli"
-version = "2.0.0-rc.10"
+version = "2.0.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd68cd7fffcfd5262a2d5ae8f425305c0fccaf1354b9dd9159a4d316efff6ca7"
+checksum = "6eaa9dbc5387247221638237115acc44506203655e321c63cc3c025817c614e9"
 dependencies = [
  "chrono",
  "clap",
  "dotenvy",
  "glob",
+ "indoc",
  "regex",
  "sea-orm-codegen",
  "sea-schema",
@@ -5187,11 +5214,13 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-codegen"
-version = "2.0.0-rc.10"
+version = "2.0.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c74fc61877e49a41ebc9dc317dffbded784b1eed00feb04523a7102204461c5"
+checksum = "ea55e20871223965acababf60ffcda135f04720ddd349f1194e937edb4d286d3"
 dependencies = [
  "heck 0.5.0",
+ "pluralizer",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "sea-query",
@@ -5215,9 +5244,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-migration"
-version = "2.0.0-rc.10"
+version = "2.0.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f963e814a7a2605f1dc30372301d06150d9b447ca19f2365662121fbd612056d"
+checksum = "6de0390ac0513e6aedced531c835d387ed160e569f533145633649a396ff312b"
 dependencies = [
  "async-trait",
  "clap",
