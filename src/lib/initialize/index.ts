@@ -50,16 +50,13 @@ export const initialize = () => {
                             action: () => showWindow(WebviewWindowLabels.Settings)
                         },
                         {
-                            id: 'quit', text: 'Quit App', enabled: true, action: () => {
-                                console.log("Quit App")
-                                invoke("quit_app")
-                                    .then(() => {
-                                        console.log("Quit App")
-                                    })
-                                    .catch((e) => {
-                                        console.error(e)
-                                    })
-                            }
+                            id: 'quit', text: 'Quit App', enabled: true, action: () => invoke("quit_app")
+                                .then(() => {
+                                    console.log("Quit App")
+                                })
+                                .catch((e) => {
+                                    console.error(e)
+                                })
                         },
                     ],
                 }),
