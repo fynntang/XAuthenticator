@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "xauthenticator",
+  "productName": "XAuthenticator",
   "version": "0.1.0",
-  "identifier": "io.xauthenticator.app",
+  "identifier": "XAuthenticator",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -14,6 +14,18 @@
     "macOSPrivateApi": true,
     "windows": [
       {
+        "title": "Launch",
+        "label": "launch",
+        "url": "/launch",
+        "width": 640,
+        "height": 400,
+        "center": true,
+        "resizable": false,
+        "decorations": false,
+        "fullscreen": false,
+        "visible": true
+      },
+      {
         "title": "XAuthenticator",
         "label": "main",
         "width": 1366,
@@ -22,7 +34,7 @@
         "decorations": false,
         "resizable": true,
         "fullscreen": false,
-        "visible": true
+        "visible": false
       },
       {
         "title": "Settings",
@@ -34,15 +46,19 @@
         "decorations": false,
         "resizable": true,
         "fullscreen": false,
-        "visible": false,
-        "titleBarStyle": "Overlay",
-        "focus": true,
-        "visibleOnAllWorkspaces": true,
-        "skipTaskbar": true
+        "visible": false
       }
     ],
     "security": {
-      "csp": null,
+      "csp": {
+        "default-src": "'self' customprotocol: asset:",
+        "connect-src": "ipc: http://ipc.localhost",
+        "font-src": [
+          "https://fonts.gstatic.com"
+        ],
+        "img-src": "'self' asset: http://asset.localhost blob: data:",
+        "style-src": "'unsafe-inline' 'self' https://fonts.googleapis.com"
+      },
       "capabilities": [
         "default",
         "desktop-capability",
@@ -59,9 +75,6 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "resources": [
-      "resources/migrations"
     ]
   },
   "plugins": {}

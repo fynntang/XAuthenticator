@@ -1,6 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import {defineConfig} from "vite";
 import {sveltekit} from "@sveltejs/kit/vite";
+import pkg from './package.json' with {type: 'json'}
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
@@ -19,7 +20,20 @@ export default defineConfig(async () => ({
         host: host || false,
         hmr: host ? {protocol: "ws", host, port: 1421} : undefined,
         watch: { // 3. tell Vite to ignore watching `src-tauri`
-            ignored: ["**/src-tauri/**"]
+            ignored: [
+                "Cargo.toml",
+                "Cargo.lock",
+                "plugins/**",
+                "**/src-tauri/**",
+            ]
         }
-    }
+    },
+    define: {
+        __NAME__: `"${pkg.appName}"`,
+        __VERSION__: `"v${pkg.version}"`,
+        __REPOSITORY__: `"${pkg.repository.url}"`,
+        __AUTHOR__: pkg.author,
+        __LICENSE__: `"${pkg.license}"`,
+        __COPYRIGHT__: `"${pkg.copyright}"`,
+    },
 }));

@@ -1,0 +1,15 @@
+[package]
+name = "xauthenticator-entity"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+description = { workspace = true }
+
+[lib]
+name = "xauthenticator_entity"
+path = "src/lib.rs"
+
+[dependencies]
+sea-orm = { workspace = true }
+serde = { workspace = true }
