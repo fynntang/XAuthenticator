@@ -1,6 +1,8 @@
 use crate::state::AppState;
-use crate::utils::{AppDataDir, CheckFileExists};
+use crate::utils::app_data_dir::AppDataDir;
+use crate::utils::check_file_exists::CheckFileExists;
 use log::{error, info};
+use sea_orm::ActiveValue::Set;
 use sea_orm::{
     ConnectionTrait, Database, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
     QuerySelect,
@@ -9,7 +11,7 @@ use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
 use tauri::{Manager, State};
-use xauthenticator_entity::account::{Entity as AccountEntity, Model};
+use xauthenticator_entity::account::{ActiveModel, Entity as AccountEntity, Model};
 use xauthenticator_entity::{PageParam, Response};
 use xauthenticator_error::CommonError;
 
@@ -154,7 +156,62 @@ pub async fn list_accounts(
 }
 
 #[tauri::command]
-pub fn add_account(app: tauri::AppHandle, auth_url: String) {}
+pub fn add_account(app: tauri::AppHandle, auth_url: String) {
+    if auth_url.trim().is_empty() {
+        error!("add_account: auth_url is empty");
+        return;
+    }
+
+    // Clone the DB connection without holding the mutex across potential await
+    let db = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        match state.db.as_ref().cloned() {
+            Some(db) => db,
+            None => {
+                error!("add_account: database not initialized");
+                return;
+            }
+        }
+    };
+
+    // Parse otpauth URL
+    let parsed = match parse_otpauth(&auth_url) {
+        Some(p) => p,
+        None => {
+            error!("add_account: failed to parse otpauth url: {}", auth_url);
+            return;
+        }
+    };
+
+    // Build ActiveModel (store secret bytes as-is for now; nonce empty)
+    let account = ActiveModel {
+        id: Set(uuid::Uuid::new_v7(uuid::Timestamp::now(uuid::NoContext)).to_string()),
+        issuer: Set(parsed.issuer),
+        label: Set(parsed.label),
+        type_: Set(parsed.r#type),
+        algorithm: Set(parsed.algorithm),
+        digits: Set(parsed.digits),
+        period: Set(parsed.period),
+        counter: Set(parsed.counter),
+        secret_cipher: Set(parsed.secret),
+        secret_nonce: Set(Vec::new()),
+        icon: Set(None),
+        note: Set(None),
+        created_at: Set(None),
+        updated_at: Set(None),
+    };
+
+    // Execute insertion
+    let res = tauri::async_runtime::block_on(async {
+        xauthenticator_repository::account::add_account(&db, account).await
+    });
+
+    match res {
+        Ok(model) => info!("add_account: inserted account id={}", model.id),
+        Err(e) => error!("add_account: failed to insert account: {:?}", e),
+    }
+}
 
 #[tauri::command]
 pub fn remove_account(app: tauri::AppHandle, account_id: uuid::Uuid) {}
@@ -172,3 +229,142 @@ pub fn get_code(app: tauri::AppHandle, account_id: uuid::Uuid) {}
 
 #[tauri::command]
 pub fn health_check(app: tauri::AppHandle) {}
+
+// Helpers for parsing otpauth URIs (minimal implementation)
+#[derive(Debug, Clone)]
+struct ParsedOtp {
+    issuer: String,
+    label: String,
+    r#type: String,
+    algorithm: String,
+    digits: i32,
+    period: Option<i32>,
+    counter: Option<i32>,
+    secret: Vec<u8>,
+}
+
+fn percent_decode(input: &str) -> String {
+    let mut result = String::with_capacity(input.len());
+    let bytes = input.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' && i + 2 < bytes.len() {
+            let hex = &input[i + 1..i + 3];
+            if let Ok(val) = u8::from_str_radix(hex, 16) {
+                result.push(val as char);
+                i += 3;
+                continue;
+            }
+        }
+        let ch = if bytes[i] == b'+' {
+            ' '
+        } else {
+            bytes[i] as char
+        };
+        result.push(ch);
+        i += 1;
+    }
+    result
+}
+
+fn parse_otpauth(auth_url: &str) -> Option<ParsedOtp> {
+    let lower = auth_url.to_lowercase();
+    if !lower.starts_with("otpauth://") {
+        return None;
+    }
+    let rest = &auth_url[10..];
+    let slash_idx = rest.find('/')?;
+    let typ_raw = &rest[..slash_idx];
+    let remainder = &rest[slash_idx + 1..];
+
+    let mut label_raw = remainder;
+    let mut query = "";
+    if let Some(qpos) = remainder.find('?') {
+        label_raw = &remainder[..qpos];
+        query = &remainder[qpos + 1..];
+    }
+
+    let label_decoded = percent_decode(label_raw);
+
+    let mut issuer_from_label: Option<String> = None;
+    let label_final: String;
+    if let Some(pos) = label_decoded.find(':') {
+        issuer_from_label = Some(label_decoded[..pos].trim().to_string());
+        label_final = label_decoded[pos + 1..].trim().to_string();
+    } else {
+        label_final = label_decoded.trim().to_string();
+    }
+
+    // Parse query params
+    let mut params: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    for pair in query.split('&') {
+        if pair.is_empty() {
+            continue;
+        }
+        let mut it = pair.splitn(2, '=');
+        let k = it.next().unwrap_or("");
+        let v = percent_decode(it.next().unwrap_or(""));
+        params.insert(k.to_lowercase(), v);
+    }
+
+    let secret = params.get("secret")?.as_bytes().to_vec();
+    let issuer = if let Some(iss) = params.get("issuer") {
+        if iss.is_empty() {
+            issuer_from_label.clone().unwrap_or_default()
+        } else {
+            iss.clone()
+        }
+    } else {
+        issuer_from_label.clone().unwrap_or_default()
+    };
+
+    let algorithm = params
+        .get("algorithm")
+        .map(|s| s.to_uppercase())
+        .unwrap_or_else(|| "SHA1".to_string());
+
+    let digits = params
+        .get("digits")
+        .and_then(|s| s.parse::<i32>().ok())
+        .unwrap_or(6);
+
+    let typ = if typ_raw.eq_ignore_ascii_case("hotp") {
+        "HOTP".to_string()
+    } else {
+        // default to TOTP
+        "TOTP".to_string()
+    };
+
+    let period = if typ == "TOTP" {
+        Some(
+            params
+                .get("period")
+                .and_then(|s| s.parse::<i32>().ok())
+                .unwrap_or(30),
+        )
+    } else {
+        None
+    };
+
+    let counter = if typ == "HOTP" {
+        Some(
+            params
+                .get("counter")
+                .and_then(|s| s.parse::<i32>().ok())
+                .unwrap_or(0),
+        )
+    } else {
+        None
+    };
+
+    Some(ParsedOtp {
+        issuer,
+        label: label_final,
+        r#type: typ,
+        algorithm,
+        digits,
+        period,
+        counter,
+        secret,
+    })
+}
