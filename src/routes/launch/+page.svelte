@@ -80,7 +80,7 @@
             </div>
         </div>
         <div class="flex w-2/5 h-full"
-             style="background-image: url({launchImages[Math.floor(Math.random()*7)]}); background-size: cover; background-position: center;">
+             style="background-image: url({launchImages[Math.floor(Math.random()*launchImages.length)]}); background-size: cover; background-position: center;">
         </div>
     </div>
     {#if progress < 100}
