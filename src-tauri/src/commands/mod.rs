@@ -1,11 +1,14 @@
 use crate::state::AppState;
 use crate::utils::{AppDataDir, CheckFileExists};
-use log::info;
-use sea_orm::{Database, DatabaseConnection};
+use log::{error, info};
+use sea_orm::{ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
-use tauri::Manager;
+use tauri::{Manager, State};
+use xauthenticator_entity::account::{Entity as AccountEntity, Model};
+use xauthenticator_entity::{PageParam, Response};
+use xauthenticator_error::CommonError;
 
 #[tauri::command]
 pub fn init_app(app: tauri::AppHandle) {
@@ -99,25 +102,48 @@ pub fn init_app(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-pub fn app_state(app: tauri::AppHandle) -> Result<AppState, String> {
+pub fn app_state(app: tauri::AppHandle) -> Result<AppState, CommonError> {
     let app_state = app.state::<Arc<Mutex<AppState>>>();
     let app_state = app_state.lock().unwrap();
     Ok(app_state.clone())
 }
 
 #[tauri::command]
-pub fn unlock_with_password(app: tauri::AppHandle, password: String) {
-    println!("unlock with password: {}", password);
+pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(), CommonError> {
+    if !password.is_empty() {
+        return Err(CommonError::RequestError("password is empty".to_string()));
+    }
+
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let mut state = state.lock().unwrap();
+    state.is_locked = false;
+    Ok(())
 }
 
 #[tauri::command]
 pub fn unlock_with_biometric(app: tauri::AppHandle) {}
 
 #[tauri::command]
-pub fn lock(app: tauri::AppHandle) {}
+pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let mut state = state.lock().unwrap();
+    state.is_locked = true;
+    Ok(())
+}
 
 #[tauri::command]
-pub fn list_accounts(app: tauri::AppHandle) {}
+pub async fn list_accounts(app: tauri::AppHandle, param: PageParam) -> Result<(), CommonError> {
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let state = state.lock().unwrap();
+    let db = state.db.as_ref().unwrap();
+    let accounts = xauthenticator_repository::account::list_accounts(db, param)
+        .await
+        .expect("failed to query accounts");
+
+    // accounts
+
+    Ok(())
+}
 
 #[tauri::command]
 pub fn add_account(app: tauri::AppHandle, auth_url: String) {}

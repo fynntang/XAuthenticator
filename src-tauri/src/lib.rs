@@ -2,10 +2,8 @@ mod commands;
 mod constants;
 mod initialize;
 mod state;
-
 mod utils;
 
-use chrono::Datelike;
 use state::AppState;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
@@ -16,22 +14,14 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            // let windows = app.webview_windows();
-            // for (name, window) in windows {
-            //     info!("window name: {}", name);
-            //     if name != constants::webview_window::WebviewWindow::Launch.to_string() {
-            //         window.hide().expect("failed to hide window");
-            //     }
-            // }
-            //
-            // let _ = app
-            //     .get_webview_window(
-            //         constants::webview_window::WebviewWindow::Main
-            //             .to_string()
-            //             .as_str(),
-            //     )
-            //     .expect("no main window")
-            //     .set_focus();
+            let _ = app
+                .get_webview_window(
+                    constants::webview_window::WebviewWindow::Main
+                        .to_string()
+                        .as_str(),
+                )
+                .expect("no main window")
+                .set_focus();
         }));
     }
 
@@ -91,7 +81,7 @@ pub fn run() {
             commands::unlock_with_password,
             commands::unlock_with_biometric,
             commands::lock,
-            commands::list_accounts,
+            // commands::list_accounts,
             commands::add_account,
             commands::remove_account,
             commands::export_backup,

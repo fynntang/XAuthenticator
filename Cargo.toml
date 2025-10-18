@@ -13,6 +13,7 @@ description = "A modern, secure and easy-to-use two-factor authentication (2FA) 
 [workspace.dependencies]
 xauthenticator-config = { path = "plugins/config" }
 xauthenticator-entity = { path = "plugins/entity" }
+xauthenticator-error = { path = "plugins/error" }
 xauthenticator-migration = { path = "plugins/migration" }
 xauthenticator-repository = { path = "plugins/repository" }
 
@@ -36,6 +37,10 @@ sea-orm = { version = "2.0.0-rc", features = [
     "debug-print",
 ] }
 sea-orm-cli = { version = "2.0.0-rc" }
+tempdir = "0"
+tempfile = "3"
+thiserror = "2"
+anyhow = "1"
 
 # default to small, optimized release binaries
 [profile.release]
