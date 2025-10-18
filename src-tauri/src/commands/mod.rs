@@ -141,7 +141,7 @@ pub fn app_state(app: tauri::AppHandle) -> Result<AppState, CommonError> {
 
 #[tauri::command]
 pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(), CommonError> {
-    if !password.is_empty() {
+    if password.is_empty() {
         return Err(CommonError::RequestError("password is empty".to_string()));
     }
 
