@@ -2,17 +2,17 @@
 <module type="EMPTY_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/plugins/entity/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/plugins/migration/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/plugins/repository/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src-tauri/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/plugins/config/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/plugins/error/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/entity/target" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/migration/target" />
-      <excludeFolder url="file://$MODULE_DIR$/plugins/repository/target" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/config/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/entity/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/error/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/migration/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/repository/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/src-tauri/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/entity/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/migration/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/repository/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
