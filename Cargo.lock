@@ -2885,6 +2885,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d101775d2bc8f99f4ac18bf29b9ed70c0dd138b9a1e88d7b80179470cbbe8bd2"
 
 [[package]]
+name = "itertools"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5126,9 +5135,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm"
-version = "2.0.0-rc.10"
+version = "2.0.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d10d776a4086bc1dea156d52f4d52f61617b5d074b4c026304b9d7aef7d0117a"
+checksum = "209cb6300791283c197e0179e676ae1abe2b548edb252e9ffb7aaf6945a0cbdb"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -5136,6 +5145,7 @@ dependencies = [
  "chrono",
  "derive_more 2.0.1",
  "futures-util",
+ "itertools",
  "log",
  "ouroboros",
  "pgvector",
@@ -5143,6 +5153,7 @@ dependencies = [
  "sea-orm-macros",
  "sea-query",
  "sea-query-sqlx",
+ "sea-schema",
  "serde",
  "serde_json",
  "sqlx",
@@ -5190,9 +5201,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-macros"
-version = "2.0.0-rc.10"
+version = "2.0.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd736f392dbe4b5bdbae5b57068c3c206fd3d50c2437c14303e1e2d626def5a8"
+checksum = "331a168e8a72946a32f65acd2471678810cca79343601d2843d321523edd87dc"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
