@@ -1,20 +1,17 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
-use crate::utils::check_file_exists::CheckFileExists;
-use crate::utils::crypto;
-use crate::utils::parse_otpauth;
+use crate::utils::{crypto, parse_otpauth};
 use log::{error, info};
 use sea_orm::ActiveValue::Set;
-use sea_orm::{
-    ConnectionTrait, Database, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
-    QuerySelect,
-};
+use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
-use tauri::{Manager, State};
-use xauthenticator_entity::account::{ActiveModel, Entity as AccountEntity, Model};
-use xauthenticator_entity::{PageParam, Response};
+use tauri::Manager;
+use xauthenticator_entity::account::ActiveModel;
+use xauthenticator_entity::account::Model;
+use xauthenticator_entity::PageParam;
+use xauthenticator_entity::Response;
 use xauthenticator_error::CommonError;
 
 #[tauri::command]
