@@ -3,6 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Settings {
     pub theme: String,
     pub language: String,
@@ -10,6 +11,7 @@ pub struct Settings {
     pub auto_lock_timeout: u64,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Builder {
     pub settings: Settings,
 }
@@ -35,6 +37,7 @@ impl Builder {
 }
 
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     path: PathBuf,
     builder: Builder,
