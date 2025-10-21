@@ -2,6 +2,7 @@ use sea_orm::DatabaseConnection;
 use serde::Serialize;
 
 #[derive(Default, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct AppState {
     pub is_initialized: bool,
     pub runtime_timestamp: u64,

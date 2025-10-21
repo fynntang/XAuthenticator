@@ -6,19 +6,18 @@ export const initApp = async () => {
 
 
 export type AppStateResponse = {
-    is_initialized: boolean,
+    isInitialized: boolean,
     config: {
         path: string,
         builder: {
             settings: {
                 theme: string,
                 language: string,
-                auto_lock: boolean,
-                auto_lock_timeout: number
+                autoLock: boolean,
+                autoLockTimeout: number
             }
         }
     }
-    is_locked: boolean,
-    master_key: string,
+    isLocked: boolean
 }
 export const appState = async () => await invoke<AppStateResponse>("app_state")
