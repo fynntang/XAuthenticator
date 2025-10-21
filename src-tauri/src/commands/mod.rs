@@ -179,7 +179,7 @@ pub async fn list_accounts(
 }
 
 #[tauri::command]
-pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
+pub async fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
     if auth_url.trim().is_empty() {
         error!("add_account: auth_url is empty");
         return Err(CommonError::RequestError("auth_url is empty".to_string()));
@@ -215,10 +215,9 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), Common
     };
 
     // Execute insertion
-    let res = tauri::async_runtime::block_on(async {
-        xauthenticator_repository::account::add_account(&db, account).await
-    })
-    .expect("failed to insert account");
+    let res = xauthenticator_repository::account::add_account(&db, account)
+        .await
+        .expect("failed to insert account");
 
     info!("add_account: res={:?}", res);
 
@@ -226,12 +225,30 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), Common
 }
 
 #[tauri::command]
-pub fn remove_account(app: tauri::AppHandle, account_id: uuid::Uuid) {}
+pub async fn remove_account(
+    app: tauri::AppHandle,
+    account_id: uuid::Uuid,
+) -> Result<(), CommonError> {
+    if account_id.is_nil() {
+        error!("remove_account: account_id is nil");
+        return Err(CommonError::RequestError("account_id is nil".to_string()));
+    }
+    info!("remove_account: account_id={}", account_id);
+    let db = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        let db = state.db.as_ref().cloned().unwrap();
+        db
+    };
+    xauthenticator_repository::account::remove_account(&db, account_id.to_string())
+        .await
+        .expect("failed to remove account");
+
+    Ok(())
+}
 
 #[tauri::command]
-pub fn export_backup(app: tauri::AppHandle, password: String) -> Vec<u8> {
-    Vec::new()
-}
+pub fn export_backup(app: tauri::AppHandle, password: String) {}
 
 #[tauri::command]
 pub fn import_backup(app: tauri::AppHandle, backup: Vec<u8>, password: String) {}
