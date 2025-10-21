@@ -126,6 +126,8 @@ pub fn init_app(app: tauri::AppHandle) {
 
     app_state.is_initialized = true;
 
+    app_state.runtime_duration = chrono::Local::now().timestamp() as u64;
+
     info!("app initialized");
 }
 

@@ -3,9 +3,9 @@ import {invoke} from "@tauri-apps/api/core";
 export const initApp = async () => {
     await invoke("init_app")
 }
-// app_state
 
-export const appState = async () => await invoke<{
+
+export type AppStateResponse = {
     is_initialized: boolean,
     config: {
         path: string,
@@ -20,4 +20,5 @@ export const appState = async () => await invoke<{
     }
     is_locked: boolean,
     master_key: string,
-}>("app_state")
+}
+export const appState = async () => await invoke<AppStateResponse>("app_state")

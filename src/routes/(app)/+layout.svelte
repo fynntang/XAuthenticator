@@ -3,16 +3,19 @@
     import {Button} from "$lib/components/ui/button";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Separator} from "$lib/components/ui/separator";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
     import {getCurrentWindow} from "@tauri-apps/api/window";
     import logo from "$lib/assets/logo.png";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
+    import {appState, type AppStateResponse} from "$lib/api/api";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
     let isAlwaysOnTop = $state(false);
+    let app_state = $state<AppStateResponse | null>(null);
+    let timer: number = 0;
 
 
     const toggleAlwaysOnTop = () => {
@@ -21,8 +24,17 @@
     }
 
 
-    onMount(async () => {
+    onMount(() => {
+        timer = setInterval(async () => {
+            app_state = await appState();
+        }, 3000);
+    })
+    onDestroy(() => {
+        if (timer > 0) clearInterval(timer);
+    })
 
+    $effect(() => {
+        console.log("App State: ", app_state)
     })
 
 </script>
