@@ -4,7 +4,7 @@ use serde::Serialize;
 #[derive(Default, Serialize, Clone)]
 pub struct AppState {
     pub is_initialized: bool,
-    pub runtime_duration: u64,
+    pub runtime_timestamp: u64,
     pub config: xauthenticator_config::Config,
     #[serde(skip)]
     pub db: Option<DatabaseConnection>,
