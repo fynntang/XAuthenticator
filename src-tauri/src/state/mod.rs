@@ -10,6 +10,7 @@ pub struct AppState {
     #[serde(skip)]
     pub db: Option<DatabaseConnection>,
     pub is_locked: bool,
+    pub locked_timestamp: Option<u64>,
     #[serde(skip)]
     pub master_key: Option<[u8; 32]>,
 }

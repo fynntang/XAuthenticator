@@ -11,7 +11,7 @@ pub struct Model {
     pub issuer: String,
     pub label: String,
     #[serde(rename = "type")]
-    pub type_: String, // TOTP | HOTP
+    pub r#type: String, // TOTP | HOTP
     pub algorithm: String, // SHA1 | SHA256 | SHA512
     pub digits: i32,
     pub period: Option<i32>,    // TOTP 专用（单位 秒）

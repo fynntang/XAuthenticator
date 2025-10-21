@@ -5,6 +5,7 @@ import {showWindow} from "$lib/window";
 import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 import {openUrl} from '@tauri-apps/plugin-opener';
 import {invoke} from "@tauri-apps/api/core";
+import {lockApp} from "$lib/api/api";
 
 
 export const initialize = () => {
@@ -25,6 +26,7 @@ export const initialize = () => {
                             id: 'open',
                             text: 'Open App',
                             enabled: true,
+                            accelerator: "CmdOrCtrl+O",
                             action: () => showWindow(WebviewWindowLabels.Main)
                         },
                         {item: "Separator"},
@@ -50,13 +52,23 @@ export const initialize = () => {
                         },
                         {item: "Separator"},
                         {
+                            id: 'lock',
+                            text: 'Lock',
+                            enabled: true,
+                            action: () => lockApp()
+                        },
+                        {
                             id: 'settings',
                             text: 'Settings',
                             enabled: true,
                             action: () => showWindow(WebviewWindowLabels.Settings)
                         },
                         {
-                            id: 'quit', text: 'Quit App', enabled: true, action: () => invoke("quit_app")
+                            id: 'quit',
+                            text: 'Quit App',
+                            enabled: true,
+                            accelerator: "CmdOrCtrl+Q",
+                            action: () => invoke("quit_app")
                                 .then(() => {
                                     console.log("Quit App")
                                 })

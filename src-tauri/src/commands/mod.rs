@@ -7,6 +7,7 @@ use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
+use tauri::http::response;
 use tauri::Manager;
 use xauthenticator_entity::account::ActiveModel;
 use xauthenticator_entity::account::Model;
@@ -147,6 +148,7 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().unwrap();
     state.is_locked = false;
+    state.locked_timestamp = None;
     Ok(())
 }
 
@@ -158,14 +160,16 @@ pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().unwrap();
     state.is_locked = true;
+    state.locked_timestamp = Some(chrono::Local::now().timestamp() as u64);
     Ok(())
 }
 
 #[tauri::command]
 pub async fn list_accounts(
     app: tauri::AppHandle,
-    param: PageParam,
-) -> Result<Response<Vec<Model>>, CommonError> {
+    current: u32,
+    size: u32,
+) -> Result<Response<Vec<xauthenticator_entity::response::Account>>, CommonError> {
     // Get a clone of the DatabaseConnection without holding the mutex across await
     let db = {
         let state = app.state::<Arc<Mutex<AppState>>>();
@@ -176,8 +180,28 @@ pub async fn list_accounts(
             .cloned()
             .ok_or_else(|| CommonError::RequestError("database not initialized".to_string()))?
     };
+    let resp = xauthenticator_repository::account::list_accounts(&db, PageParam { current, size })
+        .await
+        .expect("failed to list accounts");
 
-    Ok(xauthenticator_repository::account::list_accounts(&db, param).await?)
+    Ok(Response {
+        data: resp
+            .data
+            .iter()
+            .map(|v| xauthenticator_entity::response::Account {
+                id: v.id.to_string(),
+                issuer: v.issuer.to_string(),
+                label: v.label.to_string(),
+                r#type: v.r#type.to_string(),
+                algorithm: v.algorithm.to_string(),
+                digits: v.digits,
+                period: v.period,
+                counter: v.counter,
+                secret_cipher: v.secret_cipher.clone(),
+            })
+            .collect(),
+        total: resp.total,
+    })
 }
 
 #[tauri::command]
@@ -203,7 +227,7 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), Common
         id: Set(uuid::Uuid::new_v7(uuid::Timestamp::now(uuid::NoContext)).to_string()),
         issuer: Set(parsed.issuer),
         label: Set(parsed.label),
-        type_: Set(parsed.r#type),
+        r#type: Set(parsed.r#type),
         algorithm: Set(parsed.algorithm),
         digits: Set(parsed.digits),
         period: Set(parsed.period),
