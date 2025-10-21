@@ -179,11 +179,12 @@ pub async fn list_accounts(
 }
 
 #[tauri::command]
-pub fn add_account(app: tauri::AppHandle, auth_url: String) {
+pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
     if auth_url.trim().is_empty() {
         error!("add_account: auth_url is empty");
-        return;
+        return Err(CommonError::RequestError("auth_url is empty".to_string()));
     }
+    info!("add_account: auth_url={}", auth_url);
     let state = app.state::<Arc<Mutex<AppState>>>();
     let state = state.lock().unwrap();
     // Clone the DB connection without holding the mutex across potential await
@@ -191,21 +192,8 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
     let master_key = state.master_key.as_ref().cloned().unwrap();
 
     // Parse otpauth URL
-    let parsed = match parse_otpauth::parse_otpauth(&auth_url) {
-        Some(p) => p,
-        None => {
-            error!("add_account: failed to parse otpauth url: {}", auth_url);
-            return;
-        }
-    };
-
-    let (nonce, ciphertext) = match crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key) {
-        Ok(v) => v,
-        Err(e) => {
-            error!("add_account: encryption failed: {:?}", e);
-            return;
-        }
-    };
+    let parsed = parse_otpauth::parse_otpauth(&auth_url).expect("failed to parse otpauth URL");
+    let Ok((nonce, ciphertext)) = crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key) else { todo!() };
 
     // Build ActiveModel with encrypted secret + nonce
     let account = ActiveModel {
@@ -228,12 +216,12 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
     // Execute insertion
     let res = tauri::async_runtime::block_on(async {
         xauthenticator_repository::account::add_account(&db, account).await
-    });
+    })
+    .expect("failed to insert account");
 
-    match res {
-        Ok(model) => info!("add_account: inserted account id={}", model.id),
-        Err(e) => error!("add_account: failed to insert account: {:?}", e),
-    }
+    info!("add_account: res={:?}", res);
+
+    Ok(())
 }
 
 #[tauri::command]
