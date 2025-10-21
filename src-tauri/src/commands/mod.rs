@@ -193,7 +193,8 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), Common
 
     // Parse otpauth URL
     let parsed = parse_otpauth::parse_otpauth(&auth_url).expect("failed to parse otpauth URL");
-    let Ok((nonce, ciphertext)) = crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key) else { todo!() };
+    let (nonce, ciphertext) = crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key)
+        .expect("failed to encrypt secret");
 
     // Build ActiveModel with encrypted secret + nonce
     let account = ActiveModel {
