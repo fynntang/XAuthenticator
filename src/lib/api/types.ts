@@ -24,7 +24,7 @@ export type AppStateResponse = {
     isLocked: boolean
 }
 
-export type AccountResponse = {
+export type Account = {
     id: string,
     issuer: string,
     label: string,
