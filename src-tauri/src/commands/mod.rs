@@ -261,6 +261,5 @@ pub fn health_check(app: tauri::AppHandle) {}
 
 #[tauri::command]
 pub fn quit_app(app: tauri::AppHandle) {
-    // Quit the entire application with exit code 0
     app.exit(0);
 }
