@@ -179,7 +179,7 @@ pub async fn list_accounts(
 }
 
 #[tauri::command]
-pub async fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
+pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
     if auth_url.trim().is_empty() {
         error!("add_account: auth_url is empty");
         return Err(CommonError::RequestError("auth_url is empty".to_string()));
@@ -214,10 +214,10 @@ pub async fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), 
         updated_at: Set(None),
     };
 
-    // Execute insertion
-    let res = xauthenticator_repository::account::add_account(&db, account)
-        .await
-        .expect("failed to insert account");
+    let res = tauri::async_runtime::block_on(async {
+        xauthenticator_repository::account::add_account(&db, account).await
+    })
+    .expect("failed to add account");
 
     info!("add_account: res={:?}", res);
 
@@ -237,8 +237,7 @@ pub async fn remove_account(
     let db = {
         let state = app.state::<Arc<Mutex<AppState>>>();
         let state = state.lock().unwrap();
-        let db = state.db.as_ref().cloned().unwrap();
-        db
+        state.db.as_ref().cloned().unwrap()
     };
     xauthenticator_repository::account::remove_account(&db, account_id.to_string())
         .await
