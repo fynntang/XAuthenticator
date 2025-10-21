@@ -27,6 +27,7 @@ export const initialize = () => {
                             enabled: true,
                             action: () => showWindow(WebviewWindowLabels.Main)
                         },
+                        {item: "Separator"},
                         {
                             id: 'official_website',
                             text: 'Official Website',
@@ -40,6 +41,11 @@ export const initialize = () => {
                         {
                             id: 'about', text: 'About', enabled: true, action: () => {
                                 console.log('About');
+                            },
+                        },
+                        {
+                            id: 'check-for-update', text: 'Check for Updates', enabled: true, action: () => {
+                                console.log('Check for Updates');
                             },
                         },
                         {item: "Separator"},
