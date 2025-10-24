@@ -84,5 +84,6 @@ export const initialize = () => {
             } as TrayIconOptions);
         },
         removeTray: async () => await TrayIcon.removeById(trayId),
+        getTray: () => tray,
     }
 };

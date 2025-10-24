@@ -8,15 +8,15 @@
     import logo from "$lib/assets/logo.png";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
-    import Titlebar from "$lib/components/layout/titlebar.svelte";
     import {appState} from "$lib/api/api";
+    import AppLockLayout from '$lib/components/layout/app-lock-layout.svelte';
+    import {appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
     let isAlwaysOnTop = $state(false);
-    let app_state = $state<AppStateResponse | null>(null);
     let isLocked = $state(false);
     let timer: number = 0;
 
@@ -26,29 +26,27 @@
         isAlwaysOnTop = !isAlwaysOnTop;
     }
 
+    const appStateChange = (v: AppStateResponse) => {
+        appStore.set(v)
+        if ($appStore?.config.builder.settings.autoLock) isLocked = $appStore?.isLocked ?? false;
+    }
 
     onMount(() => {
-        appState().then((v) => {
-            app_state = v
-            if (app_state.config.builder.settings.autoLock) isLocked = app_state?.isLocked ?? false;
-        })
+        appState().then(appStateChange)
         timer = setInterval(async () => {
-            app_state = await appState();
-            if (app_state.config.builder.settings.autoLock) isLocked = app_state?.isLocked ?? false;
+            const data = await appState();
+            appStateChange(data)
         }, 3000);
     })
     onDestroy(() => {
         if (timer > 0) clearInterval(timer);
     })
 
-    $inspect(app_state, isLocked)
+    $inspect($appStore, isLocked)
 </script>
 
-{#if isLocked}
-    <Titlebar isLocked windowLabels={ WebviewWindowLabels.Main }/>
-    <h1>Locked</h1>
-{:else}
-    <main>
+<main>
+    <AppLockLayout isLocked>
         <header class="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) flex shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear select-none">
             <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
                 <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
@@ -97,8 +95,8 @@
             </div>
         </header>
         {@render children()}
-    </main>
-{/if}
+    </AppLockLayout>
+</main>
 
 
 <style lang="css">
