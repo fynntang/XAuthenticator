@@ -47,9 +47,10 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
-        .setup(|app| {
-            app.manage(Arc::new(Mutex::new(AppState::default())));
-
+        .manage(Arc::new(Mutex::new(AppState::default())))
+        .setup(|_app| {
+            // app.manage(Arc::new(Mutex::new(AppState::default())));
+            //
             // let salt_path = app
             //     .path()
             //     .app_local_data_dir()

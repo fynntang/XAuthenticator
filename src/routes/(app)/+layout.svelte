@@ -3,16 +3,22 @@
     import {Button} from "$lib/components/ui/button";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Separator} from "$lib/components/ui/separator";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
     import {getCurrentWindow} from "@tauri-apps/api/window";
     import logo from "$lib/assets/logo.png";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
+    import Titlebar from "$lib/components/layout/titlebar.svelte";
+    import {appState} from "$lib/api/api";
+    import type {AppStateResponse} from "$lib/api/types";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
     let isAlwaysOnTop = $state(false);
+    let app_state = $state<AppStateResponse | null>(null);
+    let isLocked = $state(false);
+    let timer: number = 0;
 
 
     const toggleAlwaysOnTop = () => {
@@ -21,61 +27,78 @@
     }
 
 
-    onMount(async () => {
-
+    onMount(() => {
+        appState().then((v) => {
+            app_state = v
+            if (app_state.config.builder.settings.autoLock) isLocked = app_state?.isLocked ?? false;
+        })
+        timer = setInterval(async () => {
+            app_state = await appState();
+            if (app_state.config.builder.settings.autoLock) isLocked = app_state?.isLocked ?? false;
+        }, 3000);
+    })
+    onDestroy(() => {
+        if (timer > 0) clearInterval(timer);
     })
 
+    $inspect(app_state, isLocked)
 </script>
 
-<main>
-    <header class="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) flex shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear select-none">
-        <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
-            <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
-                <div data-tauri-drag-region class="flex flex-none items-center gap-2 select-none">
-                    <div data-tauri-drag-region class="flex-none size-8"
-                         style:background-image="url({logo})"
-                         style:background-size="cover"
-                         style:background-position="center"
-                    ></div>
-                    <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{__NAME__}</h1>
+{#if isLocked}
+    <Titlebar isLocked windowLabels={ WebviewWindowLabels.Main }/>
+    <h1>Locked</h1>
+{:else}
+    <main>
+        <header class="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) flex shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear select-none">
+            <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
+                <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
+                    <div data-tauri-drag-region class="flex flex-none items-center gap-2 select-none">
+                        <div data-tauri-drag-region class="flex-none size-8"
+                             style:background-image="url({logo})"
+                             style:background-size="cover"
+                             style:background-position="center"
+                        ></div>
+                        <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{__NAME__}</h1>
+                    </div>
+                    <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
+                        <InputGroupInput placeholder="Search..."/>
+                        <InputGroupAddon>
+                            <Search/>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <Button variant="ghost" size="sm" class="dark:text-foreground hidden sm:flex">
+                        Add New
+                        <Plus/>
+                    </Button>
                 </div>
-                <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
-                    <InputGroupInput placeholder="Search..."/>
-                    <InputGroupAddon>
-                        <Search/>
-                    </InputGroupAddon>
-                </InputGroup>
-                <Button variant="ghost" size="sm" class="dark:text-foreground hidden sm:flex">
-                    Add New
-                    <Plus/>
-                </Button>
+                <div class="flex flex-none ml-auto items-center">
+                    <Button variant="ghost" size="icon"
+                            class="mr-2 {isAlwaysOnTop?'bg-accent text-accent-foreground dark:bg-accent/50':''}"
+                            onclick={toggleAlwaysOnTop}>
+                        {#if isAlwaysOnTop}
+                            <PinOff/>
+                        {:else}
+                            <Pin/>
+                        {/if}
+                    </Button>
+                    <Button variant="ghost" size="icon" class="mr-2"
+                            onclick={()=>showWindow(WebviewWindowLabels.Settings)}>
+                        <Settings/>
+                    </Button>
+                    <Separator orientation="vertical" class="h-8 mx-1"/>
+                    <Button variant="ghost" size="icon" class="mr-2" onclick={() => appWindow.minimize()}>
+                        <Minus/>
+                    </Button>
+                    <Button variant="ghost" size="icon-lg" onclick={() => appWindow.close()}
+                            class="rounded-none hover:!bg-red-500 hover:!text-white">
+                        <X/>
+                    </Button>
+                </div>
             </div>
-            <div class="flex flex-none ml-auto items-center">
-                <Button variant="ghost" size="icon"
-                        class="mr-2 {isAlwaysOnTop?'bg-accent text-accent-foreground dark:bg-accent/50':''}"
-                        onclick={toggleAlwaysOnTop}>
-                    {#if isAlwaysOnTop}
-                        <PinOff/>
-                    {:else}
-                        <Pin/>
-                    {/if}
-                </Button>
-                <Button variant="ghost" size="icon" class="mr-2" onclick={()=>showWindow(WebviewWindowLabels.Settings)}>
-                    <Settings/>
-                </Button>
-                <Separator orientation="vertical" class="h-8 mx-1"/>
-                <Button variant="ghost" size="icon" class="mr-2" onclick={() => appWindow.minimize()}>
-                    <Minus/>
-                </Button>
-                <Button variant="ghost" size="icon-lg" onclick={() => appWindow.close()}
-                        class="rounded-none hover:!bg-red-500 hover:!text-white">
-                    <X/>
-                </Button>
-            </div>
-        </div>
-    </header>
-    {@render children()}
-</main>
+        </header>
+        {@render children()}
+    </main>
+{/if}
 
 
 <style lang="css">

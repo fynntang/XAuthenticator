@@ -28,12 +28,12 @@
             progress = 10;
             let state = await appState();
             progress += 10;
-            while (state && !state.is_initialized) {
+            while (state && !state.isInitialized) {
                 await initApp()
                 progress += 10;
                 state = await appState();
                 progress += 10;
-                if (state && state.is_initialized) {
+                if (state && state.isInitialized) {
                     await initialized.createTray();
                     progress += 10;
                 }

@@ -1,20 +1,18 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
-use crate::utils::check_file_exists::CheckFileExists;
-use crate::utils::crypto;
-use crate::utils::parse_otpauth;
+use crate::utils::{crypto, parse_otpauth};
 use log::{error, info};
 use sea_orm::ActiveValue::Set;
-use sea_orm::{
-    ConnectionTrait, Database, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
-    QuerySelect,
-};
+use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
-use tauri::{Manager, State};
-use xauthenticator_entity::account::{ActiveModel, Entity as AccountEntity, Model};
-use xauthenticator_entity::{PageParam, Response};
+use tauri::http::response;
+use tauri::Manager;
+use xauthenticator_entity::account::ActiveModel;
+use xauthenticator_entity::account::Model;
+use xauthenticator_entity::PageParam;
+use xauthenticator_entity::Response;
 use xauthenticator_error::CommonError;
 
 #[tauri::command]
@@ -129,6 +127,8 @@ pub fn init_app(app: tauri::AppHandle) {
 
     app_state.is_initialized = true;
 
+    app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+
     info!("app initialized");
 }
 
@@ -148,6 +148,7 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().unwrap();
     state.is_locked = false;
+    state.locked_timestamp = None;
     Ok(())
 }
 
@@ -159,14 +160,16 @@ pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().unwrap();
     state.is_locked = true;
+    state.locked_timestamp = Some(chrono::Local::now().timestamp() as u64);
     Ok(())
 }
 
 #[tauri::command]
 pub async fn list_accounts(
     app: tauri::AppHandle,
-    param: PageParam,
-) -> Result<Response<Vec<Model>>, CommonError> {
+    current: u32,
+    size: u32,
+) -> Result<Response<Vec<xauthenticator_entity::response::Account>>, CommonError> {
     // Get a clone of the DatabaseConnection without holding the mutex across await
     let db = {
         let state = app.state::<Arc<Mutex<AppState>>>();
@@ -177,16 +180,37 @@ pub async fn list_accounts(
             .cloned()
             .ok_or_else(|| CommonError::RequestError("database not initialized".to_string()))?
     };
+    let resp = xauthenticator_repository::account::list_accounts(&db, PageParam { current, size })
+        .await
+        .expect("failed to list accounts");
 
-    Ok(xauthenticator_repository::account::list_accounts(&db, param).await?)
+    Ok(Response {
+        data: resp
+            .data
+            .iter()
+            .map(|v| xauthenticator_entity::response::Account {
+                id: v.id.to_string(),
+                issuer: v.issuer.to_string(),
+                label: v.label.to_string(),
+                r#type: v.r#type.to_string(),
+                algorithm: v.algorithm.to_string(),
+                digits: v.digits,
+                period: v.period,
+                counter: v.counter,
+                secret_cipher: v.secret_cipher.clone(),
+            })
+            .collect(),
+        total: resp.total,
+    })
 }
 
 #[tauri::command]
-pub fn add_account(app: tauri::AppHandle, auth_url: String) {
+pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
     if auth_url.trim().is_empty() {
         error!("add_account: auth_url is empty");
-        return;
+        return Err(CommonError::RequestError("auth_url is empty".to_string()));
     }
+    info!("add_account: auth_url={}", auth_url);
     let state = app.state::<Arc<Mutex<AppState>>>();
     let state = state.lock().unwrap();
     // Clone the DB connection without holding the mutex across potential await
@@ -194,28 +218,16 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
     let master_key = state.master_key.as_ref().cloned().unwrap();
 
     // Parse otpauth URL
-    let parsed = match parse_otpauth::parse_otpauth(&auth_url) {
-        Some(p) => p,
-        None => {
-            error!("add_account: failed to parse otpauth url: {}", auth_url);
-            return;
-        }
-    };
-
-    let (nonce, ciphertext) = match crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key) {
-        Ok(v) => v,
-        Err(e) => {
-            error!("add_account: encryption failed: {:?}", e);
-            return;
-        }
-    };
+    let parsed = parse_otpauth::parse_otpauth(&auth_url).expect("failed to parse otpauth URL");
+    let (nonce, ciphertext) = crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key)
+        .expect("failed to encrypt secret");
 
     // Build ActiveModel with encrypted secret + nonce
     let account = ActiveModel {
         id: Set(uuid::Uuid::new_v7(uuid::Timestamp::now(uuid::NoContext)).to_string()),
         issuer: Set(parsed.issuer),
         label: Set(parsed.label),
-        type_: Set(parsed.r#type),
+        r#type: Set(parsed.r#type),
         algorithm: Set(parsed.algorithm),
         digits: Set(parsed.digits),
         period: Set(parsed.period),
@@ -228,24 +240,40 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) {
         updated_at: Set(None),
     };
 
-    // Execute insertion
     let res = tauri::async_runtime::block_on(async {
         xauthenticator_repository::account::add_account(&db, account).await
-    });
+    })
+    .expect("failed to add account");
 
-    match res {
-        Ok(model) => info!("add_account: inserted account id={}", model.id),
-        Err(e) => error!("add_account: failed to insert account: {:?}", e),
+    info!("add_account: res={:?}", res);
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn remove_account(
+    app: tauri::AppHandle,
+    account_id: uuid::Uuid,
+) -> Result<(), CommonError> {
+    if account_id.is_nil() {
+        error!("remove_account: account_id is nil");
+        return Err(CommonError::RequestError("account_id is nil".to_string()));
     }
+    info!("remove_account: account_id={}", account_id);
+    let db = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        state.db.as_ref().cloned().unwrap()
+    };
+    xauthenticator_repository::account::remove_account(&db, account_id.to_string())
+        .await
+        .expect("failed to remove account");
+
+    Ok(())
 }
 
 #[tauri::command]
-pub fn remove_account(app: tauri::AppHandle, account_id: uuid::Uuid) {}
-
-#[tauri::command]
-pub fn export_backup(app: tauri::AppHandle, password: String) -> Vec<u8> {
-    Vec::new()
-}
+pub fn export_backup(app: tauri::AppHandle, password: String) {}
 
 #[tauri::command]
 pub fn import_backup(app: tauri::AppHandle, backup: Vec<u8>, password: String) {}
@@ -258,6 +286,5 @@ pub fn health_check(app: tauri::AppHandle) {}
 
 #[tauri::command]
 pub fn quit_app(app: tauri::AppHandle) {
-    // Quit the entire application with exit code 0
     app.exit(0);
 }

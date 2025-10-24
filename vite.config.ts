@@ -4,7 +4,7 @@ import {sveltekit} from "@sveltejs/kit/vite";
 import pkg from './package.json' with {type: 'json'}
 
 // @ts-expect-error process is a nodejs global
-const host = process.env.TAURI_DEV_HOST;
+const host = process.env.TAURI_DEV_HOST as string;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
@@ -23,7 +23,7 @@ export default defineConfig(async () => ({
             ignored: [
                 "Cargo.toml",
                 "Cargo.lock",
-                "plugins/**",
+                "crates/**",
                 "**/src-tauri/**",
             ]
         }

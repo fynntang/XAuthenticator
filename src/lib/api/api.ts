@@ -1,23 +1,11 @@
 import {invoke} from "@tauri-apps/api/core";
+import type {Account, AppStateResponse, PageParam, Response} from "$lib/api/types";
 
-export const initApp = async () => {
-    await invoke("init_app")
-}
-// app_state
-
-export const appState = async () => await invoke<{
-    is_initialized: boolean,
-    config: {
-        path: string,
-        builder: {
-            settings: {
-                theme: string,
-                language: string,
-                auto_lock: boolean,
-                auto_lock_timeout: number
-            }
-        }
-    }
-    is_locked: boolean,
-    master_key: string,
-}>("app_state")
+export const initApp = async () => await invoke("init_app")
+export const appState = async () => await invoke<AppStateResponse>("app_state")
+export const lockApp = async () => await invoke<void>("lock")
+export const unlockAppWithPassword = async (password: string) => await invoke<void>("unlock_with_password", {password})
+export const listAccounts = async (current: number = 0, size: number = 16) => await invoke<Response<Account[]>>("list_accounts", {
+    current,
+    size
+} as PageParam)

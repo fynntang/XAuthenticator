@@ -1,6 +1,13 @@
 <script lang="ts">
 
     import {ScrollArea} from "$lib/components/ui/scroll-area";
+    import {onMount} from "svelte";
+    import {listAccounts} from "$lib/api/api";
+
+
+    onMount(() => {
+        listAccounts()
+    })
 </script>
 
 <ScrollArea class="h-[var(--body-height)] w-full">
