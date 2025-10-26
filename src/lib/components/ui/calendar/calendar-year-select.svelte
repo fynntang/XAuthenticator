@@ -1,8 +1,9 @@
 <script lang="ts">
-    import {Calendar as CalendarPrimitive} from "bits-ui";
-    import {cn, type WithoutChildrenOrChild} from "$lib/utils.js";
+	import { Calendar as CalendarPrimitive } from "bits-ui";
+	import { cn, type WithoutChildrenOrChild } from "$lib/utils.js";
+	import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
 
-    let {
+	let {
 		ref = $bindable(null),
 		class: className,
 		value,

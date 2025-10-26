@@ -1,8 +1,8 @@
 <script lang="ts">
-    import {NavigationMenu as NavigationMenuPrimitive} from "bits-ui";
-    import {cn} from "$lib/utils.js";
+	import { NavigationMenu as NavigationMenuPrimitive } from "bits-ui";
+	import { cn } from "$lib/utils.js";
 
-    let {
+	let {
 		ref = $bindable(null),
 		class: className,
 		...restProps

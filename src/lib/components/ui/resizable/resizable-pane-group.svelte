@@ -1,8 +1,8 @@
 <script lang="ts">
-    import * as ResizablePrimitive from "paneforge";
-    import {cn} from "$lib/utils.js";
+	import * as ResizablePrimitive from "paneforge";
+	import { cn } from "$lib/utils.js";
 
-    let {
+	let {
 		ref = $bindable(null),
 		this: paneGroup = $bindable(),
 		class: className,

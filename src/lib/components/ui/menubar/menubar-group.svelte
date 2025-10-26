@@ -1,7 +1,7 @@
 <script lang="ts">
-    import {Menubar as MenubarPrimitive} from "bits-ui";
+	import { Menubar as MenubarPrimitive } from "bits-ui";
 
-    let {
+	let {
 		ref = $bindable(null),
 		...restProps
 	}: MenubarPrimitive.GroupProps & {

@@ -1,4 +1,4 @@
-import {ContextMenu as ContextMenuPrimitive} from "bits-ui";
+import { ContextMenu as ContextMenuPrimitive } from "bits-ui";
 
 import Trigger from "./context-menu-trigger.svelte";
 import Group from "./context-menu-group.svelte";
@@ -13,7 +13,6 @@ import SubContent from "./context-menu-sub-content.svelte";
 import SubTrigger from "./context-menu-sub-trigger.svelte";
 import CheckboxItem from "./context-menu-checkbox-item.svelte";
 import Label from "./context-menu-label.svelte";
-
 const Sub = ContextMenuPrimitive.Sub;
 const Root = ContextMenuPrimitive.Root;
 

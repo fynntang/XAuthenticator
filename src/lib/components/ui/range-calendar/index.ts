@@ -1,4 +1,4 @@
-import {RangeCalendar as RangeCalendarPrimitive} from "bits-ui";
+import { RangeCalendar as RangeCalendarPrimitive } from "bits-ui";
 import Root from "./range-calendar.svelte";
 import Cell from "./range-calendar-cell.svelte";
 import Day from "./range-calendar-day.svelte";

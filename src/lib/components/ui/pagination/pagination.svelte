@@ -1,9 +1,9 @@
 <script lang="ts">
-    import {Pagination as PaginationPrimitive} from "bits-ui";
+	import { Pagination as PaginationPrimitive } from "bits-ui";
 
-    import {cn} from "$lib/utils.js";
+	import { cn } from "$lib/utils.js";
 
-    let {
+	let {
 		ref = $bindable(null),
 		class: className,
 		count = 0,
