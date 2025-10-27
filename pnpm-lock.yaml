@@ -18,8 +18,8 @@ importers:
         specifier: ~2.4.0
         version: 2.4.0
       '@tauri-apps/plugin-biometric':
-        specifier: ~2.3.0
-        version: 2.3.0
+        specifier: ~2.3.2
+        version: 2.3.2
       '@tauri-apps/plugin-clipboard-manager':
         specifier: ~2.3.0
         version: 2.3.0
@@ -731,8 +731,8 @@ packages:
   '@tauri-apps/plugin-barcode-scanner@2.4.0':
     resolution: {integrity: sha512-L+z7hejwlg3L7gApj1XburCL7pF4QbrU5rZDeCevGGqG85i0jXWUykU50v2/NI0XdLhFXYx3ERbXDPblH/BvBA==}
 
-  '@tauri-apps/plugin-biometric@2.3.0':
-    resolution: {integrity: sha512-yiDAh88ok47eZ6ZIhf7actNH1Sej2xl9+PWToPOUvQZnMLWsXRLzBNog9BvTaV8qu/YOv6WyCCBbQ4++r4/HCg==}
+  '@tauri-apps/plugin-biometric@2.3.2':
+    resolution: {integrity: sha512-RFydYGKEJ6m4UWdcPsO+vJQUb3JyyfFeNoZSPDs0uWjvwHBs03xey5wWO+uowmFFy03JAff1l2idQAwuycO8Uw==}
 
   '@tauri-apps/plugin-clipboard-manager@2.3.0':
     resolution: {integrity: sha512-81NOBA2P+OTY8RLkBwyl9ZR/0CeggLub4F6zxcxUIfFOAqtky7J61+K/MkH2SC1FMxNBxrX0swDuKvkjkHadlA==}
@@ -2004,7 +2004,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.8.0
 
-  '@tauri-apps/plugin-biometric@2.3.0':
+  '@tauri-apps/plugin-biometric@2.3.2':
     dependencies:
       '@tauri-apps/api': 2.8.0
 
