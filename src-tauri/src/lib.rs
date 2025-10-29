@@ -4,6 +4,7 @@ mod initialize;
 mod state;
 mod utils;
 
+use constants::webview_window_labels::WebviewWindowLabels;
 use state::AppState;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
@@ -15,11 +16,7 @@ pub fn run() {
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             let _ = app
-                .get_webview_window(
-                    constants::webview_window::WebviewWindow::Main
-                        .to_string()
-                        .as_str(),
-                )
+                .get_webview_window(WebviewWindowLabels::Main.to_string().as_str())
                 .expect("no main window")
                 .set_focus();
         }));

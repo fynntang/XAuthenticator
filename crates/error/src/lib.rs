@@ -1,9 +1,21 @@
-use serde::Serializer;
+use serde::{ser::SerializeStruct, Serializer};
 
 #[derive(thiserror::Error)]
 pub enum CommonError {
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
+    #[error("Master key not initialized")]
+    MasterKeyNotInitialized,
+    #[error("Invalid master key")]
+    InvalidMasterKey,
+    #[error("App not initialized")]
+    AppNotInitialized,
+    #[error("App is locked")]
+    AppIsLocked,
+    #[error("Invalid password")]
+    InvalidPassword,
+    #[error("Biometric authentication failed")]
+    BiometricAuthFailed,
     #[error("Database error: {0}")]
     DatabaseError(#[from] sea_orm::DbErr),
     #[error("Request error: {0}")]
@@ -24,15 +36,32 @@ impl std::fmt::Debug for CommonError {
     }
 }
 
+impl CommonError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            CommonError::UnexpectedError(_) => "UnexpectedError",
+            CommonError::MasterKeyNotInitialized => "MasterKeyNotInitialized",
+            CommonError::InvalidMasterKey => "InvalidMasterKey",
+            CommonError::AppNotInitialized => "AppNotInitialized",
+            CommonError::AppIsLocked => "AppIsLocked",
+            CommonError::InvalidPassword => "InvalidPassword",
+            CommonError::BiometricAuthFailed => "BiometricAuthFailed",
+            CommonError::DatabaseError(_) => "DatabaseError",
+            CommonError::RequestError(_) => "RequestError",
+            CommonError::TokenExpired => "TokenExpired",
+        }
+    }
+}
+
 impl serde::Serialize for CommonError {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        // Serialize the error as a human-readable string, including its message.
-        // This avoids requiring inner error types (e.g., sea_orm::DbErr, anyhow::Error)
-        // to be serializable while still providing useful information to the frontend.
-        serializer.serialize_str(&self.to_string())
+        let mut state = serializer.serialize_struct("CommonError", 2)?;
+        state.serialize_field("code", self.code())?;
+        state.serialize_field("reason", &self.to_string())?;
+        state.end()
     }
 }
 

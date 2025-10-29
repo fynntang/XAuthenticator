@@ -1,3 +1,10 @@
+import {CommonError} from "$lib/api/errors";
+
+export type APIError = {
+    code: CommonError,
+    reason: string,
+}
+
 export type PageParam = {
     current: number,
     size: number,

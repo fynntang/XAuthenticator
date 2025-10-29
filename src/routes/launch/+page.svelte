@@ -9,11 +9,14 @@
     import img7899206 from "$lib/assets/launch/7899206.avif";
     import img8258264 from "$lib/assets/launch/8258264.avif";
     import img9059825 from "$lib/assets/launch/9059825.avif";
-    import {getCurrentWindow, Window} from "@tauri-apps/api/window";
+    import {getCurrentWindow} from "@tauri-apps/api/window";
     import {initialize} from "$lib/initialize";
     import {appState, initApp} from "$lib/api/api";
     import {wait} from "$lib/utils";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
+    import type {APIError} from "$lib/api/types";
+    import {CommonError} from "$lib/api/errors";
+    import {showWindow} from "$lib/window";
 
     let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
     let progress = $state(0);
@@ -41,15 +44,19 @@
             }
             progress = 90;
             await wait(300)
-            const mainWindow = await Window.getByLabel(WebviewWindowLabels.Main);
-            mainWindow?.show();
-            mainWindow?.setFocus();
-
-            progress = 100;
-
-            await currentWindow.hide();
+            await showWindow(WebviewWindowLabels.Main)
         } catch (e) {
-            console.error(e);
+            if ((e as APIError).code === CommonError.MasterKeyNotInitialized) {
+                console.error(e);
+                await showWindow(WebviewWindowLabels.Initialization);
+            } else {
+                alert("An error occurred during initialization: " + JSON.stringify(e));
+            }
+        } finally {
+            progress = 90;
+            await wait(300);
+            progress = 100;
+            await currentWindow.hide();
         }
     }
 

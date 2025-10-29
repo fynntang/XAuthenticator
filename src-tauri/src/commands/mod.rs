@@ -7,27 +7,25 @@ use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
 use std::fs;
 use std::sync::{Arc, Mutex};
-use tauri::http::response;
 use tauri::Manager;
 use xauthenticator_entity::account::ActiveModel;
-use xauthenticator_entity::account::Model;
 use xauthenticator_entity::PageParam;
 use xauthenticator_entity::Response;
 use xauthenticator_error::CommonError;
 
 #[tauri::command]
-pub fn init_app(app: tauri::AppHandle) {
+pub fn init_app(app: tauri::AppHandle) -> Result<(), CommonError> {
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut app_state = state.lock().unwrap();
 
     let current_version = format!("v{}", app.config().version.clone().unwrap());
     info!("app config version: {:?}", current_version);
+
     let app_data_dir = AppDataDir::new(
         app.path()
             .app_local_data_dir()
             .expect("could not resolve app local data path"),
     );
-
     if !app_data_dir.app().exists() {
         fs::create_dir_all(&app_data_dir.app()).expect("failed to create app data directory");
     }
@@ -99,21 +97,13 @@ pub fn init_app(app: tauri::AppHandle) {
 
     let master_key_path = app_data_dir.master_key();
     if !master_key_path.exists() {
-        info!("master key file not found, creating new file");
-        let mut master_key = [0u8; 32];
-        getrandom::fill(&mut master_key).expect("failed to generate random key");
-        fs::write(&master_key_path, &master_key).expect("failed to write master key");
-        info!(
-            "created master key file: {}",
-            master_key_path.to_str().unwrap()
-        );
-        app_state.master_key = Some(master_key);
+        return Err(CommonError::MasterKeyNotInitialized);
     } else {
         info!("master key file found");
         let data = fs::read(&master_key_path).expect("failed to read master key");
         if data.len() != 32 {
             error!("invalid master key size: {}", data.len());
-            return;
+            return Err(CommonError::InvalidPassword);
         }
         info!("master key file loaded");
         let mut key = [0u8; 32];
@@ -130,6 +120,8 @@ pub fn init_app(app: tauri::AppHandle) {
     app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
 
     info!("app initialized");
+
+    Ok(())
 }
 
 #[tauri::command]
