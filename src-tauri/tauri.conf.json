@@ -19,6 +19,7 @@
         "url": "/launch",
         "width": 640,
         "height": 400,
+        "transparent": true,
         "center": true,
         "resizable": false,
         "decorations": false,
@@ -31,11 +32,12 @@
         "url": "/initialization",
         "width": 1366,
         "height": 768,
+        "transparent": true,
         "center": true,
         "resizable": true,
         "decorations": false,
         "fullscreen": false,
-        "visible": true
+        "visible": false
       },
       {
         "title": "XAuthenticator",

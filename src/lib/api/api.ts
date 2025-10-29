@@ -4,6 +4,7 @@ import type {Account, APIError, AppStateResponse, PageParam, Response} from "$li
 export const initApp = async (password: string) => await apiInvoke<void>("init_app", {password})
 export const launchApp = async () => await apiInvoke<void>("launch_app")
 export const appState = async () => await apiInvoke<AppStateResponse>("app_state")
+export const quitApp = async () => await apiInvoke<void>("quit_app")
 export const lockApp = async () => await apiInvoke<void>("lock")
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password})
 export const listAccounts = async (current: number = 0, size: number = 16) => await apiInvoke<Response<Account[]>>("list_accounts", {

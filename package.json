@@ -58,6 +58,7 @@
     "layerchart": "2.0.0-next.27",
     "mode-watcher": "^1.1.0",
     "paneforge": "^1.0.2",
+    "sass-embedded": "^1.93.2",
     "svelte": "^5.43.0",
     "svelte-check": "^4.3.3",
     "svelte-sonner": "^1.0.5",
@@ -73,7 +74,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@tailwindcss/oxide",
-      "esbuild"
+      "esbuild",
+      "svelte-preprocess"
     ]
   },
   "copyright": "Copyright © {date} {name} Contributors."

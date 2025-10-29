@@ -2,12 +2,19 @@
     import type {PageProps} from './$types';
 
     import {Button} from "$lib/components/ui/button";
-    import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "$lib/components/ui/card";
+    import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "$lib/components/ui/card";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Alert, AlertDescription, AlertTitle} from "$lib/components/ui/alert";
     import {Progress} from "$lib/components/ui/progress";
-    import {AlertCircle, Eye, EyeOff, KeyRound, Lock} from "@lucide/svelte";
+    import {AlertCircle, Eye, EyeOff, Lock} from "@lucide/svelte";
     import {Spinner} from "$lib/components/ui/spinner";
+    import img1845852 from "$lib/assets/launch/1845852.avif";
+    import img5742416 from "$lib/assets/launch/5742416.avif";
+    import img6496937 from "$lib/assets/launch/6496937.avif";
+    import img6834164 from "$lib/assets/launch/6834164.avif";
+    import img7899206 from "$lib/assets/launch/7899206.avif";
+    import img8258264 from "$lib/assets/launch/8258264.avif";
+    import img9059825 from "$lib/assets/launch/9059825.avif";
 
     let {params, data}: PageProps = $props();
     let password = $state("");
@@ -19,7 +26,9 @@
     let loading = $state(false);
 
     type Strength = { score: number; label: string; color: string; hints: string[] };
-    let strength: Strength = $state({score: 0, label: "弱", color: "red", hints: []});
+    let strength: Strength = $state({score: 0, label: "frail", color: "red", hints: []});
+    let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
+
 
     const hasUpper = (s: string) => /[A-Z]/.test(s);
     const hasLower = (s: string) => /[a-z]/.test(s);
@@ -29,11 +38,11 @@
     const evaluateStrength = (pw: string): Strength => {
         const hints: string[] = [];
         let score = 0;
-        if (pw.length >= 12) score += 1; else hints.push("至少 12 个字符");
-        if (hasUpper(pw) && hasLower(pw)) score += 1; else hints.push("包含大小写字母");
-        if (hasDigit(pw)) score += 1; else hints.push("包含数字");
-        if (hasSymbol(pw)) score += 1; else hints.push("包含符号（如 !@#）");
-        const labels = ["弱", "一般", "中等", "良好", "强"];
+        if (pw.length >= 12) score += 1; else hints.push("At least 12 characters");
+        if (hasUpper(pw) && hasLower(pw)) score += 1; else hints.push("Contains uppercase and lowercase letters");
+        if (hasDigit(pw)) score += 1; else hints.push("Contains numbers");
+        if (hasSymbol(pw)) score += 1; else hints.push("Include symbols (e.g. !@#%)");
+        const labels = ["frail", "general", "Medium", "good", "strong"];
         const colors = ["red", "orange", "yellow", "emerald", "green"];
         const idx = Math.min(score, 4);
         return {score, label: labels[idx], color: colors[idx], hints};
@@ -68,9 +77,8 @@
         error = "";
         if (!validate()) return;
         loading = true;
-        openConfirm = true;
 
-        console.log("开始初始化");
+        console.log("Start initializing");
     };
 
 
@@ -78,29 +86,16 @@
 </script>
 
 
-<main data-tauri-drag-region class="flex min-h-screen w-screen items-center justify-center p-4">
-    <Card data-tauri-drag-region class="w-full max-w-md">
+<main data-tauri-drag-region class="relative flex min-h-screen w-screen items-center justify-center p-4"
+      style:background="url({launchImages[Math.floor(Math.random()*launchImages.length)]}) center/cover no-repeat">
+    <Card data-tauri-drag-region class="relative w-full max-w-lg z-[2]">
         <CardHeader>
             <CardTitle class="flex items-center gap-2">
                 <Lock class="text-muted-foreground"/>
-                需要初始化MasterKey
+                The {__NAME__} needs to be initialized
             </CardTitle>
-            <CardDescription>
-                为保障本地数据安全，请先设置主密码以完成 MasterKey 初始化。
-            </CardDescription>
         </CardHeader>
         <CardContent class="grid gap-4">
-            <div class="flex items-start gap-3 text-sm text-muted-foreground">
-                <KeyRound class="mt-0.5 size-4"/>
-                <div>
-                    <div class="font-medium text-foreground">初始化步骤</div>
-                    <ul class="mt-1 list-disc pl-5">
-                        <li>设置并确认主密码</li>
-                        <li>二次确认以防误操作</li>
-                        <li>完成后自动继续应用初始化</li>
-                    </ul>
-                </div>
-            </div>
             <div class="grid gap-3">
                 <label class="text-sm font-medium">主密码</label>
                 <InputGroup aria-invalid={!!error}>
@@ -175,3 +170,25 @@
         </CardFooter>
     </Card>
 </main>
+
+<style lang="scss">
+  main {
+    &::before {
+      position: absolute;
+      content: "";
+      background: inherit;
+      filter: blur(10px);
+      transform: scale(1.1);
+      z-index: 0;
+    }
+
+    &::after {
+      position: absolute;
+      content: "";
+      inset: 0;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+  }
+</style>

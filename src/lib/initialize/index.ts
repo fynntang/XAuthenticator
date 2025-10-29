@@ -4,8 +4,7 @@ import {Menu} from "@tauri-apps/api/menu/menu";
 import {showWindow} from "$lib/window";
 import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 import {openUrl} from '@tauri-apps/plugin-opener';
-import {invoke} from "@tauri-apps/api/core";
-import {lockApp} from "$lib/api/api";
+import {lockApp, quitApp} from "$lib/api/api";
 
 
 export const initialize = () => {
@@ -68,13 +67,7 @@ export const initialize = () => {
                             text: 'Quit App',
                             enabled: true,
                             accelerator: "CmdOrCtrl+Q",
-                            action: () => invoke("quit_app")
-                                .then(() => {
-                                    console.log("Quit App")
-                                })
-                                .catch((e) => {
-                                    console.error(e)
-                                })
+                            action: () => quitApp()
                         },
                     ],
                 }),
