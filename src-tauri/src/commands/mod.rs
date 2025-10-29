@@ -15,6 +15,10 @@ use xauthenticator_error::CommonError;
 
 #[tauri::command]
 pub fn init_app(app: tauri::AppHandle) -> Result<(), CommonError> {
+    Ok(())
+}
+#[tauri::command]
+pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut app_state = state.lock().unwrap();
 

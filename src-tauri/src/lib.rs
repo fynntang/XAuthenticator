@@ -75,6 +75,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::init_app,
+            commands::launch_app,
             commands::app_state,
             commands::unlock_with_password,
             commands::unlock_with_biometric,

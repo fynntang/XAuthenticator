@@ -11,7 +11,7 @@
     import img9059825 from "$lib/assets/launch/9059825.avif";
     import {getCurrentWindow} from "@tauri-apps/api/window";
     import {initialize} from "$lib/initialize";
-    import {appState, initApp} from "$lib/api/api";
+    import {appState, launchApp} from "$lib/api/api";
     import {wait} from "$lib/utils";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
     import type {APIError} from "$lib/api/types";
@@ -32,7 +32,7 @@
             let state = await appState();
             progress += 10;
             while (state && !state.isInitialized) {
-                await initApp()
+                await launchApp()
                 progress += 10;
                 state = await appState();
                 progress += 10;
