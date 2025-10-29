@@ -8,7 +8,7 @@
     import logo from "$lib/assets/logo.png";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
-    import {appState} from "$lib/api/api";
+    import {appState, healthCheck} from "$lib/api/api";
     import AppLockLayout from '$lib/components/layout/app-lock-layout.svelte';
     import {appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
@@ -34,6 +34,11 @@
     onMount(() => {
         appState().then(appStateChange)
         timer = setInterval(async () => {
+            try {
+                await healthCheck();
+            } catch (e) {
+                // 如果健康检查触发锁定，重新拉取状态
+            }
             const data = await appState();
             appStateChange(data)
         }, 3000);

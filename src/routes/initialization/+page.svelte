@@ -17,6 +17,9 @@
     import img9059825 from "$lib/assets/launch/9059825.avif";
     import {Label} from "$lib/components/ui/label";
     import {Checkbox} from "$lib/components/ui/checkbox";
+    import {initApp} from "$lib/api/api";
+    import {showWindow} from "$lib/window";
+    import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
 
     let {params, data}: PageProps = $props();
     let password = $state("");
@@ -80,7 +83,14 @@
         if (!validate()) return;
         loading = true;
 
-        console.log("Start initializing");
+        try {
+            await initApp(password);
+            await showWindow(WebviewWindowLabels.Launch);
+        } catch (e: any) {
+            error = e?.reason ?? e?.message ?? "Initialization failed, please retry";
+        } finally {
+            loading = false;
+        }
     };
 
 
