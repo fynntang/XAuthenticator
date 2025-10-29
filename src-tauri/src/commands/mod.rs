@@ -15,6 +15,18 @@ use xauthenticator_error::CommonError;
 
 #[tauri::command]
 pub fn init_app(app: tauri::AppHandle) -> Result<(), CommonError> {
+    let app_data_dir = AppDataDir::new(
+        app.path()
+            .app_local_data_dir()
+            .expect("could not resolve app local data path"),
+    );
+    let salt_path = app_data_dir.salt();
+
+    app.plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())
+        .expect("failed to initialize stronghold plugin");
+
+    // TODO: 完成master key的初始化逻辑
+
     Ok(())
 }
 #[tauri::command]
