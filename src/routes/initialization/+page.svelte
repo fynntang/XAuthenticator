@@ -15,6 +15,8 @@
     import img7899206 from "$lib/assets/launch/7899206.avif";
     import img8258264 from "$lib/assets/launch/8258264.avif";
     import img9059825 from "$lib/assets/launch/9059825.avif";
+    import {Label} from "$lib/components/ui/label";
+    import {Checkbox} from "$lib/components/ui/checkbox";
 
     let {params, data}: PageProps = $props();
     let password = $state("");
@@ -50,24 +52,24 @@
 
     $effect(() => {
         strength = evaluateStrength(password);
-        error = ""; // 清空错误以便重新校验
+        error = "";
     });
 
     const validate = (): boolean => {
         if (!password || !confirmPassword) {
-            error = "请输入主密码并再次确认";
+            error = "Please enter your master password and confirm it again";
             return false;
         }
         if (password !== confirmPassword) {
-            error = "两次输入的密码不一致";
+            error = "The password entered twice is inconsistent";
             return false;
         }
         if (strength.score < 3) {
-            error = "密码强度过低，请提高复杂度";
+            error = "If the password is too low, increase the complexity";
             return false;
         }
         if (!acknowledged) {
-            error = "请确认已妥善保存主密码";
+            error = "Make sure you have saved your master password";
             return false;
         }
         return true;
@@ -88,7 +90,7 @@
 
 <main data-tauri-drag-region class="relative flex min-h-screen w-screen items-center justify-center p-4"
       style:background="url({launchImages[Math.floor(Math.random()*launchImages.length)]}) center/cover no-repeat">
-    <Card data-tauri-drag-region class="relative w-full max-w-lg z-[2]">
+    <Card data-tauri-drag-region class="relative w-full max-w-2xl z-[2]">
         <CardHeader>
             <CardTitle class="flex items-center gap-2">
                 <Lock class="text-muted-foreground"/>
@@ -97,14 +99,14 @@
         </CardHeader>
         <CardContent class="grid gap-4">
             <div class="grid gap-3">
-                <label class="text-sm font-medium">主密码</label>
+                <Label class="text-sm font-medium">Password</Label>
                 <InputGroup aria-invalid={!!error}>
                     <InputGroupInput type={showPassword ? "text" : "password"} bind:value={password}
                                      autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                     placeholder="请输入主密码（建议12位以上）"/>
+                                     placeholder="Please enter your master password (12 digits or more recommended)"/>
                     <InputGroupAddon align="inline-end">
                         <Button variant="ghost" size="icon" onclick={() => (showPassword = !showPassword)}
-                                aria-label={showPassword ? "隐藏密码" : "显示密码"}>
+                                aria-label={showPassword ? "Hide password" : "Show password"}>
                             {#if showPassword}
                                 <EyeOff/>
                             {:else}
@@ -115,7 +117,7 @@
                 </InputGroup>
 
                 <div class="flex items-center gap-2">
-                    <span class="text-xs text-muted-foreground">强度：</span>
+                    <span class="text-xs text-muted-foreground">Strength: </span>
                     <span class="text-xs font-medium" class:!text-red-600={strength.color === 'red'}
                           class:!text-orange-600={strength.color === 'orange'}
                           class:!text-yellow-600={strength.color === 'yellow'}
@@ -124,19 +126,19 @@
                 </div>
                 <Progress max={4} value={strength.score}/>
                 {#if strength.hints.length}
-                    <div class="text-xs text-muted-foreground">建议：{strength.hints.join("，")}</div>
+                    <div class="text-xs text-muted-foreground">Suggestion: {strength.hints.join(", ")}</div>
                 {/if}
             </div>
 
             <div class="grid gap-3">
-                <label class="text-sm font-medium">确认主密码</label>
+                <Label class="text-sm font-medium">Confirm password</Label>
                 <InputGroup aria-invalid={!!error}>
                     <InputGroupInput type={showConfirm ? "text" : "password"} bind:value={confirmPassword}
                                      autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                     placeholder="请再次输入主密码"/>
+                                     placeholder="Please enter your master password again"/>
                     <InputGroupAddon align="inline-end">
                         <Button variant="ghost" size="icon" onclick={() => (showConfirm = !showConfirm)}
-                                aria-label={showConfirm ? "隐藏密码" : "显示密码"}>
+                                aria-label={showConfirm ? "Hide password" : "Show password"}>
                             {#if showConfirm}
                                 <EyeOff/>
                             {:else}
@@ -146,16 +148,16 @@
                     </InputGroupAddon>
                 </InputGroup>
             </div>
-
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" bind:checked={acknowledged} class="size-4 rounded border"/>
-                我已妥善保存主密码，遗忘将无法找回。
-            </label>
-
+            <div class="flex items-center space-x-2 gap-2 text-sm">
+                <Checkbox id="acknowledged" bind:checked={acknowledged} class="size-4 rounded border"/>
+                <Label for="acknowledged">
+                    I have saved my master password and it cannot be retrieved if I forget it.
+                </Label>
+            </div>
             {#if error}
                 <Alert variant="destructive">
                     <AlertCircle/>
-                    <AlertTitle>操作失败</AlertTitle>
+                    <AlertTitle>The operation failed</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             {/if}
@@ -165,7 +167,7 @@
                 {#if loading}
                     <Spinner/>
                 {/if}
-                下一步
+                Next
             </Button>
         </CardFooter>
     </Card>
@@ -186,7 +188,7 @@
       position: absolute;
       content: "";
       inset: 0;
-      background: rgba(255, 255, 255, 0.1);
+      background-color: color-mix(in oklab, var(--color-black) 10%, transparent);
       backdrop-filter: blur(10px);
       z-index: 1;
     }
