@@ -9,7 +9,7 @@
     import {AlertCircle, Eye, EyeOff, KeyRound, Lock, ShieldCheck} from "@lucide/svelte";
     import {goto} from "$app/navigation";
     import {launchApp} from "$lib/api/api";
-    import {initializeMasterKey} from "$lib/api/api";
+    import {initApp} from "$lib/api/api";
 
     let password = $state("");
     let confirmPassword = $state("");
@@ -75,10 +75,7 @@
     const doInitialize = async () => {
         loading = true;
         try {
-            await initializeMasterKey(password);
-            // 初始化完成后，重新调用 initApp 并返回启动页
-            await launchApp();
-            await goto("/launch");
+            await initApp(password);
         } catch (e: any) {
             error = e?.message ?? "初始化失败，请重试";
         } finally {
@@ -87,9 +84,6 @@
         }
     };
 
-    const cancelAndBack = async () => {
-
-    };
 </script>
 
 <main class="flex min-h-screen w-screen items-center justify-center p-4">
