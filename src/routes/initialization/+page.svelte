@@ -6,17 +6,8 @@
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
     import {Alert, AlertDescription, AlertTitle} from "$lib/components/ui/alert";
     import {Progress} from "$lib/components/ui/progress";
-    import {
-        AlertDialog,
-        AlertDialogAction,
-        AlertDialogCancel,
-        AlertDialogContent,
-        AlertDialogDescription,
-        AlertDialogTitle,
-        AlertDialogTrigger
-    } from "$lib/components/ui/alert-dialog";
-    import {AlertCircle, Eye, EyeOff, KeyRound, Lock, ShieldCheck} from "@lucide/svelte";
-    import {initApp} from "$lib/api/api";
+    import {AlertCircle, Eye, EyeOff, KeyRound, Lock} from "@lucide/svelte";
+    import {Spinner} from "$lib/components/ui/spinner";
 
     let {params, data}: PageProps = $props();
     let password = $state("");
@@ -26,7 +17,6 @@
     let acknowledged = $state(false);
     let error = $state("");
     let loading = $state(false);
-    let openConfirm = $state(false);
 
     type Strength = { score: number; label: string; color: string; hints: string[] };
     let strength: Strength = $state({score: 0, label: "弱", color: "red", hints: []});
@@ -77,140 +67,111 @@
     const onInitialize = async () => {
         error = "";
         if (!validate()) return;
-        openConfirm = true;
-    };
-
-    const doInitialize = async () => {
         loading = true;
-        try {
-            await initApp(password);
-        } catch (e: any) {
-            error = e?.message ?? "初始化失败，请重试";
-        } finally {
-            loading = false;
-            openConfirm = false;
-        }
+        openConfirm = true;
+
+        console.log("开始初始化");
     };
 
 
-    $inspect(params, data)
-
+    $inspect(params, data, loading)
 </script>
 
-<main class="flex min-h-screen w-screen items-center justify-center p-4">
-    <section class="w-full max-w-lg">
-        <Card>
-            <CardHeader>
-                <CardTitle class="flex items-center gap-2">
-                    <Lock class="text-muted-foreground"/>
-                    需要初始化MasterKey
-                </CardTitle>
-                <CardDescription>
-                    为保障本地数据安全，请先设置主密码以完成 MasterKey 初始化。
-                </CardDescription>
-            </CardHeader>
-            <CardContent class="grid gap-4">
-                <div class="flex items-start gap-3 text-sm text-muted-foreground">
-                    <KeyRound class="mt-0.5 size-4"/>
-                    <div>
-                        <div class="font-medium text-foreground">初始化步骤</div>
-                        <ul class="mt-1 list-disc pl-5">
-                            <li>设置并确认主密码</li>
-                            <li>二次确认以防误操作</li>
-                            <li>完成后自动继续应用初始化</li>
-                        </ul>
-                    </div>
+
+<main data-tauri-drag-region class="flex min-h-screen w-screen items-center justify-center p-4">
+    <Card data-tauri-drag-region class="w-full max-w-md">
+        <CardHeader>
+            <CardTitle class="flex items-center gap-2">
+                <Lock class="text-muted-foreground"/>
+                需要初始化MasterKey
+            </CardTitle>
+            <CardDescription>
+                为保障本地数据安全，请先设置主密码以完成 MasterKey 初始化。
+            </CardDescription>
+        </CardHeader>
+        <CardContent class="grid gap-4">
+            <div class="flex items-start gap-3 text-sm text-muted-foreground">
+                <KeyRound class="mt-0.5 size-4"/>
+                <div>
+                    <div class="font-medium text-foreground">初始化步骤</div>
+                    <ul class="mt-1 list-disc pl-5">
+                        <li>设置并确认主密码</li>
+                        <li>二次确认以防误操作</li>
+                        <li>完成后自动继续应用初始化</li>
+                    </ul>
                 </div>
+            </div>
+            <div class="grid gap-3">
+                <label class="text-sm font-medium">主密码</label>
+                <InputGroup aria-invalid={!!error}>
+                    <InputGroupInput type={showPassword ? "text" : "password"} bind:value={password}
+                                     autocomplete="new-password" autocapitalize="off" spellcheck={false}
+                                     placeholder="请输入主密码（建议12位以上）"/>
+                    <InputGroupAddon align="inline-end">
+                        <Button variant="ghost" size="icon" onclick={() => (showPassword = !showPassword)}
+                                aria-label={showPassword ? "隐藏密码" : "显示密码"}>
+                            {#if showPassword}
+                                <EyeOff/>
+                            {:else}
+                                <Eye/>
+                            {/if}
+                        </Button>
+                    </InputGroupAddon>
+                </InputGroup>
 
-                <div class="grid gap-3">
-                    <label class="text-sm font-medium">主密码</label>
-                    <InputGroup aria-invalid={!!error}>
-                        <InputGroupInput type={showPassword ? "text" : "password"} bind:value={password}
-                                         autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                         placeholder="请输入主密码（建议12位以上）"/>
-                        <InputGroupAddon align="inline-end">
-                            <Button variant="ghost" size="icon" onclick={() => (showPassword = !showPassword)}
-                                    aria-label={showPassword ? "隐藏密码" : "显示密码"}>
-                                {#if showPassword}
-                                    <EyeOff/>
-                                {:else}
-                                    <Eye/>
-                                {/if}
-                            </Button>
-                        </InputGroupAddon>
-                    </InputGroup>
-
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-muted-foreground">强度：</span>
-                        <span class="text-xs font-medium" class:!text-red-600={strength.color === 'red'}
-                              class:!text-orange-600={strength.color === 'orange'}
-                              class:!text-yellow-600={strength.color === 'yellow'}
-                              class:!text-emerald-600={strength.color === 'emerald'}
-                              class:!text-green-600={strength.color === 'green'}>{strength.label}</span>
-                    </div>
-                    <Progress max={4} value={strength.score}/>
-                    {#if strength.hints.length}
-                        <div class="text-xs text-muted-foreground">建议：{strength.hints.join("，")}</div>
-                    {/if}
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-muted-foreground">强度：</span>
+                    <span class="text-xs font-medium" class:!text-red-600={strength.color === 'red'}
+                          class:!text-orange-600={strength.color === 'orange'}
+                          class:!text-yellow-600={strength.color === 'yellow'}
+                          class:!text-emerald-600={strength.color === 'emerald'}
+                          class:!text-green-600={strength.color === 'green'}>{strength.label}</span>
                 </div>
-
-                <div class="grid gap-3">
-                    <label class="text-sm font-medium">确认主密码</label>
-                    <InputGroup aria-invalid={!!error}>
-                        <InputGroupInput type={showConfirm ? "text" : "password"} bind:value={confirmPassword}
-                                         autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                         placeholder="请再次输入主密码"/>
-                        <InputGroupAddon align="inline-end">
-                            <Button variant="ghost" size="icon" onclick={() => (showConfirm = !showConfirm)}
-                                    aria-label={showConfirm ? "隐藏密码" : "显示密码"}>
-                                {#if showConfirm}
-                                    <EyeOff/>
-                                {:else}
-                                    <Eye/>
-                                {/if}
-                            </Button>
-                        </InputGroupAddon>
-                    </InputGroup>
-                </div>
-
-                <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" bind:checked={acknowledged} class="size-4 rounded border"/>
-                    我已妥善保存主密码，遗忘将无法找回。
-                </label>
-
-                {#if error}
-                    <Alert variant="destructive">
-                        <AlertCircle/>
-                        <AlertTitle>操作失败</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
+                <Progress max={4} value={strength.score}/>
+                {#if strength.hints.length}
+                    <div class="text-xs text-muted-foreground">建议：{strength.hints.join("，")}</div>
                 {/if}
-            </CardContent>
-            <CardFooter class="flex gap-2">
-                <Button variant="outline" disabled={loading}>取消</Button>
-                <Button class="flex-1" onclick={onInitialize} disabled={loading}>开始初始化</Button>
-            </CardFooter>
-        </Card>
-    </section>
+            </div>
 
-    <AlertDialog>
-        <AlertDialogTrigger />
-        {#if openConfirm}
-            <AlertDialogContent>
-                <AlertDialogTitle class="flex items-center gap-2">
-                    <ShieldCheck class="text-muted-foreground"/>
-                    二次确认
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                    将使用你设置的主密码生成并包裹 MasterKey。请确保你已安全保存主密码，遗忘将无法恢复。
-                </AlertDialogDescription>
-                <div class="flex gap-2 mt-2">
-                    <AlertDialogCancel onclick={() => (openConfirm = false)}>取消</AlertDialogCancel>
-                    <AlertDialogAction onclick={doInitialize} disabled={loading}>
-                        {#if loading}正在初始化...{:else}确认{/if}
-                    </AlertDialogAction>
-                </div>
-            </AlertDialogContent>
-        {/if}
-    </AlertDialog>
+            <div class="grid gap-3">
+                <label class="text-sm font-medium">确认主密码</label>
+                <InputGroup aria-invalid={!!error}>
+                    <InputGroupInput type={showConfirm ? "text" : "password"} bind:value={confirmPassword}
+                                     autocomplete="new-password" autocapitalize="off" spellcheck={false}
+                                     placeholder="请再次输入主密码"/>
+                    <InputGroupAddon align="inline-end">
+                        <Button variant="ghost" size="icon" onclick={() => (showConfirm = !showConfirm)}
+                                aria-label={showConfirm ? "隐藏密码" : "显示密码"}>
+                            {#if showConfirm}
+                                <EyeOff/>
+                            {:else}
+                                <Eye/>
+                            {/if}
+                        </Button>
+                    </InputGroupAddon>
+                </InputGroup>
+            </div>
+
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" bind:checked={acknowledged} class="size-4 rounded border"/>
+                我已妥善保存主密码，遗忘将无法找回。
+            </label>
+
+            {#if error}
+                <Alert variant="destructive">
+                    <AlertCircle/>
+                    <AlertTitle>操作失败</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            {/if}
+        </CardContent>
+        <CardFooter class="flex gap-2">
+            <Button class="flex-1" onclick={onInitialize} disabled={loading}>
+                {#if loading}
+                    <Spinner/>
+                {/if}
+                下一步
+            </Button>
+        </CardFooter>
+    </Card>
 </main>
