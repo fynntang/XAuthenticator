@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type {PageProps} from './$types';
+
     import {Button} from "$lib/components/ui/button";
     import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "$lib/components/ui/card";
     import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
@@ -16,6 +18,7 @@
     import {AlertCircle, Eye, EyeOff, KeyRound, Lock, ShieldCheck} from "@lucide/svelte";
     import {initApp} from "$lib/api/api";
 
+    let {params, data}: PageProps = $props();
     let password = $state("");
     let confirmPassword = $state("");
     let showPassword = $state(false);
@@ -88,6 +91,9 @@
             openConfirm = false;
         }
     };
+
+
+    $inspect(params, data)
 
 </script>
 
@@ -188,7 +194,7 @@
     </section>
 
     <AlertDialog>
-        <AlertDialogTrigger>x</AlertDialogTrigger>
+        <AlertDialogTrigger />
         {#if openConfirm}
             <AlertDialogContent>
                 <AlertDialogTitle class="flex items-center gap-2">
