@@ -14,7 +14,7 @@ pub fn encrypt_xchacha20poly1305(plaintext: &[u8], key: &[u8; 32]) -> Result<(Ve
 }
 
 #[allow(dead_code)]
-pub fn decrypt_xchacha20poly1305<N>(
+pub fn decrypt_xchacha20poly1305(
     ciphertext: &[u8],
     nonce: &[u8],
     key: &[u8; 32],

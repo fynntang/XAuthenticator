@@ -43,6 +43,8 @@ serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 uuid = { workspace = true }
 rand = { workspace = true }
+argon2 = { workspace = true }
+sha2 = { workspace = true }
 rand_core = { workspace = true }
 sea-orm = { workspace = true }
 sea-orm-cli = { workspace = true }
@@ -61,4 +63,3 @@ tauri-plugin-single-instance = "2"
 [target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
 tauri-plugin-barcode-scanner = "2"
 tauri-plugin-biometric = "2"
-

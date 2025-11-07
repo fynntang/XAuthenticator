@@ -1,9 +1,10 @@
 <script lang="ts">
-    import {ContextMenu as ContextMenuPrimitive} from "bits-ui";
-    import {cn, type WithoutChildrenOrChild} from "$lib/utils.js";
-    import type {Snippet} from "svelte";
+	import { ContextMenu as ContextMenuPrimitive } from "bits-ui";
+	import CheckIcon from "@lucide/svelte/icons/check";
+	import { cn, type WithoutChildrenOrChild } from "$lib/utils.js";
+	import type { Snippet } from "svelte";
 
-    let {
+	let {
 		ref = $bindable(null),
 		checked = $bindable(false),
 		indeterminate = $bindable(false),

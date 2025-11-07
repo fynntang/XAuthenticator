@@ -1,7 +1,7 @@
 <script lang="ts" module>
-    import {tv, type VariantProps} from "tailwind-variants";
+	import { tv, type VariantProps } from "tailwind-variants";
 
-    const inputGroupButtonVariants = tv({
+	const inputGroupButtonVariants = tv({
 		base: "flex items-center gap-2 text-sm shadow-none",
 		variants: {
 			size: {
@@ -25,6 +25,7 @@
 	import { Button } from "$lib/components/ui/button/index.js";
 
 	let {
+		ref = $bindable(null),
 		class: className,
 		children,
 		type = "button",
@@ -37,6 +38,7 @@
 </script>
 
 <Button
+	bind:ref
 	{type}
 	data-size={size}
 	{variant}
