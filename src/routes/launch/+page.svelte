@@ -2,23 +2,15 @@
     import {onMount} from 'svelte';
     import logo from '$lib/assets/logo.png';
     import {Progress} from "$lib/components/ui/progress";
-    import img1845852 from "$lib/assets/launch/1845852.avif";
-    import img5742416 from "$lib/assets/launch/5742416.avif";
-    import img6496937 from "$lib/assets/launch/6496937.avif";
-    import img6834164 from "$lib/assets/launch/6834164.avif";
-    import img7899206 from "$lib/assets/launch/7899206.avif";
-    import img8258264 from "$lib/assets/launch/8258264.avif";
-    import img9059825 from "$lib/assets/launch/9059825.avif";
     import {getCurrentWindow} from "@tauri-apps/api/window";
     import {initialize} from "$lib/initialize";
     import {appState, launchApp} from "$lib/api/api";
-    import {wait} from "$lib/utils";
+    import {randomLaunchImage, wait} from "$lib/utils";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
     import type {APIError} from "$lib/api/types";
     import {CommonError} from "$lib/api/errors";
     import {showWindow} from "$lib/window";
 
-    let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
     let progress = $state(0);
     const initialized = initialize();
     const currentWindow = getCurrentWindow();
@@ -87,7 +79,7 @@
             </div>
         </div>
         <div class="flex w-2/5 h-full"
-             style="background-image: url({launchImages[Math.floor(Math.random()*launchImages.length)]}); background-size: cover; background-position: center;">
+             style="background-image: url({randomLaunchImage()}); background-size: cover; background-position: center;">
         </div>
     </div>
     {#if progress < 100}

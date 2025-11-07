@@ -8,18 +8,12 @@
     import {Progress} from "$lib/components/ui/progress";
     import {AlertCircle, Eye, EyeOff, Lock} from "@lucide/svelte";
     import {Spinner} from "$lib/components/ui/spinner";
-    import img1845852 from "$lib/assets/launch/1845852.avif";
-    import img5742416 from "$lib/assets/launch/5742416.avif";
-    import img6496937 from "$lib/assets/launch/6496937.avif";
-    import img6834164 from "$lib/assets/launch/6834164.avif";
-    import img7899206 from "$lib/assets/launch/7899206.avif";
-    import img8258264 from "$lib/assets/launch/8258264.avif";
-    import img9059825 from "$lib/assets/launch/9059825.avif";
     import {Label} from "$lib/components/ui/label";
     import {Checkbox} from "$lib/components/ui/checkbox";
     import {initApp} from "$lib/api/api";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
+    import {randomLaunchImage} from "$lib/utils";
 
     let {params, data}: PageProps = $props();
     let password = $state("");
@@ -32,7 +26,6 @@
 
     type Strength = { score: number; label: string; color: string; hints: string[] };
     let strength: Strength = $state({score: 0, label: "frail", color: "red", hints: []});
-    let launchImages = [img1845852, img5742416, img6496937, img6834164, img7899206, img8258264, img9059825];
 
 
     const hasUpper = (s: string) => /[A-Z]/.test(s);
@@ -99,7 +92,7 @@
 
 
 <main data-tauri-drag-region class="relative flex min-h-screen w-screen items-center justify-center p-4"
-      style:background="url({launchImages[Math.floor(Math.random()*launchImages.length)]}) center/cover no-repeat">
+      style:background="url({randomLaunchImage()}) center/cover no-repeat">
     <Card data-tauri-drag-region class="relative w-full max-w-2xl z-[2]">
         <CardHeader>
             <CardTitle class="flex items-center gap-2">
