@@ -9,7 +9,6 @@
     "dialog:default",
     "fs:default",
     "os:default",
-    "sql:default",
     "store:default",
     "stronghold:default",
     "log:default",

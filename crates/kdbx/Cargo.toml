@@ -1,15 +1,16 @@
 [package]
-name = "xauthenticator-error"
+name = "xauthenticator-kdbx"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 repository.workspace = true
 description.workspace = true
 [lib]
-name = "xauthenticator_error"
+name = "xauthenticator_kdbx"
 path = "src/lib.rs"
 
 [dependencies]
+keepass = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }

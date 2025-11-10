@@ -17,17 +17,14 @@ impl CheckFileExists {
     pub fn config(&self) -> bool {
         self.dir.config().exists()
     }
-    pub fn db(&self, app_name: String) -> bool {
-        self.dir.db(app_name).exists()
-    }
     pub fn version(&self) -> bool {
         self.dir.version().exists()
     }
-    pub fn master_key(&self) -> bool {
-        self.dir.master_key().exists()
+    pub fn accounts(&self) -> bool {
+        self.dir.accounts().exists()
     }
 
-    pub fn all(&self, app_name: String) -> bool {
-        self.app() && self.config() && self.db(app_name) && self.version()
+    pub fn all(&self) -> bool {
+        self.app() && self.config() && self.accounts() && self.version()
     }
 }

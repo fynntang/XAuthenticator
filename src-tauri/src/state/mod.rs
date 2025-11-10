@@ -1,4 +1,4 @@
-use sea_orm::DatabaseConnection;
+use keepass::Database;
 use serde::Serialize;
 
 #[derive(Default, Serialize, Clone)]
@@ -6,13 +6,12 @@ use serde::Serialize;
 pub struct AppState {
     pub is_initialized: bool,
     pub runtime_timestamp: u64,
-    pub config: xauthenticator_config::Config,
-    #[serde(skip)]
-    pub db: Option<DatabaseConnection>,
     pub is_locked: bool,
     pub locked_timestamp: Option<u64>,
+    pub config: xauthenticator_config::Config,
+
     #[serde(skip)]
-    pub master_key: Option<[u8; 32]>,
+    pub db: Option<Database>,
 }
 
 impl AppState {}

@@ -1,18 +1,10 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
-use crate::utils::{crypto, kdf, parse_otpauth};
+use keepass::Database;
 use log::{error, info};
-use sea_orm::ActiveValue::Set;
-use sea_orm::{Database, DatabaseConnection};
-use sea_orm_cli::cli;
-use serde::Serialize;
 use std::fs;
-use std::io::Write;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
-use xauthenticator_entity::account::ActiveModel;
-use xauthenticator_entity::PageParam;
-use xauthenticator_entity::Response;
 use xauthenticator_error::CommonError;
 
 #[tauri::command]
@@ -22,10 +14,6 @@ pub fn init_app(app: tauri::AppHandle, password: String) -> Result<(), CommonErr
             .app_local_data_dir()
             .expect("could not resolve app local data path"),
     );
-    let salt_path = app_data_dir.salt();
-
-    app.plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())
-        .expect("failed to initialize stronghold plugin");
 
     let has_min_len = password.len() >= 12;
     let has_upper = password.chars().any(|c| c.is_ascii_uppercase());
@@ -38,35 +26,11 @@ pub fn init_app(app: tauri::AppHandle, password: String) -> Result<(), CommonErr
         return Err(CommonError::InvalidPassword);
     }
 
-    let master_key_path = app_data_dir.master_key();
-    if master_key_path.exists() {
-        info!("master key already initialized");
+    let accounts_path = app_data_dir.accounts();
+    if accounts_path.exists() {
+        info!("Account already exists");
         return Ok(());
     }
-
-    let salt: Vec<u8> = if salt_path.exists() {
-        fs::read(&salt_path).expect("failed to read salt")
-    } else {
-        let mut salt_buf = [0u8; 16];
-        getrandom::fill(&mut salt_buf).expect("failed to generate salt");
-        let mut f = fs::File::create(&salt_path).expect("failed to create salt file");
-        f.write_all(&salt_buf).expect("failed to write salt file");
-        salt_buf.to_vec()
-    };
-
-    let derived = kdf::derive_key(&password, Some(&salt));
-
-    let mut master_key = [0u8; 32];
-    getrandom::fill(&mut master_key).expect("failed to generate master key");
-    let (nonce, ciphertext) = crypto::encrypt_xchacha20poly1305(&master_key, &derived.0)
-        .map_err(|e| CommonError::UnexpectedError(e.into()))?;
-
-    let mut f = fs::File::create(&master_key_path).expect("failed to create master key file");
-    f.write_all(&nonce)
-        .expect("failed to write master key nonce");
-    f.write_all(&ciphertext)
-        .expect("failed to write master key ciphertext");
-    info!("master key initialized and stored securely");
 
     Ok(())
 }
@@ -124,41 +88,12 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
         }
     };
 
-    let db_path = app_data_dir.db(app.config().identifier.to_lowercase().clone());
-    if !db_path.exists() {
-        info!("database file not found, creating new file");
-        fs::File::create(&db_path).expect("failed to create database file");
-        info!("created database file: {}", db_path.to_str().unwrap());
-    }
-
-    tauri::async_runtime::block_on(async {
-        let db: DatabaseConnection =
-            Database::connect(format!("sqlite:{}", db_path.to_str().unwrap()))
-                .await
-                .expect("failed to connect to database");
-
-        if first_time {
-            info!("running migrations...");
-            xauthenticator_migration::run_migrate(
-                &db,
-                Option::from(cli::MigrateSubcommands::Up { num: None }),
-                false,
-            )
-            .await
-            .expect("failed to run migrations");
-            info!("migrations completed");
-        }
-
-        app_state.db = Some(db);
-    });
-
-    let master_key_path = app_data_dir.master_key();
-    if !master_key_path.exists() {
+    let accounts_path = app_data_dir.accounts();
+    if !accounts_path.exists() {
         return Err(CommonError::MasterKeyNotInitialized);
     } else {
         info!("master key storage found; deferring load until unlock");
         app_state.is_locked = true;
-        app_state.master_key = None;
     }
 
     let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
@@ -192,30 +127,8 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
             .expect("could not resolve app local data path"),
     );
 
-    // 读取盐并派生密钥
-    let salt = fs::read(app_data_dir.salt()).map_err(|e| CommonError::UnexpectedError(e.into()))?;
-    let derived = kdf::derive_key(&password, Some(&salt));
-
-    // 读取并解密主密钥
-    let enc =
-        fs::read(app_data_dir.master_key()).map_err(|e| CommonError::UnexpectedError(e.into()))?;
-    if enc.len() < 24 + 16 {
-        error!("invalid master key blob size: {}", enc.len());
-        return Err(CommonError::InvalidMasterKey);
-    }
-    let (nonce, ciphertext) = enc.split_at(24);
-    let plaintext = crypto::decrypt_xchacha20poly1305(&ciphertext, &nonce, &derived.0)
-        .map_err(|e| CommonError::UnexpectedError(e.into()))?;
-    if plaintext.len() != 32 {
-        error!("invalid decrypted master key size: {}", plaintext.len());
-        return Err(CommonError::InvalidMasterKey);
-    }
-    let mut key_buf = [0u8; 32];
-    key_buf.copy_from_slice(&plaintext);
-
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().unwrap();
-    state.master_key = Some(key_buf);
     state.is_locked = false;
     state.locked_timestamp = None;
     Ok(())
@@ -230,56 +143,12 @@ pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
     let mut state = state.lock().unwrap();
     state.is_locked = true;
     state.locked_timestamp = Some(chrono::Local::now().timestamp() as u64);
-    state.master_key = None;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn list_accounts(
-    app: tauri::AppHandle,
-    current: u32,
-    size: u32,
-) -> Result<Response<Vec<xauthenticator_entity::response::Account>>, CommonError> {
-    // Gate: must be unlocked
-    {
-        let state = app.state::<Arc<Mutex<AppState>>>();
-        let state = state.lock().unwrap();
-        if state.is_locked || state.master_key.is_none() {
-            return Err(CommonError::AppIsLocked);
-        }
-    }
-    // Get a clone of the DatabaseConnection without holding the mutex across await
-    let db = {
-        let state = app.state::<Arc<Mutex<AppState>>>();
-        let state = state.lock().unwrap();
-        state
-            .db
-            .as_ref()
-            .cloned()
-            .ok_or_else(|| CommonError::RequestError("database not initialized".to_string()))?
-    };
-    let resp = xauthenticator_repository::account::list_accounts(&db, PageParam { current, size })
-        .await
-        .expect("failed to list accounts");
-
-    Ok(Response {
-        data: resp
-            .data
-            .iter()
-            .map(|v| xauthenticator_entity::response::Account {
-                id: v.id.to_string(),
-                issuer: v.issuer.to_string(),
-                label: v.label.to_string(),
-                r#type: v.r#type.to_string(),
-                algorithm: v.algorithm.to_string(),
-                digits: v.digits,
-                period: v.period,
-                counter: v.counter,
-                secret_cipher: v.secret_cipher.clone(),
-            })
-            .collect(),
-        total: resp.total,
-    })
+pub async fn list_accounts(app: tauri::AppHandle) -> Result<(), CommonError> {
+    Ok(())
 }
 
 #[tauri::command]
@@ -292,42 +161,9 @@ pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), Common
     // Gate: must be unlocked
     let state = app.state::<Arc<Mutex<AppState>>>();
     let state = state.lock().unwrap();
-    if state.is_locked || state.master_key.is_none() {
+    if state.is_locked {
         return Err(CommonError::AppIsLocked);
     }
-    // Clone the DB connection without holding the mutex across potential await
-    let db = state.db.as_ref().cloned().unwrap();
-    let master_key = state.master_key.as_ref().cloned().unwrap();
-
-    // Parse otpauth URL
-    let parsed = parse_otpauth::parse_otpauth(&auth_url).expect("failed to parse otpauth URL");
-    let (nonce, ciphertext) = crypto::encrypt_xchacha20poly1305(&parsed.secret, &master_key)
-        .expect("failed to encrypt secret");
-
-    // Build ActiveModel with encrypted secret + nonce
-    let account = ActiveModel {
-        id: Set(uuid::Uuid::new_v7(uuid::Timestamp::now(uuid::NoContext)).to_string()),
-        issuer: Set(parsed.issuer),
-        label: Set(parsed.label),
-        r#type: Set(parsed.r#type),
-        algorithm: Set(parsed.algorithm),
-        digits: Set(parsed.digits),
-        period: Set(parsed.period),
-        counter: Set(parsed.counter),
-        secret_cipher: Set(ciphertext),
-        secret_nonce: Set(nonce),
-        icon: Set(None),
-        note: Set(None),
-        created_at: Set(None),
-        updated_at: Set(None),
-    };
-
-    let res = tauri::async_runtime::block_on(async {
-        xauthenticator_repository::account::add_account(&db, account).await
-    })
-    .expect("failed to add account");
-
-    info!("add_account: res={:?}", res);
 
     Ok(())
 }
@@ -343,20 +179,14 @@ pub async fn remove_account(
     }
     info!("remove_account: account_id={}", account_id);
     // Gate: must be unlocked
-    let (db, is_locked) = {
+    let is_locked = {
         let state = app.state::<Arc<Mutex<AppState>>>();
         let state = state.lock().unwrap();
-        (
-            state.db.as_ref().cloned().unwrap(),
-            state.is_locked || state.master_key.is_none(),
-        )
+        state.is_locked
     };
     if is_locked {
         return Err(CommonError::AppIsLocked);
     }
-    xauthenticator_repository::account::remove_account(&db, account_id.to_string())
-        .await
-        .expect("failed to remove account");
 
     Ok(())
 }
@@ -373,7 +203,7 @@ pub fn get_code(app: tauri::AppHandle, account_id: uuid::Uuid) -> Result<String,
     {
         let state = app.state::<Arc<Mutex<AppState>>>();
         let state = state.lock().unwrap();
-        if state.is_locked || state.master_key.is_none() {
+        if state.is_locked {
             return Err(CommonError::AppIsLocked);
         }
     }
@@ -392,54 +222,10 @@ pub fn health_check(app: tauri::AppHandle) -> Result<(), CommonError> {
         if now.saturating_sub(state.runtime_timestamp) >= timeout {
             state.is_locked = true;
             state.locked_timestamp = Some(now);
-            state.master_key = None;
             return Err(CommonError::AppIsLocked);
         }
     }
     Ok(())
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AuthCapabilities {
-    pub biometric_supported: bool,
-    pub pin_supported: bool,
-    pub methods: Vec<String>,
-}
-
-#[tauri::command]
-pub fn auth_capabilities(_app: tauri::AppHandle) -> Result<AuthCapabilities, CommonError> {
-    let os = std::env::consts::OS;
-    let mut methods: Vec<String> = Vec::new();
-    let mut biometric = false;
-    let mut pin = false;
-    match os {
-        "windows" => {
-            // 未来可集成 Windows Hello/FIDO2 检测
-            biometric = false;
-            pin = true; // Windows 通常支持系统 PIN
-            methods.push("PIN".to_string());
-        }
-        "macos" => {
-            biometric = true; // Touch ID 常见
-            methods.push("Touch ID".to_string());
-        }
-        "linux" => {
-            // 未来可检测 libpam/fprintd
-            biometric = false;
-            pin = false;
-        }
-        "android" | "ios" => {
-            biometric = true;
-            methods.push("Biometric".to_string());
-        }
-        _ => {}
-    }
-    Ok(AuthCapabilities {
-        biometric_supported: biometric,
-        pin_supported: pin,
-        methods,
-    })
 }
 
 #[tauri::command]

@@ -41,23 +41,11 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .manage(Arc::new(Mutex::new(AppState::default())))
         .setup(|_app| {
-            // app.manage(Arc::new(Mutex::new(AppState::default())));
-            //
-            // let salt_path = app
-            //     .path()
-            //     .app_local_data_dir()
-            //     .expect("could not resolve app local data path")
-            //     .join("salt.txt");
-            // info!("salt_path: {:?}", salt_path);
-
-            // app.handle()
-            //     .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
-            Ok(())
+           Ok(())
         })
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::Resized { .. } => {}
@@ -87,7 +75,6 @@ pub fn run() {
             commands::import_backup,
             commands::get_code,
             commands::health_check,
-            commands::auth_capabilities,
             commands::quit_app,
         ])
         .run(tauri::generate_context!())

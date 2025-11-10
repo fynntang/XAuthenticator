@@ -11,5 +11,4 @@ name = "xauthenticator_entity"
 path = "src/lib.rs"
 
 [dependencies]
-sea-orm = { workspace = true }
 serde = { workspace = true }

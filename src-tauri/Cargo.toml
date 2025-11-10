@@ -22,8 +22,7 @@ tauri-build = { version = "2", features = [] }
 xauthenticator-config = { workspace = true }
 xauthenticator-entity = { workspace = true }
 xauthenticator-error = { workspace = true }
-xauthenticator-migration = { workspace = true }
-xauthenticator-repository = { workspace = true }
+xauthenticator-kdbx = { workspace = true }
 
 
 tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
@@ -31,7 +30,6 @@ tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-os = "2"
-tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 tauri-plugin-store = "2"
 tauri-plugin-stronghold = "2"
 tauri-plugin-log = "2"
@@ -42,20 +40,9 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 uuid = { workspace = true }
-rand = { workspace = true }
-argon2 = { workspace = true }
-sha2 = { workspace = true }
-rand_core = { workspace = true }
-sea-orm = { workspace = true }
-sea-orm-cli = { workspace = true }
 chrono = { workspace = true }
-tempdir = { workspace = true }
-tempfile = { workspace = true }
-thiserror = { workspace = true }
 anyhow = { workspace = true }
-chacha20poly1305 = { workspace = true }
-getrandom = { workspace = true }
-generic-array = { workspace = true }
+keepass = { workspace = true }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

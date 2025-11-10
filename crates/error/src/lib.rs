@@ -16,8 +16,6 @@ pub enum CommonError {
     InvalidPassword,
     #[error("Biometric authentication failed")]
     BiometricAuthFailed,
-    #[error("Database error: {0}")]
-    DatabaseError(#[from] sea_orm::DbErr),
     #[error("Request error: {0}")]
     RequestError(String),
     #[error("Token expired")]
@@ -46,7 +44,6 @@ impl CommonError {
             CommonError::AppIsLocked => "AppIsLocked",
             CommonError::InvalidPassword => "InvalidPassword",
             CommonError::BiometricAuthFailed => "BiometricAuthFailed",
-            CommonError::DatabaseError(_) => "DatabaseError",
             CommonError::RequestError(_) => "RequestError",
             CommonError::TokenExpired => "TokenExpired",
         }
