@@ -5204,9 +5204,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-cli"
-version = "2.0.0-rc.17"
+version = "2.0.0-rc.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301f7ace977d940474b47a154a5fc453714d13e5d53bdb077330c6fc6212a31b"
+checksum = "669479531f1422edde78327b24b32f652a9417f5942935737a7d7c7d31e5a1a9"
 dependencies = [
  "chrono",
  "clap",
@@ -5225,9 +5225,9 @@ dependencies = [
 
 [[package]]
 name = "sea-orm-codegen"
-version = "2.0.0-rc.17"
+version = "2.0.0-rc.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f393b41c58a8a85e7e8d0f3b9113a5fc5efc2f29f4b6ac40bacae9a3819f8963"
+checksum = "004eff55e5aa46d43ef4f1b3650cef08ae74305c029a52ab036e36fd3ccbd44b"
 dependencies = [
  "heck 0.5.0",
  "pluralizer",

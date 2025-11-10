@@ -36,7 +36,7 @@ sea-orm = { version = "2.0.0-rc", features = [
     "with-json",
     "debug-print",
 ] }
-sea-orm-cli = "2.0.0-rc"
+sea-orm-cli = "2.0.0-rc.18"
 tempdir = "0"
 tempfile = "3"
 thiserror = "2"
