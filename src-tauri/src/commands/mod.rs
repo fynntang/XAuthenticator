@@ -90,10 +90,7 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
 
     let accounts_path = app_data_dir.accounts();
     if !accounts_path.exists() {
-        return Err(CommonError::MasterKeyNotInitialized);
-    } else {
-        info!("master key storage found; deferring load until unlock");
-        app_state.is_locked = true;
+        return Err(CommonError::KdbxNotInitialized);
     }
 
     let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();

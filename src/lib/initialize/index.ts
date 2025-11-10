@@ -8,12 +8,12 @@ import {lockApp, quitApp} from "$lib/api/api";
 
 
 export const initialize = () => {
-    const trayId = "0199dd1b-2c57-7000-8000-000000000000";
+    const trayId = "00000000-0000-0000-0000-000000000000";
     let tray: TrayIcon | null = null;
     return {
         createTray: async () => {
             tray = await TrayIcon.getById(trayId)
-            if (tray) return;
+            if (tray) return tray;
             tray = await TrayIcon.new({
                 id: trayId,
                 icon: await defaultWindowIcon(),
@@ -75,6 +75,7 @@ export const initialize = () => {
                     if (event.type === 'Click' && event.button === "Left") showWindow(WebviewWindowLabels.Main)
                 },
             } as TrayIconOptions);
+            return tray;
         },
         removeTray: async () => await TrayIcon.removeById(trayId),
         getTray: () => tray,

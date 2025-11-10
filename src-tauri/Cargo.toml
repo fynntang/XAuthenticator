@@ -22,7 +22,6 @@ tauri-build = { version = "2", features = [] }
 xauthenticator-config = { workspace = true }
 xauthenticator-entity = { workspace = true }
 xauthenticator-error = { workspace = true }
-xauthenticator-kdbx = { workspace = true }
 
 
 tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }

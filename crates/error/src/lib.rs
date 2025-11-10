@@ -4,6 +4,8 @@ use serde::{ser::SerializeStruct, Serializer};
 pub enum CommonError {
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
+    #[error("KDBX not initialized")]
+    KdbxNotInitialized,
     #[error("Master key not initialized")]
     MasterKeyNotInitialized,
     #[error("Invalid master key")]
@@ -38,6 +40,7 @@ impl CommonError {
     pub fn code(&self) -> &'static str {
         match self {
             CommonError::UnexpectedError(_) => "UnexpectedError",
+            CommonError::KdbxNotInitialized => "KdbxNotInitialized",
             CommonError::MasterKeyNotInitialized => "MasterKeyNotInitialized",
             CommonError::InvalidMasterKey => "InvalidMasterKey",
             CommonError::AppNotInitialized => "AppNotInitialized",

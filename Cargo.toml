@@ -14,7 +14,6 @@ description = "A modern, secure and easy-to-use two-factor authentication (2FA) 
 xauthenticator-config = { path = "crates/config" }
 xauthenticator-entity = { path = "crates/entity" }
 xauthenticator-error = { path = "crates/error" }
-xauthenticator-kdbx = { path = "crates/kdbx" }
 
 chrono = "0.4"
 tokio = { version = "1", features = ["full"] }

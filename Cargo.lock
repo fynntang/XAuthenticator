@@ -7076,7 +7076,6 @@ dependencies = [
  "xauthenticator-config",
  "xauthenticator-entity",
  "xauthenticator-error",
- "xauthenticator-kdbx",
 ]
 
 [[package]]
@@ -7099,16 +7098,6 @@ name = "xauthenticator-error"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "serde",
- "thiserror 2.0.17",
-]
-
-[[package]]
-name = "xauthenticator-kdbx"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "keepass",
  "serde",
  "thiserror 2.0.17",
 ]
