@@ -126,12 +126,20 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
         return Err(CommonError::KdbxNotInitialized);
     }
 
+    let settings = cfg.builder().settings.clone();
+
     app_state.config = cfg;
 
     app_state.is_initialized = true;
-    app_state.is_locked = true;
 
-    app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+    if settings.auto_lock && !app_state.is_locked {
+        let now = chrono::Local::now().timestamp() as u64;
+        if now.saturating_sub(app_state.runtime_timestamp) >= settings.auto_lock_timeout {
+            app_state.is_locked = true;
+            app_state.locked_timestamp = Some(now);
+            return Err(CommonError::AppIsLocked);
+        }
+    }
 
     info!("app initialized");
 
@@ -140,8 +148,21 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
 
 #[tauri::command]
 pub fn app_state(app: tauri::AppHandle) -> Result<AppState, CommonError> {
-    let app_state = app.state::<Arc<Mutex<AppState>>>();
-    let app_state = app_state.lock().unwrap();
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let mut app_state = state.lock().unwrap();
+
+    let settings = app_state.config.builder().settings.clone();
+    let timeout = settings.auto_lock_timeout;
+    let auto_lock_enabled = settings.auto_lock;
+
+    if auto_lock_enabled && !app_state.is_locked {
+        let now = chrono::Local::now().timestamp() as u64;
+        if now.saturating_sub(app_state.runtime_timestamp) >= timeout {
+            app_state.is_locked = true;
+            app_state.locked_timestamp = Some(now);
+            return Err(CommonError::AppIsLocked);
+        }
+    }
     Ok(app_state.clone())
 }
 
@@ -238,23 +259,6 @@ pub fn get_code(app: tauri::AppHandle, account_id: uuid::Uuid) -> Result<String,
     }
     // Implementation of code generation would go here
     Err(CommonError::RequestError("not implemented".to_string()))
-}
-
-#[tauri::command]
-pub fn health_check(app: tauri::AppHandle) -> Result<(), CommonError> {
-    let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut state = state.lock().unwrap();
-    let timeout = state.config.builder().settings.auto_lock_timeout;
-    let auto_lock_enabled = state.config.builder().settings.auto_lock;
-    if auto_lock_enabled && !state.is_locked {
-        let now = chrono::Local::now().timestamp() as u64;
-        if now.saturating_sub(state.runtime_timestamp) >= timeout {
-            state.is_locked = true;
-            state.locked_timestamp = Some(now);
-            return Err(CommonError::AppIsLocked);
-        }
-    }
-    Ok(())
 }
 
 #[tauri::command]

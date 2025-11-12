@@ -9,7 +9,6 @@ export const appState = async () => await apiInvoke<AppStateResponse>("app_state
 export const quitApp = async () => await apiInvoke<void>("quit_app");
 export const lockApp = async () => await apiInvoke<void>("lock");
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password});
-export const healthCheck = async () => await apiInvoke<void>("health_check");
 
 export const listAccounts = async (current: number = 0, size: number = 16) => await apiInvoke<Response<Account[]>>("list_accounts", {
     current,

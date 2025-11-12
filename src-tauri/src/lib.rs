@@ -73,7 +73,6 @@ pub fn run() {
             commands::export_backup,
             commands::import_backup,
             commands::get_code,
-            commands::health_check,
             commands::quit_app,
         ])
         .run(tauri::generate_context!())

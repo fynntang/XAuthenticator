@@ -27,9 +27,13 @@ export type Response<T> = {
 
 export type AppStateResponse = {
     isInitialized: boolean,
+    runtimeTimestamp: number | null,
+    isLocked: boolean,
+    lockedTimestamp: number | null,
     config: {
         path: string,
         builder: {
+            kdbxPath: string,
             settings: {
                 theme: string,
                 language: string,
@@ -38,7 +42,6 @@ export type AppStateResponse = {
             }
         }
     }
-    isLocked: boolean
 }
 
 export type Account = {
