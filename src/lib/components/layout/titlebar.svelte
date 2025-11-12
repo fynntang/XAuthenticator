@@ -9,16 +9,15 @@
     import {getCurrentWindow} from "@tauri-apps/api/window";
     import type {WithElementRef} from "$lib/utils";
     import type {HTMLAttributes} from "svelte/elements";
+    import {appStore} from "$lib/stores/stores";
 
     const appWindow = getCurrentWindow();
 
 
     let {
-        isLocked = false,
         windowLabels,
         children
     }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {
-        isLocked: boolean | undefined,
         windowLabels: WebviewWindowLabels | undefined,
     } = $props();
     let isAlwaysOnTop = $state(false);
@@ -41,7 +40,7 @@
                 ></div>
                 <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{__NAME__}</h1>
             </div>
-            {#if windowLabels === WebviewWindowLabels.Main && !isLocked}
+            {#if windowLabels === WebviewWindowLabels.Main && !$appStore?.isLocked}
                 <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
                     <InputGroupInput placeholder="Search..."/>
                     <InputGroupAddon>
@@ -55,7 +54,7 @@
             {/if}
         </div>
         <div class="flex flex-none ml-auto items-center">
-            {#if windowLabels === WebviewWindowLabels.Main && !isLocked}
+            {#if windowLabels === WebviewWindowLabels.Main && !$appStore?.isLocked}
                 <Button variant="ghost" size="icon"
                         class="mr-2 {isAlwaysOnTop?'bg-accent text-accent-foreground dark:bg-accent/50':''}"
                         onclick={toggleAlwaysOnTop}>
@@ -69,7 +68,7 @@
             {#if children}
                 {@render children()}
             {/if}
-            {#if windowLabels === WebviewWindowLabels.Main && !isLocked}
+            {#if windowLabels === WebviewWindowLabels.Main && !$appStore?.isLocked}
                 <Button variant="ghost" size="icon" class="mr-2"
                         onclick={()=>showWindow(WebviewWindowLabels.Settings)}>
                     <Settings/>

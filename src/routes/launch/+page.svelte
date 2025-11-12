@@ -3,7 +3,6 @@
     import logo from '$lib/assets/logo.png';
     import {Progress} from "$lib/components/ui/progress";
     import {getCurrentWindow} from "@tauri-apps/api/window";
-    import {initialize} from "$lib/initialize";
     import {appState, launchApp} from "$lib/api/api";
     import {randomLaunchImage, wait} from "$lib/utils";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
@@ -12,7 +11,6 @@
     import {showWindow} from "$lib/window";
 
     let progress = $state(0);
-    const initialized = initialize();
     const currentWindow = getCurrentWindow();
 
     type CopyrightKeys = 'date' | 'name';
@@ -28,17 +26,13 @@
                 progress += 10;
                 state = await appState();
                 progress += 10;
-                if (state && state.isInitialized) {
-                    await initialized.createTray();
-                    progress += 10;
-                }
                 await wait(1000)
             }
             progress = 90;
             await wait(300)
             await showWindow(WebviewWindowLabels.Main)
         } catch (e) {
-            if ((e as APIError).code === CommonError.MasterKeyNotInitialized) {
+            if (Array.of(CommonError.KdbxNotInitialized, CommonError.MasterKeyNotInitialized).includes((e as APIError).code)) {
                 console.error(e);
                 await showWindow(WebviewWindowLabels.Initialization);
             } else {

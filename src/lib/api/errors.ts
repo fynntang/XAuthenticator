@@ -1,5 +1,6 @@
 export enum CommonError {
     UnexpectedError = "UnexpectedError",
+    KdbxNotInitialized = "KdbxNotInitialized",
     MasterKeyNotInitialized = "MasterKeyNotInitialized",
     AppNotInitialized = "AppNotInitialized",
     AppIsLocked = "AppIsLocked",

@@ -1,199 +1,278 @@
 <script lang="ts">
-    import type {PageProps} from './$types';
-
+    import type {PageProps} from './$types'
+    import {InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput} from '$lib/components/ui/input-group'
+    import {Eye, EyeOff, FolderOpen} from '@lucide/svelte'
+    import {randomLaunchImage, wait} from '$lib/utils'
+    import {appState, initApp} from '$lib/api/api'
+    import {getCurrentWindow} from '@tauri-apps/api/window'
+    import {save} from '@tauri-apps/plugin-dialog'
+    import {Field, FieldGroup, FieldLabel} from "$lib/components/ui/field";
     import {Button} from "$lib/components/ui/button";
-    import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "$lib/components/ui/card";
-    import {InputGroup, InputGroupAddon, InputGroupInput} from "$lib/components/ui/input-group";
-    import {Alert, AlertDescription, AlertTitle} from "$lib/components/ui/alert";
-    import {Progress} from "$lib/components/ui/progress";
-    import {AlertCircle, Eye, EyeOff, Lock} from "@lucide/svelte";
-    import {Spinner} from "$lib/components/ui/spinner";
-    import {Label} from "$lib/components/ui/label";
-    import {Checkbox} from "$lib/components/ui/checkbox";
-    import {initApp} from "$lib/api/api";
+    import {Slider} from "$lib/components/ui/slider";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
-    import {randomLaunchImage} from "$lib/utils";
-
-    let {params, data}: PageProps = $props();
-    let password = $state("");
-    let confirmPassword = $state("");
-    let showPassword = $state(false);
-    let showConfirm = $state(false);
-    let acknowledged = $state(false);
-    let error = $state("");
-    let loading = $state(false);
-
-    type Strength = { score: number; label: string; color: string; hints: string[] };
-    let strength: Strength = $state({score: 0, label: "frail", color: "red", hints: []});
+    import {_ as t} from 'svelte-i18n';
+    import {get} from 'svelte/store';
 
 
-    const hasUpper = (s: string) => /[A-Z]/.test(s);
-    const hasLower = (s: string) => /[a-z]/.test(s);
-    const hasDigit = (s: string) => /\d/.test(s);
-    const hasSymbol = (s: string) => /[^A-Za-z0-9]/.test(s);
+    type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong' | 'excellent'
+    type Strength = { score: number; label: string; level: StrengthLevel }
+    type InitForm = {
+        kdbxPath: string;
+        password: string;
+        confirm: string;
+        showPassword: boolean;
+        showConfirm: boolean;
+        advanced: boolean;
+        length: number
+    }
 
-    const evaluateStrength = (pw: string): Strength => {
-        const hints: string[] = [];
-        let score = 0;
-        if (pw.length >= 12) score += 1; else hints.push("At least 12 characters");
-        if (hasUpper(pw) && hasLower(pw)) score += 1; else hints.push("Contains uppercase and lowercase letters");
-        if (hasDigit(pw)) score += 1; else hints.push("Contains numbers");
-        if (hasSymbol(pw)) score += 1; else hints.push("Include symbols (e.g. !@#%)");
-        const labels = ["frail", "general", "Medium", "good", "strong"];
-        const colors = ["red", "orange", "yellow", "emerald", "green"];
-        const idx = Math.min(score, 4);
-        return {score, label: labels[idx], color: colors[idx], hints};
-    };
+    let {data}: PageProps = $props()
 
-    $effect(() => {
-        strength = evaluateStrength(password);
-        error = "";
-    });
+    let form: InitForm = $state({
+        kdbxPath: data.appDefault.kdbxPath,
+        password: '',
+        confirm: '',
+        showPassword: false,
+        showConfirm: false,
+        advanced: false,
+        length: 16
+    })
+    let strength = $state<Strength>({score: 0, label: get(t)('initialization.strengthWeak'), level: 'weak'})
+    let canSubmit = $state(false)
+    let loading = $state(false)
+    let error = $state('')
+    let success = $state('')
+    let sliderVal = $state(form.length)
+
+    const labels: Record<StrengthLevel, string> = {
+        weak: get(t)('initialization.strengthWeak'),
+        fair: get(t)('initialization.strengthFair'),
+        good: get(t)('initialization.strengthGood'),
+        strong: get(t)('initialization.strengthStrong'),
+        excellent: get(t)('initialization.strengthExcellent')
+    }
+
+    const calcStrength = (pwd: string): Strength => {
+        const len = pwd.length
+        const hasUpper = /[A-Z]/.test(pwd)
+        const hasLower = /[a-z]/.test(pwd)
+        const hasDigit = /\d/.test(pwd)
+        const hasSpecial = /[^\w\s]/.test(pwd)
+        let score = 0
+        score += Math.min(40, len * 2)
+        score += hasUpper ? 15 : 0
+        score += hasLower ? 15 : 0
+        score += hasDigit ? 15 : 0
+        score += hasSpecial ? 15 : 0
+        score = Math.min(100, score)
+        const level: StrengthLevel = score < 25 ? 'weak' : score < 50 ? 'fair' : score < 70 ? 'good' : score < 85 ? 'strong' : 'excellent'
+        return {score, label: labels[level], level}
+    }
 
     const validate = (): boolean => {
-        if (!password || !confirmPassword) {
-            error = "Please enter your master password and confirm it again";
-            return false;
-        }
-        if (password !== confirmPassword) {
-            error = "The password entered twice is inconsistent";
-            return false;
-        }
-        if (strength.score < 3) {
-            error = "If the password is too low, increase the complexity";
-            return false;
-        }
-        if (!acknowledged) {
-            error = "Make sure you have saved your master password";
-            return false;
-        }
-        return true;
-    };
+        const p = form.password
+        const okLen = p.length >= 12
+        const okUpper = /[A-Z]/.test(p)
+        const okLower = /[a-z]/.test(p)
+        const okDigit = /\d/.test(p)
+        const okSpecial = /[^\w\s]/.test(p)
+        const match = p && form.confirm && p === form.confirm
+        return okLen && okUpper && okLower && okDigit && okSpecial && !!match
+    }
 
-    const onInitialize = async () => {
-        error = "";
-        if (!validate()) return;
-        loading = true;
+    $effect(() => {
+        strength = calcStrength(form.password)
+        canSubmit = validate()
+        form.length = sliderVal
+    })
 
+    const pickPath = async () => {
+        const result = await save({
+            defaultPath: form.kdbxPath,
+            filters: [{name: 'KeePass Database', extensions: ['kdbx']}]
+        })
+        if (result) form.kdbxPath = result
+    }
+
+    const genPassword = (len: number) => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,./?'
+        let out = ''
+        for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)]
+        form.password = out
+        form.confirm = out
+    }
+
+    const onSubmit = async () => {
+        if (!canSubmit || loading) return
+        loading = true
+        error = ''
+        success = ''
         try {
-            await initApp(password);
-            await showWindow(WebviewWindowLabels.Launch);
+            await initApp({
+                kdbxPath: form.kdbxPath,
+                password: form.password,
+            })
+            await appState()
+            success = get(t)('initialization.initSuccess')
+            await wait(1500)
+            await showWindow(WebviewWindowLabels.Main)
+            await getCurrentWindow().hide()
         } catch (e: any) {
-            error = e?.reason ?? e?.message ?? "Initialization failed, please retry";
+            error = e?.reason ?? e?.message ?? get(t)('initialization.initFailed')
         } finally {
-            loading = false;
+            loading = false
         }
-    };
-
-
-    $inspect(params, data, loading)
+    }
 </script>
 
+<div data-tauri-drag-region class="grid min-h-svh lg:grid-cols-2">
+    <div data-tauri-drag-region class="flex flex-col gap-4 p-6 md:p-10">
 
-<main data-tauri-drag-region class="relative flex min-h-screen w-screen items-center justify-center p-4"
-      style:background="url({randomLaunchImage()}) center/cover no-repeat">
-    <Card data-tauri-drag-region class="relative w-full max-w-2xl z-[2]">
-        <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-                <Lock class="text-muted-foreground"/>
-                The {__NAME__} needs to be initialized
-            </CardTitle>
-        </CardHeader>
-        <CardContent class="grid gap-4">
-            <div class="grid gap-3">
-                <Label class="text-sm font-medium">Password</Label>
-                <InputGroup aria-invalid={!!error}>
-                    <InputGroupInput type={showPassword ? "text" : "password"} bind:value={password}
-                                     autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                     placeholder="Please enter your master password (12 digits or more recommended)"/>
-                    <InputGroupAddon align="inline-end">
-                        <Button variant="ghost" size="icon" onclick={() => (showPassword = !showPassword)}
-                                aria-label={showPassword ? "Hide password" : "Show password"}>
-                            {#if showPassword}
-                                <EyeOff/>
-                            {:else}
-                                <Eye/>
+        <div class="flex flex-1 items-center justify-center">
+            <div class="w-full max-w-xl">
+                <div class="flex flex-col gap-6">
+                    <FieldGroup>
+                        <div class="flex flex-col items-center gap-1 text-center">
+                            <h1 class="text-2xl font-bold">{$t('initialization.title')}</h1>
+                            <p class="text-muted-foreground text-balance text-sm">
+
+                            </p>
+                        </div>
+                        <Field>
+                            <FieldLabel for="kdbxPath">{$t('initialization.database')}</FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput name="kdbxPath" readonly placeholder={$t('initialization.databasePathPlaceholder')}
+                                                 bind:value={form.kdbxPath}/>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton size="icon-xs" onclick={pickPath}
+                                                      title={$t('initialization.selectPath')} aria-label={$t('initialization.selectPath')}>
+                                        <FolderOpen/>
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="new-password">{$t('initialization.masterPassword')}</FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput name="new-password" type={form.showPassword ? 'text' : 'password'}
+                                                 bind:value={form.password} placeholder={$t('initialization.passwordPlaceholder')}
+                                                 autocomplete="new-password" autofocus/>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton size="icon-xs"
+                                                      onclick={() => (form.showPassword = !form.showPassword)}
+                                                      title={form.showPassword ? $t('initialization.hidePassword') : $t('initialization.showPassword')}
+                                                      aria-label={form.showPassword ? $t('initialization.hidePassword') : $t('initialization.showPassword')}>
+                                        {#if form.showPassword}
+                                            <EyeOff/>
+                                        {:else}
+                                            <Eye/>
+                                        {/if}
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="confirm-password">{$t('initialization.confirmPassword')}</FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput type={form.showConfirm ? 'text' : 'password'} placeholder={$t('initialization.confirmPlaceholder')}
+                                                 bind:value={form.confirm} name="confirm-password"
+                                                 autocomplete="new-password"/>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton size="icon-xs"
+                                                      onclick={() => (form.showConfirm = !form.showConfirm)}
+                                                      title={form.showConfirm ? $t('initialization.hidePassword') : $t('initialization.showPassword')}
+                                                      aria-label={form.showConfirm ? $t('initialization.hidePassword') : $t('initialization.showPassword')}>
+                                        {#if form.showConfirm}
+                                            <EyeOff/>
+                                        {:else}
+                                            <Eye/>
+                                        {/if}
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Field>
+                        <div class="grid gap-2">
+                            <div class="flex items-center justify-between text-xs text-muted-foreground">
+                                <span>{$t('initialization.strength')}：{strength.label}</span>
+                                <span>{$t('initialization.length')}：{form.password.length}</span>
+                            </div>
+                            <div class="strength-meter" role="progressbar" aria-valuenow={strength.score}
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                {#each Array(5) as _, i}
+                                    <div class="bar"
+                                         data-active={i <= (Math.min(4, Math.floor(strength.score / 25)))}></div>
+                                {/each}
+                            </div>
+                            <p class="text-xs text-muted-foreground">{$t('initialization.passwordRequirements')}</p>
+                        </div>
+                        <div class="grid gap-2">
+                            <Button variant="ghost" size="sm" onclick={() => (form.advanced = !form.advanced)}
+                                    aria-expanded={form.advanced}>{$t('initialization.showAdvanced')}
+                            </Button>
+                            {#if form.advanced}
+                                <div class="grid gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex-none text-xs text-muted-foreground">{$t('initialization.length')}</span>
+                                        <Slider class="flex-auto" type="single" bind:value={sliderVal} max={64}
+                                                step={1}/>
+                                        <span class="flex-none text-xs text-muted-foreground">{sliderVal}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <Button size="sm" onclick={() => genPassword(sliderVal)}>{$t('initialization.generatePassword')}</Button>
+                                        <Button variant="outline" size="sm"
+                                                onclick={() => navigator.clipboard.writeText(form.password)}
+                                                disabled={!form.password}>{$t('initialization.copy')}
+                                        </Button>
+                                    </div>
+                                </div>
                             {/if}
-                        </Button>
-                    </InputGroupAddon>
-                </InputGroup>
+                        </div>
+                        {#if error}
+                            <div class="text-destructive text-xs" role="alert" aria-live="assertive">{error}</div>
+                        {/if}
+                        {#if success}
+                            <div class="text-green-600 text-xs" aria-live="polite">{success}</div>
+                        {/if}
 
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-muted-foreground">Strength: </span>
-                    <span class="text-xs font-medium" class:!text-red-600={strength.color === 'red'}
-                          class:!text-orange-600={strength.color === 'orange'}
-                          class:!text-yellow-600={strength.color === 'yellow'}
-                          class:!text-emerald-600={strength.color === 'emerald'}
-                          class:!text-green-600={strength.color === 'green'}>{strength.label}</span>
+                        <div class="flex gap-2">
+                            <Button class="flex-1" onclick={onSubmit} disabled={!canSubmit || loading}>
+                                {#if loading}{$t('initialization.initializing')}{:else}{$t('initialization.initialize')}{/if}
+                            </Button>
+                            <Button variant="outline" size="sm"
+                                    onclick={() => { form.password = ''; form.confirm = ''; }}
+                                    disabled={loading}>{$t('initialization.clear')}
+                            </Button>
+
+                        </div>
+                    </FieldGroup>
                 </div>
-                <Progress max={4} value={strength.score}/>
-                {#if strength.hints.length}
-                    <div class="text-xs text-muted-foreground">Suggestion: {strength.hints.join(", ")}</div>
-                {/if}
-            </div>
 
-            <div class="grid gap-3">
-                <Label class="text-sm font-medium">Confirm password</Label>
-                <InputGroup aria-invalid={!!error}>
-                    <InputGroupInput type={showConfirm ? "text" : "password"} bind:value={confirmPassword}
-                                     autocomplete="new-password" autocapitalize="off" spellcheck={false}
-                                     placeholder="Please enter your master password again"/>
-                    <InputGroupAddon align="inline-end">
-                        <Button variant="ghost" size="icon" onclick={() => (showConfirm = !showConfirm)}
-                                aria-label={showConfirm ? "Hide password" : "Show password"}>
-                            {#if showConfirm}
-                                <EyeOff/>
-                            {:else}
-                                <Eye/>
-                            {/if}
-                        </Button>
-                    </InputGroupAddon>
-                </InputGroup>
+
             </div>
-            <div class="flex items-center space-x-2 gap-2 text-sm">
-                <Checkbox id="acknowledged" bind:checked={acknowledged} class="size-4 rounded border"/>
-                <Label for="acknowledged">
-                    I have saved my master password and it cannot be retrieved if I forget it.
-                </Label>
-            </div>
-            {#if error}
-                <Alert variant="destructive">
-                    <AlertCircle/>
-                    <AlertTitle>The operation failed</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            {/if}
-        </CardContent>
-        <CardFooter class="flex gap-2">
-            <Button class="flex-1" onclick={onInitialize} disabled={loading}>
-                {#if loading}
-                    <Spinner/>
-                {/if}
-                Next
-            </Button>
-        </CardFooter>
-    </Card>
-</main>
+        </div>
+
+    </div>
+    <div data-tauri-drag-region class="bg-muted relative hidden lg:block"
+         style:background="url({randomLaunchImage()}) center/cover no-repeat">
+    </div>
+</div>
 
 <style lang="scss">
-  main {
-    &::before {
-      position: absolute;
-      content: "";
-      background: inherit;
-      filter: blur(10px);
-      transform: scale(1.1);
-      z-index: 0;
-    }
+  .strength-meter {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px
+  }
 
-    &::after {
-      position: absolute;
-      content: "";
-      inset: 0;
-      background-color: color-mix(in oklab, var(--color-black) 10%, transparent);
-      backdrop-filter: blur(10px);
-      z-index: 1;
-    }
+  .strength-meter .bar {
+    height: 8px;
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in oklab, var(--color-muted) 80%, transparent)
+  }
+
+  .strength-meter .bar[data-active="true"] {
+    background-color: var(--color-primary)
   }
 </style>

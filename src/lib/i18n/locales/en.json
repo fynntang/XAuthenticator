@@ -1,0 +1,30 @@
+{
+  "initialization": {
+    "title": "Create Master Password",
+    "database": "Database",
+    "databasePathPlaceholder": "Path",
+    "selectPath": "Select path",
+    "masterPassword": "Master Password",
+    "passwordPlaceholder": "Password",
+    "confirmPassword": "Confirm Password",
+    "confirmPlaceholder": "Enter again",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "strength": "Strength",
+    "length": "Length",
+    "strengthWeak": "Weak",
+    "strengthFair": "Fair",
+    "strengthGood": "Good",
+    "strengthStrong": "Strong",
+    "strengthExcellent": "Excellent",
+    "passwordRequirements": "At least 12 characters, including uppercase, lowercase, numbers, and special characters",
+    "showAdvanced": "Show advanced options",
+    "generatePassword": "Generate random password",
+    "copy": "Copy",
+    "initializing": "Initializing...",
+    "initialize": "Initialize",
+    "clear": "Clear",
+    "initSuccess": "Initialization successful",
+    "initFailed": "Initialization failed"
+  }
+}

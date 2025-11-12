@@ -10,7 +10,6 @@ name = "xauthenticator_error"
 path = "src/lib.rs"
 
 [dependencies]
-sea-orm = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }

@@ -8,7 +8,7 @@
     import logo from "$lib/assets/logo.png";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
-    import {appState, healthCheck} from "$lib/api/api";
+    import {appState} from "$lib/api/api";
     import AppLockLayout from '$lib/components/layout/app-lock-layout.svelte';
     import {appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
@@ -28,17 +28,13 @@
 
     const appStateChange = (v: AppStateResponse) => {
         appStore.set(v)
-        if ($appStore?.config.builder.settings.autoLock) isLocked = $appStore?.isLocked ?? false;
+        if ($appStore?.config.builder.settings.autoLock) isLocked = $appStore.isLocked ?? false;
     }
+
 
     onMount(() => {
         appState().then(appStateChange)
         timer = setInterval(async () => {
-            try {
-                await healthCheck();
-            } catch (e) {
-                // 如果健康检查触发锁定，重新拉取状态
-            }
             const data = await appState();
             appStateChange(data)
         }, 3000);
@@ -47,11 +43,11 @@
         if (timer > 0) clearInterval(timer);
     })
 
-    $inspect($appStore, isLocked)
+    $inspect($appStore)
 </script>
 
 <main>
-    <AppLockLayout isLocked>
+    <AppLockLayout>
         <header class="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) flex shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear select-none">
             <div data-tauri-drag-region class="flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6">
                 <div data-tauri-drag-region class="flex flex-auto items-center gap-2">

@@ -4,6 +4,8 @@ use serde::{ser::SerializeStruct, Serializer};
 pub enum CommonError {
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
+    #[error("KDBX not initialized")]
+    KdbxNotInitialized,
     #[error("Master key not initialized")]
     MasterKeyNotInitialized,
     #[error("Invalid master key")]
@@ -16,8 +18,6 @@ pub enum CommonError {
     InvalidPassword,
     #[error("Biometric authentication failed")]
     BiometricAuthFailed,
-    #[error("Database error: {0}")]
-    DatabaseError(#[from] sea_orm::DbErr),
     #[error("Request error: {0}")]
     RequestError(String),
     #[error("Token expired")]
@@ -40,13 +40,13 @@ impl CommonError {
     pub fn code(&self) -> &'static str {
         match self {
             CommonError::UnexpectedError(_) => "UnexpectedError",
+            CommonError::KdbxNotInitialized => "KdbxNotInitialized",
             CommonError::MasterKeyNotInitialized => "MasterKeyNotInitialized",
             CommonError::InvalidMasterKey => "InvalidMasterKey",
             CommonError::AppNotInitialized => "AppNotInitialized",
             CommonError::AppIsLocked => "AppIsLocked",
             CommonError::InvalidPassword => "InvalidPassword",
             CommonError::BiometricAuthFailed => "BiometricAuthFailed",
-            CommonError::DatabaseError(_) => "DatabaseError",
             CommonError::RequestError(_) => "RequestError",
             CommonError::TokenExpired => "TokenExpired",
         }

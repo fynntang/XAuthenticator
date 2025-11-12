@@ -1,0 +1,30 @@
+{
+  "initialization": {
+    "title": "创建管理密码",
+    "database": "数据库",
+    "databasePathPlaceholder": "路径",
+    "selectPath": "选择路径",
+    "masterPassword": "管理密码",
+    "passwordPlaceholder": "密码",
+    "confirmPassword": "确认密码",
+    "confirmPlaceholder": "再次输入",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
+    "strength": "强度",
+    "length": "长度",
+    "strengthWeak": "弱",
+    "strengthFair": "一般",
+    "strengthGood": "良好",
+    "strengthStrong": "强",
+    "strengthExcellent": "极强",
+    "passwordRequirements": "至少 12 个字符，包含大小写、数字与特殊字符",
+    "showAdvanced": "显示高级选项",
+    "generatePassword": "生成随机密码",
+    "copy": "复制",
+    "initializing": "正在初始化...",
+    "initialize": "初始化",
+    "clear": "清空",
+    "initSuccess": "初始化成功",
+    "initFailed": "初始化失败"
+  }
+}

@@ -1,6 +1,4 @@
 <script lang="ts">
-    import type {WithElementRef} from "$lib/utils";
-    import type {HTMLAttributes} from "svelte/elements";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
     import Titlebar from "$lib/components/layout/titlebar.svelte";
 
@@ -10,20 +8,15 @@
     import {Eye, EyeOff, Lock} from "@lucide/svelte";
 
     import {unlockAppWithPassword} from "$lib/api/api";
-    import {getCurrentWindow} from "@tauri-apps/api/window";
+    import {onMount} from "svelte";
+    import {appStore} from "$lib/stores/stores";
 
-    const appWindow = getCurrentWindow();
 
     let password = $state("");
     let showPassword = $state(false);
     let error = $state("");
     let loading = $state(false);
-    let {
-        isLocked = false,
-        children,
-    }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {
-        isLocked: boolean | undefined;
-    } = $props();
+    let {children} = $props();
 
 
     const onUnlock = async () => {
@@ -42,10 +35,11 @@
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Enter") onUnlock();
     };
+
 </script>
 
-<Titlebar isLocked windowLabels={WebviewWindowLabels.Main}/>
-{#if isLocked}
+{#if $appStore?.isLocked}
+    <Titlebar windowLabels={WebviewWindowLabels.Main}/>
     <section class="grid place-items-center h-[calc(100vh-var(--header-height))] px-4">
         <Card class="w-full max-w-sm">
             <CardHeader>
