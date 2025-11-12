@@ -10,6 +10,42 @@ use tauri::Manager;
 use xauthenticator_entity::{AppDefault, InitRequest};
 use xauthenticator_error::CommonError;
 
+/// Validates password strength requirements
+fn validate_password(password: &str) -> Result<(), CommonError> {
+    if password.len() < 12 {
+        return Err(CommonError::RequestError(
+            "password must be at least 12 characters".to_string(),
+        ));
+    }
+    
+    if !password.chars().any(|c| c.is_uppercase()) {
+        return Err(CommonError::RequestError(
+            "password must contain at least one uppercase letter".to_string(),
+        ));
+    }
+    
+    if !password.chars().any(|c| c.is_lowercase()) {
+        return Err(CommonError::RequestError(
+            "password must contain at least one lowercase letter".to_string(),
+        ));
+    }
+    
+    if !password.chars().any(|c| c.is_ascii_digit()) {
+        return Err(CommonError::RequestError(
+            "password must contain at least one digit".to_string(),
+        ));
+    }
+    
+    // Check for special characters (non-alphanumeric, excluding whitespace)
+    if !password.chars().any(|c| !c.is_alphanumeric() && !c.is_whitespace()) {
+        return Err(CommonError::RequestError(
+            "password must contain at least one special character".to_string(),
+        ));
+    }
+    
+    Ok(())
+}
+
 #[tauri::command]
 pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
     let app_data_dir = AppDataDir::new(
@@ -37,11 +73,8 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
     let mut db = Database::new(DatabaseConfig::default());
     db.meta.database_name = Some("Accounts Database".to_string());
 
-    if request.password == "" {
-        return Err(CommonError::RequestError(
-            "password is required".to_string(),
-        ));
-    }
+    // Validate password strength
+    validate_password(&request.password)?;
     let kdbx_path = request.kdbx_path.clone();
     if !request.kdbx_path.exists() {
         db.save(
