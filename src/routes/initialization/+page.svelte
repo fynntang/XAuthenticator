@@ -11,6 +11,8 @@
     import {Slider} from "$lib/components/ui/slider";
     import {showWindow} from "$lib/window";
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
+    import {_ as t} from 'svelte-i18n';
+    import {get} from 'svelte/store';
 
 
     type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong' | 'excellent'
@@ -36,7 +38,7 @@
         advanced: false,
         length: 16
     })
-    let strength = $state<Strength>({score: 0, label: '弱', level: 'weak'})
+    let strength = $state<Strength>({score: 0, label: get(t)('initialization.strengthWeak'), level: 'weak'})
     let canSubmit = $state(false)
     let loading = $state(false)
     let error = $state('')
@@ -44,11 +46,11 @@
     let sliderVal = $state(form.length)
 
     const labels: Record<StrengthLevel, string> = {
-        weak: '弱',
-        fair: '一般',
-        good: '良好',
-        strong: '强',
-        excellent: '极强'
+        weak: get(t)('initialization.strengthWeak'),
+        fair: get(t)('initialization.strengthFair'),
+        good: get(t)('initialization.strengthGood'),
+        strong: get(t)('initialization.strengthStrong'),
+        excellent: get(t)('initialization.strengthExcellent')
     }
 
     const calcStrength = (pwd: string): Strength => {
@@ -112,12 +114,12 @@
                 password: form.password,
             })
             await appState()
-            success = '初始化成功'
+            success = get(t)('initialization.initSuccess')
             await wait(1500)
             await showWindow(WebviewWindowLabels.Main)
             await getCurrentWindow().hide()
         } catch (e: any) {
-            error = e?.reason ?? e?.message ?? '初始化失败'
+            error = e?.reason ?? e?.message ?? get(t)('initialization.initFailed')
         } finally {
             loading = false
         }
@@ -132,35 +134,35 @@
                 <div class="flex flex-col gap-6">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-1 text-center">
-                            <h1 class="text-2xl font-bold">创建管理密码</h1>
+                            <h1 class="text-2xl font-bold">{$t('initialization.title')}</h1>
                             <p class="text-muted-foreground text-balance text-sm">
 
                             </p>
                         </div>
                         <Field>
-                            <FieldLabel for="kdbxPath">数据库</FieldLabel>
+                            <FieldLabel for="kdbxPath">{$t('initialization.database')}</FieldLabel>
                             <InputGroup>
-                                <InputGroupInput name="kdbxPath" readonly placeholder="路径"
+                                <InputGroupInput name="kdbxPath" readonly placeholder={$t('initialization.databasePathPlaceholder')}
                                                  bind:value={form.kdbxPath}/>
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupButton size="icon-xs" onclick={pickPath}
-                                                      title="选择路径" aria-label="选择路径">
+                                                      title={$t('initialization.selectPath')} aria-label={$t('initialization.selectPath')}>
                                         <FolderOpen/>
                                     </InputGroupButton>
                                 </InputGroupAddon>
                             </InputGroup>
                         </Field>
                         <Field>
-                            <FieldLabel for="new-password">管理密码</FieldLabel>
+                            <FieldLabel for="new-password">{$t('initialization.masterPassword')}</FieldLabel>
                             <InputGroup>
                                 <InputGroupInput name="new-password" type={form.showPassword ? 'text' : 'password'}
-                                                 bind:value={form.password} placeholder="密码"
+                                                 bind:value={form.password} placeholder={$t('initialization.passwordPlaceholder')}
                                                  autocomplete="new-password" autofocus/>
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupButton size="icon-xs"
                                                       onclick={() => (form.showPassword = !form.showPassword)}
-                                                      title={form.showPassword ? '隐藏密码' : '显示密码'}
-                                                      aria-label={form.showPassword ? '隐藏密码' : '显示密码'}>
+                                                      title={form.showPassword ? $t('initialization.hidePassword') : $t('initialization.showPassword')}
+                                                      aria-label={form.showPassword ? $t('initialization.hidePassword') : $t('initialization.showPassword')}>
                                         {#if form.showPassword}
                                             <EyeOff/>
                                         {:else}
@@ -171,16 +173,16 @@
                             </InputGroup>
                         </Field>
                         <Field>
-                            <FieldLabel for="confirm-password">确认密码</FieldLabel>
+                            <FieldLabel for="confirm-password">{$t('initialization.confirmPassword')}</FieldLabel>
                             <InputGroup>
-                                <InputGroupInput type={form.showConfirm ? 'text' : 'password'} placeholder="再次输入"
+                                <InputGroupInput type={form.showConfirm ? 'text' : 'password'} placeholder={$t('initialization.confirmPlaceholder')}
                                                  bind:value={form.confirm} name="confirm-password"
                                                  autocomplete="new-password"/>
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupButton size="icon-xs"
                                                       onclick={() => (form.showConfirm = !form.showConfirm)}
-                                                      title={form.showConfirm ? '隐藏密码' : '显示密码'}
-                                                      aria-label={form.showConfirm ? '隐藏密码' : '显示密码'}>
+                                                      title={form.showConfirm ? $t('initialization.hidePassword') : $t('initialization.showPassword')}
+                                                      aria-label={form.showConfirm ? $t('initialization.hidePassword') : $t('initialization.showPassword')}>
                                         {#if form.showConfirm}
                                             <EyeOff/>
                                         {:else}
@@ -192,8 +194,8 @@
                         </Field>
                         <div class="grid gap-2">
                             <div class="flex items-center justify-between text-xs text-muted-foreground">
-                                <span>强度：{strength.label}</span>
-                                <span>长度：{form.password.length}</span>
+                                <span>{$t('initialization.strength')}：{strength.label}</span>
+                                <span>{$t('initialization.length')}：{form.password.length}</span>
                             </div>
                             <div class="strength-meter" role="progressbar" aria-valuenow={strength.score}
                                  aria-valuemin="0"
@@ -203,25 +205,25 @@
                                          data-active={i <= (Math.min(4, Math.floor(strength.score / 25)))}></div>
                                 {/each}
                             </div>
-                            <p class="text-xs text-muted-foreground">至少 12 个字符，包含大小写、数字与特殊字符</p>
+                            <p class="text-xs text-muted-foreground">{$t('initialization.passwordRequirements')}</p>
                         </div>
                         <div class="grid gap-2">
                             <Button variant="ghost" size="sm" onclick={() => (form.advanced = !form.advanced)}
-                                    aria-expanded={form.advanced}>显示高级选项
+                                    aria-expanded={form.advanced}>{$t('initialization.showAdvanced')}
                             </Button>
                             {#if form.advanced}
                                 <div class="grid gap-3">
                                     <div class="flex items-center gap-3">
-                                        <span class="flex-none text-xs text-muted-foreground">长度</span>
+                                        <span class="flex-none text-xs text-muted-foreground">{$t('initialization.length')}</span>
                                         <Slider class="flex-auto" type="single" bind:value={sliderVal} max={64}
                                                 step={1}/>
                                         <span class="flex-none text-xs text-muted-foreground">{sliderVal}</span>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <Button size="sm" onclick={() => genPassword(sliderVal)}>生成随机密码</Button>
+                                        <Button size="sm" onclick={() => genPassword(sliderVal)}>{$t('initialization.generatePassword')}</Button>
                                         <Button variant="outline" size="sm"
                                                 onclick={() => navigator.clipboard.writeText(form.password)}
-                                                disabled={!form.password}>复制
+                                                disabled={!form.password}>{$t('initialization.copy')}
                                         </Button>
                                     </div>
                                 </div>
@@ -236,11 +238,11 @@
 
                         <div class="flex gap-2">
                             <Button class="flex-1" onclick={onSubmit} disabled={!canSubmit || loading}>
-                                {#if loading}正在初始化...{:else}初始化{/if}
+                                {#if loading}{$t('initialization.initializing')}{:else}{$t('initialization.initialize')}{/if}
                             </Button>
                             <Button variant="outline" size="sm"
                                     onclick={() => { form.password = ''; form.confirm = ''; }}
-                                    disabled={loading}>清空
+                                    disabled={loading}>{$t('initialization.clear')}
                             </Button>
 
                         </div>
