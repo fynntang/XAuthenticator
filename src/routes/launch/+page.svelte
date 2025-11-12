@@ -38,7 +38,7 @@
             await wait(300)
             await showWindow(WebviewWindowLabels.Main)
         } catch (e) {
-            if ((e as APIError).code === CommonError.MasterKeyNotInitialized) {
+            if (Array.of(CommonError.KdbxNotInitialized, CommonError.MasterKeyNotInitialized).includes((e as APIError).code)) {
                 console.error(e);
                 await showWindow(WebviewWindowLabels.Initialization);
             } else {

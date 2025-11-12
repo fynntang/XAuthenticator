@@ -1,11 +1,24 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
-use keepass::Database;
 use log::{error, info};
 use std::fs;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
+use xauthenticator_entity::AppDefault;
 use xauthenticator_error::CommonError;
+
+#[tauri::command]
+pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
+    let app_data_dir = AppDataDir::new(
+        app.path()
+            .app_local_data_dir()
+            .expect("could not resolve app local data path"),
+    );
+
+    Ok(AppDefault {
+        kdbx_path: app_data_dir.accounts(),
+    })
+}
 
 #[tauri::command]
 pub fn init_app(app: tauri::AppHandle, password: String) -> Result<(), CommonError> {
@@ -98,6 +111,7 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
     app_state.config = cfg;
 
     app_state.is_initialized = true;
+    app_state.is_locked = true;
 
     app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
 

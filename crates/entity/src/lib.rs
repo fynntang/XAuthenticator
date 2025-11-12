@@ -5,6 +5,12 @@ pub mod meta;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct AppDefault {
+    pub kdbx_path: std::path::PathBuf,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct PageParam {
     pub current: u32,
     pub size: u32,

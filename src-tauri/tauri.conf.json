@@ -24,7 +24,8 @@
         "resizable": false,
         "decorations": false,
         "fullscreen": false,
-        "visible": true
+        "visible": true,
+        "shadow": true
       },
       {
         "title": "Initialization",
@@ -37,7 +38,8 @@
         "resizable": true,
         "decorations": false,
         "fullscreen": false,
-        "visible": false
+        "visible": false,
+        "shadow": true
       },
       {
         "title": "XAuthenticator",

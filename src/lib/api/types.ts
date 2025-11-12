@@ -1,5 +1,10 @@
 import {CommonError} from "$lib/api/errors";
 
+
+export type AppDefault = {
+    kdbxPath: string
+}
+
 export type APIError = {
     code: CommonError,
     reason: string,

@@ -44,9 +44,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_persisted_scope::init())
         .manage(Arc::new(Mutex::new(AppState::default())))
-        .setup(|_app| {
-           Ok(())
-        })
+        .setup(|_app| Ok(()))
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::Resized { .. } => {}
             tauri::WindowEvent::CloseRequested { api, .. } => {
@@ -62,6 +60,7 @@ pub fn run() {
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![
+            commands::app_default,
             commands::init_app,
             commands::launch_app,
             commands::app_state,
