@@ -72,8 +72,8 @@ Or download the latest release from the [Releases page](https://github.com/fynnt
 |-----------------------|--------------------------------------------------------------------------------|
 | UI                    | [SvelteKit](https://kit.svelte.dev/) + [shadcn-svelte](https://ui.shadcn.com/) |
 | Desktop Runtime       | [Tauri v2](https://tauri.app/)                                                 |
-| Terminal dependencies | Rust + SQLite                                                                  |
-| Crypto                |                                                  |
+| Terminal dependencies | Rust                                                                           |
+| Crypto                | Kdf + Argon2                                                                   |
 | Icons & UI            | TailwindCSS + Lucide Icons                                                     |
 
 ---
