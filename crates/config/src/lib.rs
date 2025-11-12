@@ -29,7 +29,7 @@ impl Default for Builder {
         Self {
             kdbx_path: PathBuf::new(),
             settings: Settings {
-                theme: "light".to_string(),
+                theme: "system".to_string(),
                 language: "en".to_string(),
                 auto_lock: false,
                 auto_lock_timeout: 10,

@@ -52,7 +52,9 @@ export const createTray = async () => {
                     id: 'lock',
                     text: 'Lock',
                     enabled: true,
-                    action: () => lockApp()
+                    action: async () => {
+                        await lockApp()
+                    }
                 },
                 {
                     id: 'settings',
