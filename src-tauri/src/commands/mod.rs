@@ -26,6 +26,8 @@ pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
 #[tauri::command]
 pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), CommonError> {
     debug!("Initializing app request:{:?}", request);
+    let state = app.state::<Arc<Mutex<AppState>>>();
+    let mut app_state = state.lock().unwrap();
     let app_data_dir = AppDataDir::new(
         app.path()
             .app_local_data_dir()
@@ -53,6 +55,13 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
     config
         .set_builder(config.builder().clone().set_kdbx_path(kdbx_path))
         .store();
+
+    app_state.config = config;
+    app_state.is_initialized = true;
+    app_state.is_locked = false;
+    app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+
+    info!("Initializing app");
 
     Ok(())
 }

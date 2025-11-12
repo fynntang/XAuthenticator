@@ -31,6 +31,7 @@
         if ($appStore?.config.builder.settings.autoLock) isLocked = $appStore?.isLocked ?? false;
     }
 
+
     onMount(() => {
         appState().then(appStateChange)
         timer = setInterval(async () => {

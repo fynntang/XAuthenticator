@@ -3,7 +3,7 @@
     import {InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput} from '$lib/components/ui/input-group'
     import {Eye, EyeOff, FolderOpen} from '@lucide/svelte'
     import {randomLaunchImage, wait} from '$lib/utils'
-    import {initApp, launchApp} from '$lib/api/api'
+    import {appState, initApp} from '$lib/api/api'
     import {getCurrentWindow} from '@tauri-apps/api/window'
     import {save} from '@tauri-apps/plugin-dialog'
     import {Field, FieldGroup, FieldLabel} from "$lib/components/ui/field";
@@ -111,7 +111,7 @@
                 kdbxPath: form.kdbxPath,
                 password: form.password,
             })
-            await launchApp()
+            await appState()
             success = '初始化成功'
             await wait(1500)
             await showWindow(WebviewWindowLabels.Main)

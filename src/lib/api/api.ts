@@ -3,7 +3,7 @@ import type {Account, APIError, AppDefault, AppStateResponse, InitRequest, PageP
 
 
 export const appDefault = async () => await apiInvoke<AppDefault>("app_default");
-export const initApp = async (request: InitRequest) => await apiInvoke<Response<boolean>>("init_app", {request});
+export const initApp = async (request: InitRequest) => await apiInvoke<void>("init_app", {request});
 export const launchApp = async () => await apiInvoke<void>("launch_app");
 export const appState = async () => await apiInvoke<AppStateResponse>("app_state");
 export const quitApp = async () => await apiInvoke<void>("quit_app");
@@ -20,7 +20,7 @@ async function apiInvoke<T>(
     cmd: string,
     args?: InvokeArgs,
     options?: InvokeOptions
-): Promise<T | void> {
+) {
     const resp = await invoke<T | APIError>(cmd, args, options);
     if (!resp) {
         return resp as T;
