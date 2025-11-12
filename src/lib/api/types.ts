@@ -5,6 +5,12 @@ export type AppDefault = {
     kdbxPath: string
 }
 
+
+export type InitRequest = {
+    kdbxPath: string,
+    password: string,
+}
+
 export type APIError = {
     code: CommonError,
     reason: string,
@@ -17,7 +23,6 @@ export type PageParam = {
 
 export type Response<T> = {
     data: T,
-    total: number,
 }
 
 export type AppStateResponse = {

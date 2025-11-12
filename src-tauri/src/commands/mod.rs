@@ -1,10 +1,13 @@
 use crate::state::AppState;
 use crate::utils::app_data_dir::AppDataDir;
-use log::{error, info};
+use keepass::config::DatabaseConfig;
+use keepass::{Database, DatabaseKey};
+use log::{debug, error, info};
 use std::fs;
+use std::fs::File;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
-use xauthenticator_entity::AppDefault;
+use xauthenticator_entity::{AppDefault, InitRequest};
 use xauthenticator_error::CommonError;
 
 #[tauri::command]
@@ -21,29 +24,35 @@ pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
 }
 
 #[tauri::command]
-pub fn init_app(app: tauri::AppHandle, password: String) -> Result<(), CommonError> {
+pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), CommonError> {
+    debug!("Initializing app request:{:?}", request);
     let app_data_dir = AppDataDir::new(
         app.path()
             .app_local_data_dir()
             .expect("could not resolve app local data path"),
     );
 
-    let has_min_len = password.len() >= 12;
-    let has_upper = password.chars().any(|c| c.is_ascii_uppercase());
-    let has_lower = password.chars().any(|c| c.is_ascii_lowercase());
-    let has_digit = password.chars().any(|c| c.is_ascii_digit());
-    let has_special = password
-        .chars()
-        .any(|c| !c.is_ascii_alphanumeric() && !c.is_whitespace());
-    if !(has_min_len && has_upper && has_lower && has_digit && has_special) {
-        return Err(CommonError::InvalidPassword);
+    let mut db = Database::new(DatabaseConfig::default());
+    db.meta.database_name = Some("Accounts Database".to_string());
+
+    if request.password == "" {
+        return Err(CommonError::RequestError(
+            "password is required".to_string(),
+        ));
+    }
+    let kdbx_path = request.kdbx_path.clone();
+    if !request.kdbx_path.exists() {
+        db.save(
+            &mut File::create(request.kdbx_path).expect("could not create kdbx file"),
+            DatabaseKey::new().with_password(request.password.as_str()),
+        )
+        .expect("could not save kdbx");
     }
 
-    let accounts_path = app_data_dir.accounts();
-    if accounts_path.exists() {
-        info!("Account already exists");
-        return Ok(());
-    }
+    let mut config = xauthenticator_config::Config::init(app_data_dir.config()).load();
+    config
+        .set_builder(config.builder().clone().set_kdbx_path(kdbx_path))
+        .store();
 
     Ok(())
 }
@@ -101,12 +110,12 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
         }
     };
 
-    let accounts_path = app_data_dir.accounts();
-    if !accounts_path.exists() {
+    let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
+
+    let kdbx_path = cfg.builder().kdbx_path.clone();
+    if !kdbx_path.exists() {
         return Err(CommonError::KdbxNotInitialized);
     }
-
-    let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
 
     app_state.config = cfg;
 

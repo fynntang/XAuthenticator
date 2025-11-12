@@ -13,12 +13,21 @@ pub struct Settings {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Builder {
+    pub kdbx_path: PathBuf,
     pub settings: Settings,
+}
+
+impl Builder {
+    pub fn set_kdbx_path(mut self, p: PathBuf) -> Self {
+        self.kdbx_path = p;
+        self
+    }
 }
 
 impl Default for Builder {
     fn default() -> Self {
         Self {
+            kdbx_path: PathBuf::new(),
             settings: Settings {
                 theme: "light".to_string(),
                 language: "en".to_string(),
@@ -56,9 +65,7 @@ impl Config {
 
         cfg
     }
-    pub fn is_initialized(&self) -> bool {
-        self.path.exists()
-    }
+
     pub fn load(&mut self) -> Self {
         let data = fs::read_to_string(self.path.clone()).expect("failed to read config file");
         self.builder = serde_yaml::from_str(&data).expect("failed to parse config file");
@@ -68,6 +75,19 @@ impl Config {
         let data = serde_yaml::to_string(&self.builder).expect("failed to serialize config file");
         fs::write(self.path.clone(), data).expect("failed to write config file");
     }
+
+    pub fn set_path(&mut self, path: PathBuf) -> &mut Self {
+        self.path = path;
+        self
+    }
+    pub fn set_builder(&mut self, builder: Builder) -> &mut Self {
+        self.builder = builder;
+        self
+    }
+    pub fn path(&self) -> &PathBuf {
+        &self.path
+    }
+
     pub fn builder(&self) -> &Builder {
         &self.builder
     }
