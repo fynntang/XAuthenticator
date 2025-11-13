@@ -8,7 +8,6 @@
     import {Eye, EyeOff, Lock} from "@lucide/svelte";
 
     import {unlockAppWithPassword} from "$lib/api/api";
-    import {onMount} from "svelte";
     import {appStore} from "$lib/stores/stores";
 
 
