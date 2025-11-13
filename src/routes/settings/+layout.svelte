@@ -3,12 +3,12 @@
     import {Button} from "$lib/components/ui/button";
     import {X} from "@lucide/svelte";
     import {getCurrentWindow} from "@tauri-apps/api/window";
+    import {_ as t} from 'svelte-i18n';
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
     let isAlwaysOnTop = $state(false);
-    let title = $state("Settings");
 
     const toggleAlwaysOnTop = () => {
         appWindow.setAlwaysOnTop(!isAlwaysOnTop);
@@ -22,7 +22,7 @@
         <div data-tauri-drag-region class="flex flex-auto items-center gap-2">
             <div class="flex flex-none items-center gap-2 select-none">
                 <img src={Logo} alt="XAuthenticator Logo" class="size-8">
-                <h1 class="flex-none text-base font-medium">{title}</h1>
+                <h1 class="flex-none text-base font-medium">{$t('settings.title')}</h1>
             </div>
         </div>
         <div class="flex flex-none ml-auto items-center">

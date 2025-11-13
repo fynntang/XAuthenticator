@@ -26,5 +26,26 @@
     "clear": "清空",
     "initSuccess": "初始化成功",
     "initFailed": "初始化失败"
+  },
+  "appLock": {
+    "title": "应用已锁定",
+    "description": "请输入密码以解锁应用",
+    "passwordPlaceholder": "密码",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
+    "unlocking": "正在解锁...",
+    "unlock": "解锁",
+    "clear": "清空",
+    "unlockFailed": "解锁失败，请重试"
+  },
+  "main": {
+    "search": "搜索...",
+    "addNew": "添加新项"
+  },
+  "settings": {
+    "title": "设置"
+  },
+  "launch": {
+    "errorPrefix": "初始化过程中发生错误："
   }
 }

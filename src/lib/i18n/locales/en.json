@@ -26,5 +26,26 @@
     "clear": "Clear",
     "initSuccess": "Initialization successful",
     "initFailed": "Initialization failed"
+  },
+  "appLock": {
+    "title": "Application Locked",
+    "description": "Please enter your password to unlock the application",
+    "passwordPlaceholder": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "unlocking": "Unlocking...",
+    "unlock": "Unlock",
+    "clear": "Clear",
+    "unlockFailed": "Unlock failed, please try again"
+  },
+  "main": {
+    "search": "Search...",
+    "addNew": "Add New"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "launch": {
+    "errorPrefix": "An error occurred during initialization: "
   }
 }

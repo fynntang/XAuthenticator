@@ -9,6 +9,8 @@
     import type {APIError} from "$lib/api/types";
     import {CommonError} from "$lib/api/errors";
     import {showWindow} from "$lib/window";
+    import {_ as t} from 'svelte-i18n';
+    import {get} from 'svelte/store';
 
     let progress = $state(0);
     const currentWindow = getCurrentWindow();
@@ -36,7 +38,7 @@
                 console.error(e);
                 await showWindow(WebviewWindowLabels.Initialization);
             } else {
-                alert("An error occurred during initialization: " + JSON.stringify(e));
+                alert(get(t)('launch.errorPrefix') + JSON.stringify(e));
             }
         } finally {
             progress = 90;
