@@ -9,6 +9,7 @@
 
     import {unlockAppWithPassword} from "$lib/api/api";
     import {appStore} from "$lib/stores/stores";
+    import {_ as t} from 'svelte-i18n';
 
 
     let password = $state("");
@@ -25,7 +26,7 @@
         try {
             await unlockAppWithPassword(password);
         } catch (e: any) {
-            error = e?.message ?? "解锁失败，请重试";
+            error = e?.message ?? $t('appLock.unlockFailed');
         } finally {
             loading = false;
         }
@@ -44,18 +45,18 @@
             <CardHeader>
                 <CardTitle class="flex items-center gap-2">
                     <Lock class="text-muted-foreground"/>
-                    应用已锁定
+                    {$t('appLock.title')}
                 </CardTitle>
-                <CardDescription>请输入密码以解锁应用</CardDescription>
+                <CardDescription>{$t('appLock.description')}</CardDescription>
             </CardHeader>
             <CardContent class="grid gap-3">
                 <InputGroup aria-invalid={!!error}>
-                    <InputGroupInput type={showPassword ? "text" : "password"} placeholder="密码"
+                    <InputGroupInput type={showPassword ? "text" : "password"} placeholder={$t('appLock.passwordPlaceholder')}
                                      bind:value={password}
                                      onkeydown={onKeyDown} autocomplete="current-password" autofocus/>
                     <InputGroupAddon align="inline-end">
                         <Button variant="ghost" size="icon" onclick={() => (showPassword = !showPassword)}
-                                aria-label={showPassword ? "隐藏密码" : "显示密码"}>
+                                aria-label={showPassword ? $t('appLock.hidePassword') : $t('appLock.showPassword')}>
                             {#if showPassword}
                                 <EyeOff/>
                             {:else}
@@ -70,9 +71,9 @@
             </CardContent>
             <CardFooter class="flex gap-2">
                 <Button class="flex-1" onclick={onUnlock} disabled={!password || loading}>
-                    {#if loading}正在解锁...{:else}解锁{/if}
+                    {#if loading}{$t('appLock.unlocking')}{:else}{$t('appLock.unlock')}{/if}
                 </Button>
-                <Button variant="outline" size="sm" onclick={() => (password = "")} disabled={loading}>清空</Button>
+                <Button variant="outline" size="sm" onclick={() => (password = "")} disabled={loading}>{$t('appLock.clear')}</Button>
             </CardFooter>
         </Card>
     </section>

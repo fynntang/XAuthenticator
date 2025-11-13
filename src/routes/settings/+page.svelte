@@ -1,5 +1,6 @@
 <script lang="ts">
     import {Separator} from "$lib/components/ui/separator";
+    import {_ as t} from 'svelte-i18n';
 </script>
 
 
@@ -11,7 +12,7 @@
     </div>
     <Separator orientation="vertical"/>
     <div class="flex flex-2/3">
-        <h1>Settings</h1>
+        <h1>{$t('settings.title')}</h1>
     </div>
 </main>
 
