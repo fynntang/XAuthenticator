@@ -12,6 +12,7 @@
     import AppLockLayout from '$lib/components/layout/app-lock-layout.svelte';
     import {appIsLocked, appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
+    import {_ as t} from 'svelte-i18n';
 
     const appWindow = getCurrentWindow();
 
@@ -59,13 +60,13 @@
                         <h1 data-tauri-drag-region class="flex-none text-xl font-medium">{__NAME__}</h1>
                     </div>
                     <InputGroup class="flex mx-auto min-w-3xs max-w-sm">
-                        <InputGroupInput placeholder="Search..."/>
+                        <InputGroupInput placeholder={$t('main.search')}/>
                         <InputGroupAddon>
                             <Search/>
                         </InputGroupAddon>
                     </InputGroup>
                     <Button variant="ghost" size="sm" class="dark:text-foreground hidden sm:flex">
-                        Add New
+                        {$t('main.addNew')}
                         <Plus/>
                     </Button>
                 </div>
