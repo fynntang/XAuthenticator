@@ -10,14 +10,13 @@
     import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
     import {appState} from "$lib/api/api";
     import AppLockLayout from '$lib/components/layout/app-lock-layout.svelte';
-    import {appStore} from "$lib/stores/stores";
+    import {appIsLocked, appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
 
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
     let isAlwaysOnTop = $state(false);
-    let isLocked = $state(false);
     let timer: number = 0;
 
 
@@ -28,7 +27,7 @@
 
     const appStateChange = (v: AppStateResponse) => {
         appStore.set(v)
-        if ($appStore?.config.builder.settings.autoLock) isLocked = $appStore.isLocked ?? false;
+        appIsLocked.update(v => $appStore?.isLocked ? true : v)
     }
 
 
@@ -43,7 +42,7 @@
         if (timer > 0) clearInterval(timer);
     })
 
-    $inspect($appStore)
+    $inspect($appStore, $appIsLocked)
 </script>
 
 <main>
