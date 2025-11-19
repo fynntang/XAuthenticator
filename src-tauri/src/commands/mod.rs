@@ -63,7 +63,7 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
     app_state.db = Some(db);
     app_state.master_password = Some(request.password);
 
-    info!("Initializing app");
+    info!("app initialized");
 
     Ok(())
 }
@@ -128,22 +128,13 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
         return Err(CommonError::KdbxNotInitialized);
     }
 
-    let settings = cfg.builder().settings.clone();
-
     app_state.config = cfg;
-
     app_state.is_initialized = true;
+    app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+    app_state.is_locked = true;
+    app_state.locked_timestamp = Some(app_state.runtime_timestamp);
 
-    if settings.auto_lock && !app_state.is_locked {
-        let now = chrono::Local::now().timestamp() as u64;
-        if now.saturating_sub(app_state.runtime_timestamp) >= settings.auto_lock_timeout {
-            app_state.is_locked = true;
-            app_state.locked_timestamp = Some(now);
-            return Err(CommonError::AppIsLocked);
-        }
-    }
-
-    info!("app initialized");
+    info!("app launch");
 
     Ok(())
 }
@@ -162,9 +153,11 @@ pub fn app_state(app: tauri::AppHandle) -> Result<AppState, CommonError> {
         if now.saturating_sub(app_state.runtime_timestamp) >= timeout {
             app_state.is_locked = true;
             app_state.locked_timestamp = Some(now);
+            app_state.db = None;
             return Err(CommonError::AppIsLocked);
         }
     }
+
     Ok(app_state.clone())
 }
 
