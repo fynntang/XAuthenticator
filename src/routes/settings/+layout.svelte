@@ -8,12 +8,6 @@
     const appWindow = getCurrentWindow();
 
     let {children} = $props();
-    let isAlwaysOnTop = $state(false);
-
-    const toggleAlwaysOnTop = () => {
-        appWindow.setAlwaysOnTop(!isAlwaysOnTop);
-        isAlwaysOnTop = !isAlwaysOnTop;
-    }
 
 </script>
 
