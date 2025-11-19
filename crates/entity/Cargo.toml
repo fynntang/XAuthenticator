@@ -12,3 +12,5 @@ path = "src/lib.rs"
 
 [dependencies]
 serde = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }

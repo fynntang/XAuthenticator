@@ -3,13 +3,15 @@ use crate::utils;
 use crate::utils::app_data_dir::AppDataDir;
 use keepass::config::DatabaseConfig;
 use keepass::{Database, DatabaseKey};
-use log::{debug, error, info};
+use log::{debug, info};
 use std::fs;
 use std::fs::File;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
 use xauthenticator_entity::{AppDefault, InitRequest};
 use xauthenticator_error::CommonError;
+
+pub mod accounts;
 
 #[tauri::command]
 pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
@@ -58,6 +60,8 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
     app_state.is_initialized = true;
     app_state.is_locked = false;
     app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+    app_state.db = Some(db);
+    app_state.master_password = Some(request.password);
 
     info!("Initializing app");
 
@@ -81,7 +85,7 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
     }
 
     let version_path = app_data_dir.version();
-    let first_time = if !version_path.exists() {
+    let _first_time = if !version_path.exists() {
         // 情况1: version.txt 不存在，创建文件并写入当前版本
         info!("version.txt not found, creating new file");
         fs::write(&version_path, current_version.as_str())
@@ -169,21 +173,37 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
     if password.is_empty() {
         return Err(CommonError::RequestError("password is empty".to_string()));
     }
-    let app_data_dir = AppDataDir::new(
-        app.path()
-            .app_local_data_dir()
-            .expect("could not resolve app local data path"),
-    );
-
+    
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut state = state.lock().unwrap();
-    state.is_locked = false;
-    state.locked_timestamp = None;
+    let mut app_state = state.lock().unwrap();
+    
+    let kdbx_path = app_state.config.builder().kdbx_path.clone();
+    
+    // Try to open the database with the provided password
+    if !kdbx_path.exists() {
+        return Err(CommonError::KdbxNotInitialized);
+    }
+    
+    let mut file = File::open(&kdbx_path)
+        .map_err(|e| CommonError::UnexpectedError(anyhow::anyhow!("Failed to open KDBX file: {}", e)))?;
+    
+    let db = Database::open(
+        &mut file,
+        DatabaseKey::new().with_password(&password),
+    )
+    .map_err(|_| CommonError::InvalidPassword)?;
+    
+    app_state.db = Some(db);
+    app_state.master_password = Some(password);
+    app_state.is_locked = false;
+    app_state.locked_timestamp = None;
+    app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
+    
     Ok(())
 }
 
 #[tauri::command]
-pub fn unlock_with_biometric(app: tauri::AppHandle) {}
+pub fn unlock_with_biometric(_app: tauri::AppHandle) {}
 
 #[tauri::command]
 pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
@@ -191,73 +211,16 @@ pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
     let mut state = state.lock().unwrap();
     state.is_locked = true;
     state.locked_timestamp = Some(chrono::Local::now().timestamp() as u64);
+    state.db = None;
+    state.master_password = None;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn list_accounts(app: tauri::AppHandle) -> Result<(), CommonError> {
-    Ok(())
-}
+pub fn export_backup(_app: tauri::AppHandle, _password: String) {}
 
 #[tauri::command]
-pub fn add_account(app: tauri::AppHandle, auth_url: String) -> Result<(), CommonError> {
-    if auth_url.trim().is_empty() {
-        error!("add_account: auth_url is empty");
-        return Err(CommonError::RequestError("auth_url is empty".to_string()));
-    }
-    info!("add_account: auth_url={}", auth_url);
-    // Gate: must be unlocked
-    let state = app.state::<Arc<Mutex<AppState>>>();
-    let state = state.lock().unwrap();
-    if state.is_locked {
-        return Err(CommonError::AppIsLocked);
-    }
-
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn remove_account(
-    app: tauri::AppHandle,
-    account_id: uuid::Uuid,
-) -> Result<(), CommonError> {
-    if account_id.is_nil() {
-        error!("remove_account: account_id is nil");
-        return Err(CommonError::RequestError("account_id is nil".to_string()));
-    }
-    info!("remove_account: account_id={}", account_id);
-    // Gate: must be unlocked
-    let is_locked = {
-        let state = app.state::<Arc<Mutex<AppState>>>();
-        let state = state.lock().unwrap();
-        state.is_locked
-    };
-    if is_locked {
-        return Err(CommonError::AppIsLocked);
-    }
-
-    Ok(())
-}
-
-#[tauri::command]
-pub fn export_backup(app: tauri::AppHandle, password: String) {}
-
-#[tauri::command]
-pub fn import_backup(app: tauri::AppHandle, backup: Vec<u8>, password: String) {}
-
-#[tauri::command]
-pub fn get_code(app: tauri::AppHandle, account_id: uuid::Uuid) -> Result<String, CommonError> {
-    // Gate: must be unlocked
-    {
-        let state = app.state::<Arc<Mutex<AppState>>>();
-        let state = state.lock().unwrap();
-        if state.is_locked {
-            return Err(CommonError::AppIsLocked);
-        }
-    }
-    // Implementation of code generation would go here
-    Err(CommonError::RequestError("not implemented".to_string()))
-}
+pub fn import_backup(_app: tauri::AppHandle, _backup: Vec<u8>, _password: String) {}
 
 #[tauri::command]
 pub fn quit_app(app: tauri::AppHandle) {

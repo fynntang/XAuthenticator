@@ -12,6 +12,9 @@ pub struct AppState {
 
     #[serde(skip)]
     pub db: Option<Database>,
+    
+    #[serde(skip)]
+    pub master_password: Option<String>,
 }
 
 impl AppState {}

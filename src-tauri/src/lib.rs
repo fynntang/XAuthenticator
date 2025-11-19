@@ -66,12 +66,13 @@ pub fn run() {
             commands::unlock_with_password,
             commands::unlock_with_biometric,
             commands::lock,
-            commands::list_accounts,
-            commands::add_account,
-            commands::remove_account,
+            commands::accounts::list_accounts,
+            commands::accounts::create_account,
+            commands::accounts::update_account,
+            commands::accounts::delete_account,
             commands::export_backup,
             commands::import_backup,
-            commands::get_code,
+            commands::accounts::get_code,
             commands::quit_app,
         ])
         .run(tauri::generate_context!())
