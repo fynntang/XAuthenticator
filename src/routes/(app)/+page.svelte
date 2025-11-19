@@ -2,5 +2,5 @@
     import AccountList from "$lib/components/AccountList.svelte";
 </script>
 
-
-<AccountList/>
+<h1>Accounts</h1>
+<!--<AccountList/>-->

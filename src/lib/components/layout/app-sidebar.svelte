@@ -1,5 +1,4 @@
 <script lang="ts">
-
     import type {ComponentProps} from "svelte";
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
     import {
@@ -8,14 +7,24 @@
         SidebarHeader,
         SidebarMenu,
         SidebarMenuButton,
-        SidebarMenuItem
+        SidebarMenuItem,
+        SidebarRail
     } from "$lib/components/ui/sidebar/index.js";
 
 
-    let {...restProps}: ComponentProps<typeof Sidebar.Root> = $props();
+    let {
+        ref = $bindable(null),
+        ...restProps
+    }: ComponentProps<typeof Sidebar.Root> = $props();
+    let rail = null;
+
+    const resizeSidebar = () => {
+
+    }
+
 </script>
 
-<Sidebar.Root collapsible="offcanvas" {...restProps}>
+<Sidebar.Root bind:ref {...restProps}>
     <SidebarHeader>
         <SidebarMenu>
             <SidebarMenuItem>
@@ -28,7 +37,6 @@
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>
-
     </SidebarHeader>
     <SidebarContent>
 
@@ -36,4 +44,5 @@
     <SidebarFooter>
 
     </SidebarFooter>
+    <SidebarRail bind:this={rail}/>
 </Sidebar.Root>

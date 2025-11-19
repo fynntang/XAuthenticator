@@ -4,6 +4,7 @@
     import {appIsLocked, appStore} from "$lib/stores/stores";
     import type {AppStateResponse} from "$lib/api/types";
     import AppLayout from "$lib/components/layout/app-layout.svelte";
+    import {useSidebar} from "$lib/components/ui/sidebar";
 
     let {children} = $props();
     let timer: number = 0;
