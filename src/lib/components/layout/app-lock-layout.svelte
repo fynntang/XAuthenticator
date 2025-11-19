@@ -39,7 +39,6 @@
 </script>
 
 {#if $appStore?.isLocked}
-    <Titlebar windowLabels={WebviewWindowLabels.Main}/>
     <section class="grid place-items-center h-[calc(100vh-var(--header-height))] px-4">
         <Card class="w-full max-w-sm">
             <CardHeader>
