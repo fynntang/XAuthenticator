@@ -7267,6 +7267,7 @@ name = "xauthenticator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base32",
  "chrono",
  "keepass",
  "log",
@@ -7287,6 +7288,7 @@ dependencies = [
  "tauri-plugin-single-instance",
  "tauri-plugin-store",
  "tauri-plugin-stronghold",
+ "totp-lite",
  "uuid",
  "xauthenticator-config",
  "xauthenticator-entity",
@@ -7305,7 +7307,9 @@ dependencies = [
 name = "xauthenticator-entity"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "serde",
+ "uuid",
 ]
 
 [[package]]

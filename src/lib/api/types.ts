@@ -34,4 +34,42 @@ export type AppStateResponse = {
     }
 }
 
-export type Account = {};
+export type Account = {
+    id: string;
+    name: string;
+    issuer?: string;
+    accountName?: string;
+    secret: string;
+    algorithm: string;
+    digits: number;
+    period: number;
+    icon?: string;
+    notes?: string;
+    createdAt: number;
+    modifiedAt: number;
+};
+
+export type CreateAccountRequest = {
+    name: string;
+    issuer?: string;
+    accountName?: string;
+    secret: string;
+    algorithm?: string;
+    digits?: number;
+    period?: number;
+    icon?: string;
+    notes?: string;
+};
+
+export type UpdateAccountRequest = {
+    id: string;
+    name?: string;
+    issuer?: string;
+    accountName?: string;
+    secret?: string;
+    algorithm?: string;
+    digits?: number;
+    period?: number;
+    icon?: string;
+    notes?: string;
+};
