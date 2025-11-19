@@ -5,7 +5,7 @@ use log::{error, info};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{Database, DatabaseConnection};
 use sea_orm_cli::cli;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
@@ -359,6 +359,123 @@ pub async fn remove_account(
         .expect("failed to remove account");
 
     Ok(())
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateAccountRequest {
+    pub id: String,
+    pub issuer: Option<String>,
+    pub label: Option<String>,
+    pub icon: Option<Vec<u8>>,
+    pub note: Option<String>,
+}
+
+#[tauri::command]
+pub async fn update_account(
+    app: tauri::AppHandle,
+    request: UpdateAccountRequest,
+) -> Result<(), CommonError> {
+    if request.id.is_empty() {
+        error!("update_account: id is empty");
+        return Err(CommonError::RequestError("id is empty".to_string()));
+    }
+    info!("update_account: id={}", request.id);
+    
+    // Gate: must be unlocked
+    let (db, is_locked) = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        (
+            state.db.as_ref().cloned().unwrap(),
+            state.is_locked || state.master_key.is_none(),
+        )
+    };
+    if is_locked {
+        return Err(CommonError::AppIsLocked);
+    }
+
+    // Fetch the existing account
+    let existing = xauthenticator_repository::account::get_account_by_id(&db, request.id.clone())
+        .await
+        .map_err(|e| {
+            error!("update_account: failed to fetch account: {:?}", e);
+            e
+        })?
+        .ok_or_else(|| {
+            error!("update_account: account not found");
+            CommonError::RequestError("account not found".to_string())
+        })?;
+
+    // Build ActiveModel with updated fields
+    use sea_orm::ActiveValue::{NotSet, Set};
+    let account = ActiveModel {
+        id: Set(existing.id),
+        issuer: request.issuer.map(Set).unwrap_or(Set(existing.issuer)),
+        label: request.label.map(Set).unwrap_or(Set(existing.label)),
+        r#type: Set(existing.r#type),
+        algorithm: Set(existing.algorithm),
+        digits: Set(existing.digits),
+        period: Set(existing.period),
+        counter: Set(existing.counter),
+        secret_cipher: Set(existing.secret_cipher),
+        secret_nonce: Set(existing.secret_nonce),
+        icon: request.icon.map(Set).unwrap_or(Set(existing.icon)),
+        note: request.note.map(Set).unwrap_or(Set(existing.note)),
+        created_at: Set(existing.created_at),
+        updated_at: Set(Some(chrono::Local::now().timestamp())),
+    };
+
+    xauthenticator_repository::account::update_account(&db, account)
+        .await
+        .map_err(|e| {
+            error!("update_account: failed to update: {:?}", e);
+            e
+        })?;
+
+    info!("update_account: success");
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_account_by_id(
+    app: tauri::AppHandle,
+    account_id: String,
+) -> Result<xauthenticator_entity::response::Account, CommonError> {
+    if account_id.is_empty() {
+        error!("get_account_by_id: account_id is empty");
+        return Err(CommonError::RequestError("account_id is empty".to_string()));
+    }
+    info!("get_account_by_id: account_id={}", account_id);
+    
+    // Gate: must be unlocked
+    let (db, is_locked) = {
+        let state = app.state::<Arc<Mutex<AppState>>>();
+        let state = state.lock().unwrap();
+        (
+            state.db.as_ref().cloned().unwrap(),
+            state.is_locked || state.master_key.is_none(),
+        )
+    };
+    if is_locked {
+        return Err(CommonError::AppIsLocked);
+    }
+
+    let account = xauthenticator_repository::account::get_account_by_id(&db, account_id)
+        .await?
+        .ok_or_else(|| CommonError::RequestError("account not found".to_string()))?;
+
+    Ok(xauthenticator_entity::response::Account {
+        id: account.id,
+        issuer: account.issuer,
+        label: account.label,
+        r#type: account.r#type,
+        algorithm: account.algorithm,
+        digits: account.digits,
+        period: account.period,
+        counter: account.counter,
+        secret_cipher: account.secret_cipher,
+    })
 }
 
 #[tauri::command]

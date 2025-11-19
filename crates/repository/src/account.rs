@@ -69,3 +69,18 @@ where
     })?;
     Ok(model)
 }
+
+// Get a single account by id
+pub async fn get_account_by_id<C>(db: &C, id: String) -> Result<Option<Model>, CommonError>
+where
+    C: ConnectionTrait,
+{
+    let account = AccountEntity::find_by_id(id)
+        .one(db)
+        .await
+        .map_err(|e| {
+            error!("Failed to query account: {:?}", e);
+            CommonError::DatabaseError(e)
+        })?;
+    Ok(account)
+}

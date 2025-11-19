@@ -82,6 +82,8 @@ pub fn run() {
             commands::lock,
             commands::list_accounts,
             commands::add_account,
+            commands::update_account,
+            commands::get_account_by_id,
             commands::remove_account,
             commands::export_backup,
             commands::import_backup,

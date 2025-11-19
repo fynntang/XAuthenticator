@@ -36,4 +36,17 @@ export type Account = {
     issuer: string,
     label: string,
     type: string,
+    algorithm: string,
+    digits: number,
+    period?: number,
+    counter?: number,
+    secretCipher: number[],
+};
+
+export type UpdateAccountRequest = {
+    id: string,
+    issuer?: string,
+    label?: string,
+    icon?: number[],
+    note?: string,
 };

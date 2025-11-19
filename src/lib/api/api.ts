@@ -9,6 +9,7 @@ import type {
   AppStateResponse,
   PageParam,
   Response,
+  UpdateAccountRequest,
 } from "$lib/api/types";
 
 export const initApp = async (password: string) =>
@@ -27,11 +28,24 @@ export const authCapabilities = async () =>
     pinSupported: boolean;
     methods: string[];
   }>("auth_capabilities");
+
 export const listAccounts = async (current: number = 0, size: number = 16) =>
   await apiInvoke<Response<Account[]>>("list_accounts", {
     current,
     size,
   } as PageParam);
+
+export const addAccount = async (authUrl: string) =>
+  await apiInvoke<void>("add_account", { authUrl });
+
+export const updateAccount = async (request: UpdateAccountRequest) =>
+  await apiInvoke<void>("update_account", { request });
+
+export const getAccountById = async (accountId: string) =>
+  await apiInvoke<Account>("get_account_by_id", { accountId });
+
+export const removeAccount = async (accountId: string) =>
+  await apiInvoke<void>("remove_account", { accountId });
 
 async function apiInvoke<T>(
   cmd: string,
