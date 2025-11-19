@@ -5,7 +5,6 @@ export type AppDefault = {
     kdbxPath: string
 }
 
-
 export type InitRequest = {
     kdbxPath: string,
     password: string,
@@ -14,15 +13,6 @@ export type InitRequest = {
 export type APIError = {
     code: CommonError,
     reason: string,
-}
-
-export type PageParam = {
-    current: number,
-    size: number,
-};
-
-export type Response<T> = {
-    data: T,
 }
 
 export type AppStateResponse = {
@@ -44,9 +34,4 @@ export type AppStateResponse = {
     }
 }
 
-export type Account = {
-    id: string,
-    issuer: string,
-    label: string,
-    type: string,
-};
+export type Account = {};

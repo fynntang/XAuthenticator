@@ -1,6 +1,5 @@
 mod commands;
 mod constants;
-mod initialize;
 mod state;
 mod utils;
 
