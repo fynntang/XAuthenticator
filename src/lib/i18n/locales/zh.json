@@ -27,6 +27,50 @@
     "initSuccess": "初始化成功",
     "initFailed": "初始化失败"
   },
+  "account": {
+    "list": {
+      "title": "账户",
+      "empty": "暂无账户"
+    },
+    "add": {
+      "title": "新增账户",
+      "success": "新增成功",
+      "fail": "新增失败"
+    },
+    "update": {
+      "title": "编辑账户",
+      "success": "更新成功",
+      "fail": "更新失败"
+    },
+    "remove": {
+      "title": "删除账户",
+      "success": "删除成功",
+      "fail": "删除失败",
+      "mode": { "soft": "软删除（移至回收站）", "hard": "硬删除（永久删除）" }
+    },
+    "form": {
+      "issuer": "发行者",
+      "issuerPlaceholder": "输入发行者",
+      "label": "标签",
+      "labelPlaceholder": "输入标签",
+      "type": "类型",
+      "algorithm": "算法",
+      "digits": "位数",
+      "period": "周期（秒）",
+      "counter": "计数器",
+      "secret": "密钥",
+      "secretPlaceholder": "输入 Base32/原始密钥",
+      "note": "备注"
+    }
+  },
+  "common": {
+    "create": "创建",
+    "save": "保存",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirm": "确认"
+  },
   "appLock": {
     "title": "应用已锁定",
     "description": "请输入密码以解锁应用",
