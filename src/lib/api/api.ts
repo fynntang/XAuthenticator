@@ -1,5 +1,5 @@
 import {invoke, type InvokeArgs, type InvokeOptions,} from "@tauri-apps/api/core";
-import type {Account, APIError, AppDefault, AppStateResponse, InitRequest, PageParam, Response,} from "$lib/api/types";
+import type {Account, APIError, AppDefault, AppStateResponse, InitRequest,} from "$lib/api/types";
 
 
 export const appDefault = async () => await apiInvoke<AppDefault>("app_default");
@@ -10,10 +10,7 @@ export const quitApp = async () => await apiInvoke<void>("quit_app");
 export const lockApp = async () => await apiInvoke<void>("lock");
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password});
 
-export const listAccounts = async (current: number = 0, size: number = 16) => await apiInvoke<Response<Account[]>>("list_accounts", {
-    current,
-    size,
-} as PageParam);
+export const listAccounts = async () => await apiInvoke<Account[]>("list_accounts");
 
 async function apiInvoke<T>(
     cmd: string,
