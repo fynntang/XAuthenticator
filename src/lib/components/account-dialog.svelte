@@ -4,7 +4,6 @@
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
     import { Textarea } from "$lib/components/ui/textarea";
-    import * as Select from "$lib/components/ui/select";
     import type { CreateAccountRequest, UpdateAccountRequest, Account } from "$lib/api/types";
     import { addAccount, updateAccount } from "$lib/api/api";
     
@@ -166,35 +165,29 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="grid gap-2">
                         <Label for="type">Type</Label>
-                        <Select.Root 
-                            selected={{ value: formData.type, label: formData.type }}
-                            onSelectedChange={(v) => formData.type = v?.value || "TOTP"}
+                        <select 
+                            id="type" 
+                            bind:value={formData.type}
+                            disabled={loading}
+                            class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <Select.Trigger id="type" disabled={loading}>
-                                <Select.Value placeholder="Select type" />
-                            </Select.Trigger>
-                            <Select.Content>
-                                <Select.Item value="TOTP">TOTP</Select.Item>
-                                <Select.Item value="HOTP">HOTP</Select.Item>
-                            </Select.Content>
-                        </Select.Root>
+                            <option value="TOTP">TOTP</option>
+                            <option value="HOTP">HOTP</option>
+                        </select>
                     </div>
                     
                     <div class="grid gap-2">
                         <Label for="algorithm">Algorithm</Label>
-                        <Select.Root 
-                            selected={{ value: formData.algorithm, label: formData.algorithm }}
-                            onSelectedChange={(v) => formData.algorithm = v?.value || "SHA1"}
+                        <select 
+                            id="algorithm" 
+                            bind:value={formData.algorithm}
+                            disabled={loading}
+                            class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <Select.Trigger id="algorithm" disabled={loading}>
-                                <Select.Value placeholder="Select algorithm" />
-                            </Select.Trigger>
-                            <Select.Content>
-                                <Select.Item value="SHA1">SHA1</Select.Item>
-                                <Select.Item value="SHA256">SHA256</Select.Item>
-                                <Select.Item value="SHA512">SHA512</Select.Item>
-                            </Select.Content>
-                        </Select.Root>
+                            <option value="SHA1">SHA1</option>
+                            <option value="SHA256">SHA256</option>
+                            <option value="SHA512">SHA512</option>
+                        </select>
                     </div>
                 </div>
                 

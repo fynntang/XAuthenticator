@@ -6,7 +6,7 @@
     import {onMount} from "svelte";
     import {listAccounts, removeAccount} from "$lib/api/api";
     import type {Account, PageParam} from "$lib/api/types";
-    import {Plus, Pencil, Trash2, RefreshCw} from "lucide-svelte";
+    import {Plus, Pencil, Trash2, RefreshCw} from "@lucide/svelte";
     import AccountDialog from "$lib/components/account-dialog.svelte";
     
     let accounts: Account[] = $state([]);
