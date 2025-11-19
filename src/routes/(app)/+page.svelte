@@ -2,10 +2,12 @@
 
     import {ScrollArea} from "$lib/components/ui/scroll-area";
     import {Button} from "$lib/components/ui/button";
+    import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import {onMount} from "svelte";
-    import {listAccounts, addAccount, updateAccount, removeAccount} from "$lib/api/api";
-    import type {Account, CreateAccountRequest, UpdateAccountRequest, PageParam} from "$lib/api/types";
+    import {listAccounts, removeAccount} from "$lib/api/api";
+    import type {Account, PageParam} from "$lib/api/types";
     import {Plus, Pencil, Trash2, RefreshCw} from "lucide-svelte";
+    import AccountDialog from "$lib/components/account-dialog.svelte";
     
     let accounts: Account[] = $state([]);
     let currentPage = $state(1);
@@ -13,6 +15,15 @@
     let total = $state(0);
     let loading = $state(false);
     let error = $state<string | null>(null);
+    
+    // Dialog state
+    let dialogOpen = $state(false);
+    let dialogMode = $state<"add" | "edit">("add");
+    let selectedAccount = $state<Account | undefined>(undefined);
+    
+    // Delete confirmation dialog
+    let deleteDialogOpen = $state(false);
+    let accountToDelete = $state<string | null>(null);
     
     // Password state - in a real app, this should come from the unlock mechanism
     let password = $state("");
@@ -42,17 +53,37 @@
         }
     }
     
-    async function handleDeleteAccount(accountId: string) {
-        if (!password || !confirm("Are you sure you want to delete this account?")) {
+    function openAddDialog() {
+        dialogMode = "add";
+        selectedAccount = undefined;
+        dialogOpen = true;
+    }
+    
+    function openEditDialog(account: Account) {
+        dialogMode = "edit";
+        selectedAccount = account;
+        dialogOpen = true;
+    }
+    
+    function confirmDelete(accountId: string) {
+        accountToDelete = accountId;
+        deleteDialogOpen = true;
+    }
+    
+    async function handleDeleteAccount() {
+        if (!password || !accountToDelete) {
             return;
         }
         
         try {
-            await removeAccount(accountId, password);
+            await removeAccount(accountToDelete, password);
+            deleteDialogOpen = false;
+            accountToDelete = null;
             await loadAccounts();
         } catch (err: any) {
             console.error("Failed to delete account:", err);
             error = err.reason || "Failed to delete account";
+            deleteDialogOpen = false;
         }
     }
     
@@ -72,7 +103,7 @@
                     <RefreshCw class="h-4 w-4 {loading ? 'animate-spin' : ''}" />
                     Refresh
                 </Button>
-                <Button size="sm" onclick={() => {/* TODO: Open add account dialog */}}>
+                <Button size="sm" onclick={openAddDialog} disabled={!password}>
                     <Plus class="h-4 w-4 mr-1" />
                     Add Account
                 </Button>
@@ -97,7 +128,7 @@
             <div class="flex flex-col items-center justify-center p-8 text-center">
                 <p class="mb-2 text-lg font-medium">No accounts yet</p>
                 <p class="mb-4 text-sm text-muted-foreground">Add your first 2FA account to get started</p>
-                <Button size="sm" onclick={() => {/* TODO: Open add account dialog */}}>
+                <Button size="sm" onclick={openAddDialog}>
                     <Plus class="h-4 w-4 mr-1" />
                     Add Account
                 </Button>
@@ -129,7 +160,7 @@
                                     size="sm" 
                                     variant="outline" 
                                     class="flex-1"
-                                    onclick={() => {/* TODO: Open edit dialog */}}
+                                    onclick={() => openEditDialog(account)}
                                 >
                                     <Pencil class="h-3 w-3" />
                                 </Button>
@@ -137,7 +168,7 @@
                                     size="sm" 
                                     variant="outline" 
                                     class="flex-1"
-                                    onclick={() => handleDeleteAccount(account.id)}
+                                    onclick={() => confirmDelete(account.id)}
                                 >
                                     <Trash2 class="h-3 w-3" />
                                 </Button>
@@ -173,3 +204,26 @@
         {/if}
     </div>
 </ScrollArea>
+
+<AccountDialog 
+    bind:open={dialogOpen}
+    mode={dialogMode}
+    account={selectedAccount}
+    password={password}
+    onSuccess={loadAccounts}
+/>
+
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+    <AlertDialog.Content>
+        <AlertDialog.Header>
+            <AlertDialog.Title>Are you sure?</AlertDialog.Title>
+            <AlertDialog.Description>
+                This action cannot be undone. This will permanently delete the account from your database.
+            </AlertDialog.Description>
+        </AlertDialog.Header>
+        <AlertDialog.Footer>
+            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Action onclick={handleDeleteAccount}>Delete</AlertDialog.Action>
+        </AlertDialog.Footer>
+    </AlertDialog.Content>
+</AlertDialog.Root>
