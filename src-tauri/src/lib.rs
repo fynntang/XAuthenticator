@@ -69,6 +69,7 @@ pub fn run() {
             commands::lock,
             commands::list_accounts,
             commands::add_account,
+            commands::update_account,
             commands::remove_account,
             commands::export_backup,
             commands::import_backup,

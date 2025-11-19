@@ -25,6 +25,13 @@ export type Response<T> = {
     data: T,
 }
 
+export type PagedResponse<T> = {
+    data: T[],
+    total: number,
+    current: number,
+    size: number,
+}
+
 export type AppStateResponse = {
     isInitialized: boolean,
     runtimeTimestamp: number | null,
@@ -49,4 +56,34 @@ export type Account = {
     issuer: string,
     label: string,
     type: string,
+    algorithm: string,
+    digits: number,
+    period?: number,
+    counter?: number,
+    secretCipher: number[],
+    icon?: number[],
+    note?: string,
+    createdAt?: number,
+    updatedAt?: number,
+};
+
+export type CreateAccountRequest = {
+    issuer: string,
+    label: string,
+    type: string,
+    algorithm: string,
+    digits: number,
+    period?: number,
+    counter?: number,
+    secret: string,
+    icon?: number[],
+    note?: string,
+};
+
+export type UpdateAccountRequest = {
+    id: string,
+    issuer?: string,
+    label?: string,
+    icon?: number[],
+    note?: string,
 };
