@@ -27,6 +27,53 @@
     "initSuccess": "Initialization successful",
     "initFailed": "Initialization failed"
   },
+  "account": {
+    "list": {
+      "title": "Accounts",
+      "empty": "No accounts"
+    },
+    "add": {
+      "title": "Add Account",
+      "success": "Account added",
+      "fail": "Add failed"
+    },
+    "update": {
+      "title": "Edit Account",
+      "success": "Account updated",
+      "fail": "Update failed"
+    },
+    "remove": {
+      "title": "Remove Account",
+      "success": "Account removed",
+      "fail": "Remove failed",
+      "mode": {
+        "soft": "Soft delete (to Recycle Bin)",
+        "hard": "Hard delete (permanent)"
+      }
+    },
+    "form": {
+      "issuer": "Issuer",
+      "issuerPlaceholder": "Enter issuer",
+      "label": "Label",
+      "labelPlaceholder": "Enter label",
+      "type": "Type",
+      "algorithm": "Algorithm",
+      "digits": "Digits",
+      "period": "Period (s)",
+      "counter": "Counter",
+      "secret": "Secret",
+      "secretPlaceholder": "Enter Base32/raw secret",
+      "note": "Note"
+    }
+  },
+  "common": {
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  },
   "appLock": {
     "title": "Application Locked",
     "description": "Please enter your password to unlock the application",
