@@ -37,7 +37,7 @@ export type AppStateResponse = {
 export type Times = {
     expires: boolean;
     usageCount: number;
-    times: Map<string, Date>;
+    times: Record<string, Date>;
 }
 export const TimesConstants = {
     EXPIRY_TIME_TAG_NAME: 'ExpiryTime',
@@ -47,9 +47,9 @@ export const TimesConstants = {
     LOCATION_CHANGED_TAG_NAME: 'LocationChanged'
 } as const;
 
-// 自定义数据
+// Custom data
 export type CustomData = {
-    items: Map<string, CustomDataItem>;
+    items: Record<string, CustomDataItem>;
 }
 export type CustomDataItem = {
     value?: Value;
@@ -70,7 +70,7 @@ export type Color = {
 export type Value =
     | { type: 'Bytes', data: Uint8Array }
     | { type: 'Unprotected', data: string }
-    | { type: 'Protected', data: string }; // 注意：在TS中我们通常不处理安全内存
+    | { type: 'Protected', data: string }; // Note: In TypeScript, we typically don't handle secure memory
 
 export type Node =
     | { type: 'Group', group: Group }
@@ -115,7 +115,7 @@ export type Group = {
 };
 export type Entry = {
     uuid: string,
-    fields: Map<string, Value>,
+    fields: Record<string, Value>,
     autotype?: AutoType,
     times: Times,
     custom_data: CustomData,
