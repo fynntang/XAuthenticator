@@ -1,5 +1,13 @@
 import {invoke, type InvokeArgs, type InvokeOptions,} from "@tauri-apps/api/core";
-import type {Account, APIError, AppDefault, AppStateResponse, CreateAccountRequest, InitRequest, UpdateAccountRequest,} from "$lib/api/types";
+import type {
+    APIError,
+    AppDefault,
+    AppStateResponse,
+    CreateAccountRequest,
+    Group,
+    InitRequest,
+    UpdateAccountRequest,
+} from "$lib/api/types";
 
 
 export const appDefault = async () => await apiInvoke<AppDefault>("app_default");
@@ -10,9 +18,9 @@ export const quitApp = async () => await apiInvoke<void>("quit_app");
 export const lockApp = async () => await apiInvoke<void>("lock");
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password});
 
-export const listAccounts = async () => await apiInvoke<Account[]>("list_accounts");
-export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<Account>("create_account", {request});
-export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<Account>("update_account", {request});
+export const listAccounts = async () => await apiInvoke<Group>("list_accounts");
+export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<Group>("create_account", {request});
+export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<Group>("update_account", {request});
 export const deleteAccount = async (accountId: string) => await apiInvoke<void>("delete_account", {accountId});
 export const getCode = async (accountId: string) => await apiInvoke<string>("get_code", {accountId});
 

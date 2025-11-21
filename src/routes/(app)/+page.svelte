@@ -9,6 +9,8 @@
     import {Badge} from "$lib/components/ui/badge";
     import {Separator} from "$lib/components/ui/separator";
     import {Copy, Eye, Globe, Pencil, Share} from "@lucide/svelte";
+    import {onMount} from "svelte";
+    import {listAccounts} from "$lib/api/api";
 
     const sidebarWidth = Number(SIDEBAR_WIDTH.replace("rem", "")) * 16;
 
@@ -24,6 +26,14 @@
         lastEdited: "2025-08-26 11:34:54"
     };
 
+    let accounts = $state()
+    onMount(() => {
+        listAccounts().then((value) => {
+            accounts = value;
+        })
+    })
+
+    $inspect(accounts)
 </script>
 
 
