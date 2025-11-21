@@ -13,7 +13,10 @@ pub async fn list_accounts(app: tauri::AppHandle) -> Result<keepass::db::Group, 
     if app_state.is_locked {
         return Err(CommonError::AppIsLocked);
     }
-    let db = app_state.db.clone().unwrap();
+    let db = app_state
+        .db
+        .clone()
+        .ok_or(CommonError::KdbxNotInitialized)?;
 
     Ok(db.root)
 }
