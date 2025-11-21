@@ -24,7 +24,7 @@ serde_yaml = "0.9"
 uuid = { version = "1.18", features = ["v7"] }
 thiserror = "2"
 anyhow = "1"
-keepass = { version = "0.8", features = ["save_kdbx4", "utilities"] }
+keepass = { version = "0.8", features = ["save_kdbx4", "utilities", "_merge", "challenge_response"] }
 
 # default to small, optimized release binaries
 [profile.release]
