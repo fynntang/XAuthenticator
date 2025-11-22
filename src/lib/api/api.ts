@@ -4,6 +4,7 @@ import type {
     AppDefault,
     AppStateResponse,
     CreateAccountRequest,
+    Entry,
     Group,
     InitRequest,
     UpdateAccountRequest,
@@ -18,7 +19,9 @@ export const quitApp = async () => await apiInvoke<void>("quit_app");
 export const lockApp = async () => await apiInvoke<void>("lock");
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password});
 
-export const listAccounts = async () => await apiInvoke<Group>("list_accounts");
+export const listGroups = async () => await apiInvoke<Group[]>("list_groups");
+export const listTags = async () => await apiInvoke<String[]>("list_tags");
+export const listAccounts = async () => await apiInvoke<Entry[]>("list_accounts");
 export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<Group>("create_account", {request});
 export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<Group>("update_account", {request});
 export const deleteAccount = async (accountId: string) => await apiInvoke<void>("delete_account", {accountId});

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type {PageProps} from './$types';
+
     import {SIDEBAR_WIDTH} from "$lib/components/ui/sidebar/constants";
     import {ResizableHandle, ResizablePane, ResizablePaneGroup} from "$lib/components/ui/resizable";
     import {Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle} from "$lib/components/ui/item";
@@ -11,6 +13,7 @@
     import {Copy, Eye, Globe, Pencil, Share} from "@lucide/svelte";
     import {onMount} from "svelte";
     import {listAccounts} from "$lib/api/api";
+    import type {Entry} from "$lib/api/types";
 
     const sidebarWidth = Number(SIDEBAR_WIDTH.replace("rem", "")) * 16;
 
@@ -25,15 +28,13 @@
         tag: "My Google Account",
         lastEdited: "2025-08-26 11:34:54"
     };
-
-    let accounts = $state()
-    onMount(() => {
-        listAccounts().then((value) => {
-            accounts = value;
-        })
+    let {data}: PageProps = $props();
+    let accountsState: Entry[] | undefined = $state<Entry[]>();
+    onMount(async () => {
+        accountsState = await listAccounts()
     })
 
-    $inspect(accounts)
+    $inspect("data", data, accountsState)
 </script>
 
 
@@ -41,7 +42,7 @@
     <ResizablePane minSize={25} defaultSize={30} maxSize={35} class="flex flex-col pl-4">
         <ScrollArea class="h-full w-full">
             <ItemGroup class="pr-4">
-                {#each Array.from({length: 500}) as _,index(index)}
+                {#each Array.from({length: 50}) as _,index(index)}
                     <Item>
                         {#snippet child({props})}
                             <a href="#/" {...props}>

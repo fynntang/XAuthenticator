@@ -66,6 +66,8 @@ pub fn run() {
             commands::unlock_with_password,
             commands::unlock_with_biometric,
             commands::lock,
+            commands::accounts::list_groups,
+            commands::accounts::list_tags,
             commands::accounts::list_accounts,
             commands::accounts::create_account,
             commands::accounts::update_account,

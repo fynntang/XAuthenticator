@@ -30,7 +30,7 @@ pub fn app_default(app: tauri::AppHandle) -> Result<AppDefault, CommonError> {
 pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), CommonError> {
     debug!("Initializing app request:{:?}", request);
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut app_state = state.lock().unwrap();
+    let mut app_state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
     let app_data_dir = AppDataDir::new(
         app.path()
             .app_local_data_dir()
@@ -70,7 +70,7 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
 #[tauri::command]
 pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut app_state = state.lock().unwrap();
+    let mut app_state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
 
     let current_version = format!("v{}", app.config().version.clone().unwrap());
     info!("app config version: {:?}", current_version);
@@ -142,7 +142,7 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
 #[tauri::command]
 pub fn app_state(app: tauri::AppHandle) -> Result<AppState, CommonError> {
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut app_state = state.lock().unwrap();
+    let mut app_state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
 
     let settings = app_state.config.builder().settings.clone();
     let timeout = settings.auto_lock_timeout;
@@ -168,7 +168,7 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
     }
     
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut app_state = state.lock().unwrap();
+    let mut app_state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
     
     let kdbx_path = app_state.config.builder().kdbx_path.clone();
     
@@ -201,7 +201,7 @@ pub fn unlock_with_biometric(_app: tauri::AppHandle) {}
 #[tauri::command]
 pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
     let state = app.state::<Arc<Mutex<AppState>>>();
-    let mut state = state.lock().unwrap();
+    let mut state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
     state.is_locked = true;
     state.locked_timestamp = Some(chrono::Local::now().timestamp() as u64);
     state.db = None;

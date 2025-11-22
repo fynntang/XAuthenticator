@@ -1423,8 +1423,8 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
 
-  libphonenumber-js@1.12.28:
-    resolution: {integrity: sha512-sDB+nY8l1d2SHC0TnBat4uovsx1EjrkesK9U8Arl2/LQluXn3OQczwqr2M/1V2Lo0ajnaY/nZjvacg6vmbqWUQ==}
+  libphonenumber-js@1.12.29:
+    resolution: {integrity: sha512-P2aLrbeqHbmh8+9P35LXQfXOKc7XJ0ymUKl7tyeyQjdRNfzunXWxQXGc4yl3fUf28fqLRfPY+vIVvFXK7KEBTw==}
 
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
@@ -2769,7 +2769,7 @@ snapshots:
   class-validator@0.14.2:
     dependencies:
       '@types/validator': 13.15.10
-      libphonenumber-js: 1.12.28
+      libphonenumber-js: 1.12.29
       validator: 13.15.23
     optional: true
 
@@ -3174,7 +3174,7 @@ snapshots:
       runed: 0.28.0(svelte@5.43.14)
       svelte: 5.43.14
 
-  libphonenumber-js@1.12.28:
+  libphonenumber-js@1.12.29:
     optional: true
 
   lightningcss-android-arm64@1.30.2:
