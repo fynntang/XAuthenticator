@@ -1,5 +1,6 @@
 use crate::state::AppState;
-use keepass::db::{Entry, Node};
+use keepass::db::{Entry, Group, Node};
+use log::info;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
 use xauthenticator_entity::{CreateAccountRequest, UpdateAccountRequest};
@@ -19,25 +20,9 @@ pub async fn list_groups(app: tauri::AppHandle) -> Result<Vec<keepass::db::Group
         .as_ref()
         .ok_or(CommonError::KdbxNotInitialized)?;
     let root_node = &db.root;
-    Ok(root_node
-        .groups()
-        .iter()
-        .map(|g| keepass::db::Group {
-            uuid: g.uuid.clone(),
-            name: g.name.clone(),
-            notes: g.notes.clone(),
-            icon_id: g.icon_id.clone(),
-            custom_icon_uuid: g.custom_icon_uuid.clone(),
-            children: g.children.clone(),
-            times: g.times.clone(),
-            custom_data: g.custom_data.clone(),
-            is_expanded: g.is_expanded.clone(),
-            default_autotype_sequence: g.default_autotype_sequence.clone(),
-            enable_autotype: g.enable_autotype.clone(),
-            enable_searching: g.enable_searching.clone(),
-            last_top_visible_entry: g.last_top_visible_entry.clone(),
-        })
-        .collect())
+    let g = groups(&root_node.children);
+    info!("{:?}", g);
+    Ok(g)
 }
 
 /// List all tags from the database
@@ -94,6 +79,18 @@ fn entries(nodes: &Vec<Node>) -> Vec<Entry> {
         }
         if let Node::Entry(e) = node {
             result.push(e.clone())
+        }
+    }
+    result
+}
+fn groups(nodes: &Vec<Node>) -> Vec<Group> {
+    let mut result: Vec<Group> = Vec::new();
+    for node in nodes {
+        if let Node::Group(g) = node {
+            let subgroups = groups(&g.children);
+            let mut group_clone = g.clone();
+            group_clone.children = subgroups.iter().cloned().map(Node::Group).collect();
+            result.push(group_clone);
         }
     }
     result
