@@ -53,7 +53,6 @@
         groups = await listGroups()
     })
 
-    $inspect("xxx", tags, groups)
 </script>
 
 <Sidebar collapsible="icon" bind:ref {...restProps}>
@@ -190,7 +189,6 @@
                                 </SidebarMenuSubItem>
                             {/each}
                         </SidebarMenuSub>
-
                     </SidebarMenuItem>
                 {/each}
             </SidebarMenu>

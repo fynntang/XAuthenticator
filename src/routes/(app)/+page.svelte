@@ -29,7 +29,7 @@
         lastEdited: "2025-08-26 11:34:54"
     };
     let {data}: PageProps = $props();
-    let accountsState: Entry[] | undefined = $state<Entry[]>();
+    let accountsState: Entry[] = $state<Entry[]>([]);
     onMount(async () => {
         accountsState = await listAccounts()
     })
@@ -42,21 +42,21 @@
     <ResizablePane minSize={25} defaultSize={30} maxSize={35} class="flex flex-col pl-4">
         <ScrollArea class="h-full w-full">
             <ItemGroup class="pr-4">
-                {#each Array.from({length: 50}) as _,index(index)}
+                {#each accountsState as account,index(index)}
                     <Item>
                         {#snippet child({props})}
-                            <a href="#/" {...props}>
+                            <a {...props}>
                                 <ItemMedia>
                                     <Avatar>
                                         <AvatarImage
-                                                src={"https://ui-avatars.com/api/?name=XAuthenticator&format=svg&bold=true"}
+                                                src={`https://ui-avatars.com/api/?name=${account.fields.UserName}&format=svg&bold=true&background=random&rounded=true`}
                                                 class="grayscale"/>
-                                        <AvatarFallback>Name</AvatarFallback>
+                                        <AvatarFallback>{account.fields.UserName}</AvatarFallback>
                                     </Avatar>
                                 </ItemMedia>
                                 <ItemContent class="gap-1">
-                                    <ItemTitle>Name</ItemTitle>
-                                    <ItemDescription>email</ItemDescription>
+                                    <ItemTitle>{account.fields.Title}</ItemTitle>
+                                    <ItemDescription>{account.fields.UserName}</ItemDescription>
                                 </ItemContent>
                             </a>
                         {/snippet}
