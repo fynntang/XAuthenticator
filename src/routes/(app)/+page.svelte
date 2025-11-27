@@ -20,11 +20,17 @@
     let accountsState: Entry[] = $state<Entry[]>([]);
     let currentAccountState = $state<Entry | null>(null);
 
+
     onMount(async () => {
-        accountsState = await listAccounts()
+        accountsState = await listAccounts();
+        currentAccountState = JSON.parse(localStorage.getItem("currentAccountState") ?? "{}") as Entry;
     })
 
-    $inspect("data", data, accountsState)
+    const changeCurrentAccountState = (currentAccount: Entry) => {
+        currentAccountState = currentAccount;
+        localStorage.setItem("currentAccountState", JSON.stringify(currentAccount));
+    }
+
 </script>
 
 
@@ -35,7 +41,7 @@
                 {#each accountsState as account,index(index)}
                     <Item>
                         {#snippet child({props})}
-                            <a {...props} onclick={()=>{ currentAccountState = account; }}>
+                            <a {...props} onclick={()=>{ changeCurrentAccountState(account) }}>
                                 <ItemMedia>
                                     <Avatar>
                                         {#if account.fields.website}
@@ -67,7 +73,8 @@
                     <div class="[.border-b]:pb-6 grid auto-rows-min grid-cols-[auto_1fr_auto] items-center gap-4 px-6">
                         <Avatar class="size-12 rounded-lg">
                             {#if currentAccountState.fields.website}
-                                <AvatarImage src={`https://logo.5io.cc/${URL.parse(currentAccountState.fields.website)?.host}`}/>
+                                <AvatarImage
+                                        src={`https://logo.5io.cc/${URL.parse(currentAccountState.fields.website)?.host}`}/>
                             {:else}
                                 <AvatarImage class="grayscale"
                                              src={`https://ui-avatars.com/api/?name=${currentAccountState.fields.UserName}&format=svg&bold=true&background=random&rounded=true`}/>
@@ -158,7 +165,7 @@
                         {/if}
                         <Separator class="my-2 border-transparent"/>
                         <div class="text-muted-foreground text-sm">Latest
-                            Update {currentAccountState?.fields.lastEdited}</div>
+                            Update {currentAccountState?.times.times.LastModificationTime}</div>
                     </div>
 
                 </div>
