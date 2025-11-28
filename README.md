@@ -1,15 +1,15 @@
-# 🛡️ XAuthenticator
+# 🛡️ XPassword
 
-**XAuthenticator** 是一款现代、安全且易用的 **双重身份验证 (2FA)** 管理工具。  
-它帮助你集中管理所有的动态验证码（TOTP / HOTP），支持多设备同步、备份与加密存储，确保你的账号安全不再受限于单一设备。
+**XPassword** 是一款现代、安全且易用的 **密码管理工具**。  
+它帮助你集中管理所有的密码和动态验证码（TOTP / HOTP），支持多设备同步、备份与加密存储，确保你的账号安全不再受限于单一设备。
 
 <p align="center">
   <img src="./.github/icon.png" alt="XAuthenticator Logo" width="160" />
 </p>
 
 <p align="center">
-  <b>轻量、安全、现代的 2FA 管理工具</b><br/>
-  在所有设备上安全地管理您的 2FA。
+  <b>轻量、安全、现代的密码管理工具</b><br/>
+  在所有设备上安全地管理您的密码。
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 ## 🧭 简介 | Overview
 
-**XAuthenticator** 是一款跨平台的 **双重身份验证 (2FA)** 管理工具，支持多种验证协议（TOTP/HOTP），并以现代化的界面与安全的本地加密存储，让你的数字身份更加安全。
+**XPassword** 是一款跨平台的 **密码管理工具**，支持多种验证协议（TOTP/HOTP），并以现代化的界面与安全的本地加密存储，让你的数字身份更加安全。
 
 > English version is available below.  
 > 👉 [Jump to English version](./README_English.md)
@@ -112,4 +112,4 @@ You are free to use, modify and distribute this project under the MIT license.
 所有为安全与开源生态做出贡献的开发者们 🙏
 
 ---
-<p align="center"> <b>🧭 XAuthenticator — 让你的双重验证更安全、更自由。</b> </p>
+<p align="center"> <b>🧭 XPassword — 让你的密码管理更安全、更自由。</b> </p>

@@ -1,4 +1,4 @@
-import {CommonError} from "$lib/api/errors";
+import { CommonError } from "$lib/api/errors";
 
 
 export type AppDefault = {
@@ -76,7 +76,7 @@ export type Node = { type: 'Group' | 'Entry', Group: Group, Entry: Entry };
 
 export type NodeRef<T extends Node> =
     T extends { type: 'Group' } ? Group :
-        T extends { type: 'Entry' } ? Entry : never;
+    T extends { type: 'Entry' } ? Entry : never;
 
 export type NodeIter = Iterable<NodeRef<any>>;
 
@@ -130,6 +130,31 @@ export type Entry = {
     history?: History,
 }
 
-export type CreateAccountRequest = {};
+export type Account = {
+    id: string;
+    title: string;
+    username: string;
+    password: string;
+    url: string;
+    notes: string;
+    totp?: string;
+}
 
-export type UpdateAccountRequest = {};
+export type CreateAccountRequest = {
+    title: string;
+    username: string;
+    password: string;
+    url: string;
+    notes: string;
+    totp?: string;
+};
+
+export type UpdateAccountRequest = {
+    id: string;
+    title: string;
+    username: string;
+    password: string;
+    url: string;
+    notes: string;
+    totp?: string;
+};

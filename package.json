@@ -1,6 +1,6 @@
 {
-  "appName": "XAuthenticator",
-  "name": "xauthenticator",
+  "appName": "XPassword",
+  "name": "xpassword",
   "version": "0.1.0",
   "description": "",
   "type": "module",

@@ -1,6 +1,7 @@
-import {invoke, type InvokeArgs, type InvokeOptions,} from "@tauri-apps/api/core";
+import { invoke, type InvokeArgs, type InvokeOptions, } from "@tauri-apps/api/core";
 import type {
     APIError,
+    Account,
     AppDefault,
     AppStateResponse,
     CreateAccountRequest,
@@ -12,20 +13,20 @@ import type {
 
 
 export const appDefault = async () => await apiInvoke<AppDefault>("app_default");
-export const initApp = async (request: InitRequest) => await apiInvoke<void>("init_app", {request});
+export const initApp = async (request: InitRequest) => await apiInvoke<void>("init_app", { request });
 export const launchApp = async () => await apiInvoke<void>("launch_app");
 export const appState = async () => await apiInvoke<AppStateResponse>("app_state");
 export const quitApp = async () => await apiInvoke<void>("quit_app");
 export const lockApp = async () => await apiInvoke<void>("lock");
-export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", {password});
+export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", { password });
 
 export const listGroups = async () => await apiInvoke<Group[]>("list_groups");
 export const listTags = async () => await apiInvoke<String[]>("list_tags");
-export const listAccounts = async () => await apiInvoke<Entry[]>("list_accounts");
-export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<Group>("create_account", {request});
-export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<Group>("update_account", {request});
-export const deleteAccount = async (accountId: string) => await apiInvoke<void>("delete_account", {accountId});
-export const getCode = async (accountId: string) => await apiInvoke<string>("get_code", {accountId});
+export const listAccounts = async () => await apiInvoke<Account[]>("list_accounts");
+export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<void>("create_account", { request });
+export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<void>("update_account", { request });
+export const deleteAccount = async (accountId: string) => await apiInvoke<void>("delete_account", { accountId });
+export const getCode = async (accountId: string) => await apiInvoke<string>("get_code", { accountId });
 
 async function apiInvoke<T>(
     cmd: string,
