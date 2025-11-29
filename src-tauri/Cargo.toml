@@ -1,5 +1,5 @@
 [package]
-name = "xauthenticator"
+name = "xpassword"
 version = { workspace = true }
 description = { workspace = true }
 authors = { workspace = true }
@@ -12,16 +12,16 @@ repository = { workspace = true }
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "xauthenticator_lib"
+name = "xpassword_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-xauthenticator-config = { workspace = true }
-xauthenticator-entity = { workspace = true }
-xauthenticator-error = { workspace = true }
+xpassword-config = { workspace = true }
+xpassword-entity = { workspace = true }
+xpassword-error = { workspace = true }
 
 
 tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }

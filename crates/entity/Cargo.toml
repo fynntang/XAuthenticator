@@ -1,5 +1,5 @@
 [package]
-name = "xauthenticator-entity"
+name = "xpassword-entity"
 version = { workspace = true }
 edition = { workspace = true }
 authors = { workspace = true }
@@ -7,7 +7,7 @@ repository = { workspace = true }
 description = { workspace = true }
 
 [lib]
-name = "xauthenticator_entity"
+name = "xpassword_entity"
 path = "src/lib.rs"
 
 [dependencies]

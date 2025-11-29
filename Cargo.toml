@@ -11,9 +11,9 @@ description = "A modern, secure and easy-to-use password manager"
 
 
 [workspace.dependencies]
-xauthenticator-config = { path = "crates/config" }
-xauthenticator-entity = { path = "crates/entity" }
-xauthenticator-error = { path = "crates/error" }
+xpassword-config = { path = "crates/config" }
+xpassword-entity = { path = "crates/entity" }
+xpassword-error = { path = "crates/error" }
 
 chrono = "0.4"
 tokio = { version = "1", features = ["full"] }

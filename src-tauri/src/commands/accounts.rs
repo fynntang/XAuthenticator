@@ -3,8 +3,8 @@ use keepass::db::{Entry, Group, Node, Value};
 use log::info;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
-use xauthenticator_entity::{Account, CreateAccountRequest, UpdateAccountRequest};
-use xauthenticator_error::CommonError;
+use xpassword_entity::{Account, CreateAccountRequest, UpdateAccountRequest};
+use xpassword_error::CommonError;
 
 /// List all groups from the database
 #[tauri::command]

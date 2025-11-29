@@ -63,7 +63,7 @@
                      style:background-size="cover"
                      style:background-position="center"
                 ></div>
-                <h1 class="flex text-3xl font-bold">XAuthenticator</h1>
+                <h1 class="flex text-3xl font-bold">XPassword</h1>
             </div>
             <div class="flex mt-auto mb-4 text-gray-500 dark:text-gray-400">
                 {__COPYRIGHT__.replace(/\{([^{}]+)\}/g, (match, placeholder: CopyrightKeys) => {

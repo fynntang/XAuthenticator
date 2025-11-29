@@ -8,8 +8,8 @@ use std::fs;
 use std::fs::File;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
-use xauthenticator_entity::{AppDefault, InitRequest};
-use xauthenticator_error::CommonError;
+use xpassword_entity::{AppDefault, InitRequest};
+use xpassword_error::CommonError;
 
 pub mod accounts;
 
@@ -51,7 +51,7 @@ pub fn init_app(app: tauri::AppHandle, request: InitRequest) -> Result<(), Commo
         .expect("could not save kdbx");
     }
 
-    let mut config = xauthenticator_config::Config::init(app_data_dir.config()).load();
+    let mut config = xpassword_config::Config::init(app_data_dir.config()).load();
     config
         .set_builder(config.builder().clone().set_kdbx_path(kdbx_path))
         .store();
@@ -121,7 +121,7 @@ pub fn launch_app(app: tauri::AppHandle) -> Result<(), CommonError> {
         }
     };
 
-    let cfg = xauthenticator_config::Config::init(app_data_dir.config()).load();
+    let cfg = xpassword_config::Config::init(app_data_dir.config()).load();
 
     let kdbx_path = cfg.builder().kdbx_path.clone();
     if !kdbx_path.exists() {

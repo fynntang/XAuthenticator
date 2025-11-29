@@ -1,5 +1,5 @@
 [package]
-name = "xauthenticator-config"
+name = "xpassword-config"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,7 +7,7 @@ repository.workspace = true
 description.workspace = true
 
 [lib]
-name = "xauthenticator_config"
+name = "xpassword_config"
 path = "src/lib.rs"
 
 [dependencies]

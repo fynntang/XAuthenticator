@@ -1,13 +1,13 @@
 # 🛡️ Introduction
 
-**XAuthenticator** is a modern, cross-platform **Two-Factor Authentication (2FA)** manager built with performance and
+**XPassword** is a modern, cross-platform **Two-Factor Authentication (2FA)** manager built with performance and
 privacy in mind.
 
 It supports TOTP and HOTP tokens, secure local encryption, optional cloud sync, and a clean, minimal interface.
 
 
 <p align="center">
-  <img src="./.github/icon.png" alt="XAuthenticator Logo" width="160" />
+  <img src="./.github/icon.png" alt="XPassword Logo" width="160" />
 </p>
 
 <p align="center">
@@ -16,14 +16,14 @@ It supports TOTP and HOTP tokens, secure local encryption, optional cloud sync, 
 </p>
 
 <p align="center">
-  <a href="https://github.com/fynntang/XAuthenticator/releases">
-    <img src="https://img.shields.io/github/v/release/fynntang/XAuthenticator?color=ff4081&label=version&style=for-the-badge" alt="Release Version">
+  <a href="https://github.com/fynntang/XPassword/releases">
+    <img src="https://img.shields.io/github/v/release/fynntang/XPassword?color=ff4081&label=version&style=for-the-badge" alt="Release Version">
   </a>
-  <a href="https://github.com/fynntang/XAuthenticator/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/fynntang/XAuthenticator/build.yml?style=for-the-badge&logo=github" alt="Build Status">
+  <a href="https://github.com/fynntang/XPassword/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/fynntang/XPassword/build.yml?style=for-the-badge&logo=github" alt="Build Status">
   </a>
-  <a href="https://github.com/fynntang/XAuthenticator/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/fynntang/XAuthenticator?style=for-the-badge" alt="License">
+  <a href="https://github.com/fynntang/XPassword/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/fynntang/XPassword?style=for-the-badge" alt="License">
   </a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20iOS%20%7C%20Android-blue?style=for-the-badge" alt="Platform">
 </p>
@@ -52,8 +52,8 @@ It supports TOTP and HOTP tokens, secure local encryption, optional cloud sync, 
 
 ```bash
 # Clone the repository
-git clone https://github.com/fynntang/XAuthenticator.git
-cd XAuthenticator
+git clone https://github.com/fynntang/XPassword.git
+cd XPassword
 
 # Install dependencies
 pnpm install
@@ -62,7 +62,7 @@ pnpm install
 pnpm tauri dev
 ```
 
-Or download the latest release from the [Releases page](https://github.com/fynntang/XAuthenticator/releases)
+Or download the latest release from the [Releases page](https://github.com/fynntang/XPassword/releases)
 
 ---
 
@@ -103,4 +103,4 @@ Licensed under the **MIT License** — see [LICENSE](./LICENSE) for details.
 All developers who contribute to the security and open source ecosystem 🙏
 
 --- 
-<p align="center"> <b>🧭 XAuthenticator — Secure your identity, everywhere.</b> </p>
+<p align="center"> <b>🧭 XPassword — Secure your identity, everywhere.</b> </p>
