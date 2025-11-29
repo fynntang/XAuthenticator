@@ -35,7 +35,6 @@
         refreshAccountsTrigger,
     } from "$lib/stores/stores";
 
-    const sidebarWidth = Number(SIDEBAR_WIDTH.replace("rem", "")) * 16;
     let accountsState: Account[] = $state<Account[]>([]);
     let currentAccountState = $state<Account | null>(null);
 
