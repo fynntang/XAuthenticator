@@ -1,12 +1,12 @@
 [package]
-name = "xauthenticator-error"
+name = "xpassword-error"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 repository.workspace = true
 description.workspace = true
 [lib]
-name = "xauthenticator_error"
+name = "xpassword_error"
 path = "src/lib.rs"
 
 [dependencies]

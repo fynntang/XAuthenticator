@@ -1,4 +1,4 @@
-use xauthenticator_error::CommonError;
+use xpassword_error::CommonError;
 
 pub mod app_data_dir;
 

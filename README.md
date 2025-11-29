@@ -1,26 +1,26 @@
-# 🛡️ XAuthenticator
+# 🛡️ XPassword
 
-**XAuthenticator** 是一款现代、安全且易用的 **双重身份验证 (2FA)** 管理工具。  
-它帮助你集中管理所有的动态验证码（TOTP / HOTP），支持多设备同步、备份与加密存储，确保你的账号安全不再受限于单一设备。
+**XPassword** 是一款现代、安全且易用的 **密码管理工具**。  
+它帮助你集中管理所有的密码和动态验证码（TOTP / HOTP），支持多设备同步、备份与加密存储，确保你的账号安全不再受限于单一设备。
 
 <p align="center">
-  <img src="./.github/icon.png" alt="XAuthenticator Logo" width="160" />
+  <img src="./.github/icon.png" alt="XPassword Logo" width="160" />
 </p>
 
 <p align="center">
-  <b>轻量、安全、现代的 2FA 管理工具</b><br/>
-  在所有设备上安全地管理您的 2FA。
+  <b>轻量、安全、现代的密码管理工具</b><br/>
+  在所有设备上安全地管理您的密码。
 </p>
 
 <p align="center">
-  <a href="https://github.com/fynntang/XAuthenticator/releases">
-    <img src="https://img.shields.io/github/v/release/fynntang/XAuthenticator?color=ff4081&label=version&style=for-the-badge" alt="Release Version">
+  <a href="https://github.com/fynntang/XPassword/releases">
+    <img src="https://img.shields.io/github/v/release/fynntang/XPassword?color=ff4081&label=version&style=for-the-badge" alt="Release Version">
   </a>
-  <a href="https://github.com/fynntang/XAuthenticator/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/fynntang/XAuthenticator/build.yml?style=for-the-badge&logo=github" alt="Build Status">
+  <a href="https://github.com/fynntang/XPassword/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/fynntang/XPassword/build.yml?style=for-the-badge&logo=github" alt="Build Status">
   </a>
-  <a href="https://github.com/fynntang/XAuthenticator/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/fynntang/XAuthenticator?style=for-the-badge" alt="License">
+  <a href="https://github.com/fynntang/XPassword/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/fynntang/XPassword?style=for-the-badge" alt="License">
   </a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20iOS%20%7C%20Android-blue?style=for-the-badge" alt="Platform">
 </p>
@@ -30,7 +30,7 @@
 
 ## 🧭 简介 | Overview
 
-**XAuthenticator** 是一款跨平台的 **双重身份验证 (2FA)** 管理工具，支持多种验证协议（TOTP/HOTP），并以现代化的界面与安全的本地加密存储，让你的数字身份更加安全。
+**XPassword** 是一款跨平台的 **密码管理工具**，支持多种验证协议（TOTP/HOTP），并以现代化的界面与安全的本地加密存储，让你的数字身份更加安全。
 
 > English version is available below.  
 > 👉 [Jump to English version](./README_English.md)
@@ -57,8 +57,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/fynntang/XAuthenticator.git
-cd XAuthenticator
+git clone https://github.com/fynntang/XPassword.git
+cd XPassword
 
 # 安装依赖
 pnpm install
@@ -69,7 +69,7 @@ pnpm tauri dev
 
 #### 或下载已编译版本
 
-前往 [Releases 页面](https://github.com/fynntang/XAuthenticator/releases) 下载适用于你的系统的安装包。
+前往 [Releases 页面](https://github.com/fynntang/XPassword/releases) 下载适用于你的系统的安装包。
 
 ---
 
@@ -112,4 +112,4 @@ You are free to use, modify and distribute this project under the MIT license.
 所有为安全与开源生态做出贡献的开发者们 🙏
 
 ---
-<p align="center"> <b>🧭 XAuthenticator — 让你的双重验证更安全、更自由。</b> </p>
+<p align="center"> <b>🧭 XPassword — 让你的密码管理更安全、更自由。</b> </p>

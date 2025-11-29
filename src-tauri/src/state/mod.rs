@@ -8,7 +8,7 @@ pub struct AppState {
     pub runtime_timestamp: u64,
     pub is_locked: bool,
     pub locked_timestamp: Option<u64>,
-    pub config: xauthenticator_config::Config,
+    pub config: xpassword_config::Config,
 
     #[serde(skip)]
     pub db: Option<Database>,

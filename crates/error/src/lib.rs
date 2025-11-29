@@ -22,6 +22,8 @@ pub enum CommonError {
     RequestError(String),
     #[error("Token expired")]
     TokenExpired,
+    #[error("Mutex lock failed")]
+    MutexLockFailed,
 }
 
 impl From<CommonError> for String {
@@ -49,6 +51,7 @@ impl CommonError {
             CommonError::BiometricAuthFailed => "BiometricAuthFailed",
             CommonError::RequestError(_) => "RequestError",
             CommonError::TokenExpired => "TokenExpired",
+            CommonError::MutexLockFailed => "MutexLockFailed",
         }
     }
 }

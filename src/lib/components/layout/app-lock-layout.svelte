@@ -1,15 +1,13 @@
 <script lang="ts">
-    import {WebviewWindowLabels} from "$lib/constants/webview-window-labels";
-    import Titlebar from "$lib/components/layout/titlebar.svelte";
-
     import {Button} from "$lib/components/ui/button";
     import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "$lib/components/ui/card";
     import {InputGroup, InputGroupAddon, InputGroupInput,} from "$lib/components/ui/input-group";
     import {Eye, EyeOff, Lock} from "@lucide/svelte";
 
-    import {unlockAppWithPassword} from "$lib/api/api";
-    import {appStore} from "$lib/stores/stores";
+    import {appState, unlockAppWithPassword} from "$lib/api/api";
+    import {appStateChange, appStore} from "$lib/stores/stores";
     import {_ as t} from 'svelte-i18n';
+    import {Spinner} from "$lib/components/ui/spinner";
 
 
     let password = $state("");
@@ -25,6 +23,7 @@
         loading = true;
         try {
             await unlockAppWithPassword(password);
+            appStateChange(await appState());
         } catch (e: any) {
             error = e?.message ?? $t('appLock.unlockFailed');
         } finally {
@@ -50,7 +49,8 @@
             </CardHeader>
             <CardContent class="grid gap-3">
                 <InputGroup aria-invalid={!!error}>
-                    <InputGroupInput type={showPassword ? "text" : "password"} placeholder={$t('appLock.passwordPlaceholder')}
+                    <InputGroupInput type={showPassword ? "text" : "password"}
+                                     placeholder={$t('appLock.passwordPlaceholder')}
                                      bind:value={password}
                                      onkeydown={onKeyDown} autocomplete="current-password" autofocus/>
                     <InputGroupAddon align="inline-end">
@@ -70,9 +70,15 @@
             </CardContent>
             <CardFooter class="flex gap-2">
                 <Button class="flex-1" onclick={onUnlock} disabled={!password || loading}>
-                    {#if loading}{$t('appLock.unlocking')}{:else}{$t('appLock.unlock')}{/if}
+                    {#if loading}
+                        <Spinner/>
+                        {$t('appLock.unlocking')}
+                    {:else}
+                        {$t('appLock.unlock')}
+                    {/if}
                 </Button>
-                <Button variant="outline" size="sm" onclick={() => (password = "")} disabled={loading}>{$t('appLock.clear')}</Button>
+                <Button variant="outline" size="sm" onclick={() => (password = "")}
+                        disabled={loading}>{$t('appLock.clear')}</Button>
             </CardFooter>
         </Card>
     </section>
