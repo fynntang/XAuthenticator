@@ -14,10 +14,22 @@ export const appStateChange = (v: AppStateResponse) => {
     appStore.set(v);
     appIsLocked.update(v => get(appStore)?.isLocked ? true : v)
 }
+let intervalId: number | undefined;
+
 export const listenAppStateChange = () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
 
     (async () => {
         appState().then(appStateChange)
-        setInterval(() => appState().then(appStateChange), 3000);
+        intervalId = setInterval(() => appState().then(appStateChange), 3000);
     })()
+}
+
+export const stopListeningAppStateChange = () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = undefined;
+    }
 }
