@@ -43,7 +43,7 @@
         ...restProps
     }: ComponentProps<typeof Sidebar> = $props();
 
-    let tags = $state<String[]>([]);
+    let tags = $state<string[]>([]);
     let groups = $state<Group[]>([]);
 
     const sidebarState = useSidebar();
