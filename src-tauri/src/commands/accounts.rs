@@ -283,8 +283,11 @@ fn update_entry_recursive(node: &mut Node, request: &UpdateAccountRequest) -> bo
                 );
 
                 if let Some(totp) = &request.totp {
-                    e.fields
-                        .insert("TOTP".to_string(), Value::Unprotected(totp.clone()));
+                    if !totp.is_empty() {
+                        e.fields.insert("TOTP".to_string(), Value::Unprotected(totp.clone()));
+                    } else {
+                        e.fields.remove("TOTP");
+                    }
                 } else {
                     e.fields.remove("TOTP");
                 }
