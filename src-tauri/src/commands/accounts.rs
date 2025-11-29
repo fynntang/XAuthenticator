@@ -188,14 +188,23 @@ pub async fn create_account(
 
     // Let's try to save if we have the master password
     if let Some(password) = master_password {
-        let mut file = std::fs::File::create(kdbx_path).map_err(|e| {
-            CommonError::UnexpectedError(anyhow::anyhow!("Failed to create KDBX file: {}", e))
+        // Atomic write: write to temp file, then rename
+        let temp_path = kdbx_path.with_extension("tmp");
+        let mut file = std::fs::File::create(&temp_path).map_err(|e| {
+            CommonError::UnexpectedError(anyhow::anyhow!("Failed to create temp KDBX file: {}", e))
         })?;
         db.save(
             &mut file,
             keepass::DatabaseKey::new().with_password(&password),
         )
         .map_err(|e| CommonError::UnexpectedError(anyhow::anyhow!("Failed to save KDBX: {}", e)))?;
+        file.sync_all().map_err(|e| {
+            CommonError::UnexpectedError(anyhow::anyhow!("Failed to sync KDBX: {}", e))
+        })?;
+        drop(file);
+        std::fs::rename(&temp_path, &kdbx_path).map_err(|e| {
+            CommonError::UnexpectedError(anyhow::anyhow!("Failed to replace KDBX file: {}", e))
+        })?;
     }
 
     Ok(())
@@ -234,8 +243,13 @@ pub async fn update_account(
     if found {
         // Save database
         if let Some(password) = master_password {
-            let mut file = std::fs::File::create(kdbx_path).map_err(|e| {
-                CommonError::UnexpectedError(anyhow::anyhow!("Failed to create KDBX file: {}", e))
+            // Atomic write: write to temp file, then rename
+            let temp_path = kdbx_path.with_extension("tmp");
+            let mut file = std::fs::File::create(&temp_path).map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!(
+                    "Failed to create temp KDBX file: {}",
+                    e
+                ))
             })?;
             db.save(
                 &mut file,
@@ -243,6 +257,13 @@ pub async fn update_account(
             )
             .map_err(|e| {
                 CommonError::UnexpectedError(anyhow::anyhow!("Failed to save KDBX: {}", e))
+            })?;
+            file.sync_all().map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!("Failed to sync KDBX: {}", e))
+            })?;
+            drop(file);
+            std::fs::rename(&temp_path, &kdbx_path).map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!("Failed to replace KDBX file: {}", e))
             })?;
         }
         Ok(())
@@ -284,7 +305,8 @@ fn update_entry_recursive(node: &mut Node, request: &UpdateAccountRequest) -> bo
 
                 if let Some(totp) = &request.totp {
                     if !totp.is_empty() {
-                        e.fields.insert("TOTP".to_string(), Value::Unprotected(totp.clone()));
+                        e.fields
+                            .insert("TOTP".to_string(), Value::Unprotected(totp.clone()));
                     } else {
                         e.fields.remove("TOTP");
                     }
@@ -320,8 +342,13 @@ pub async fn delete_account(app: tauri::AppHandle, account_id: String) -> Result
     if delete_entry_recursive(&mut db.root, &account_id) {
         // Save database
         if let Some(password) = master_password {
-            let mut file = std::fs::File::create(kdbx_path).map_err(|e| {
-                CommonError::UnexpectedError(anyhow::anyhow!("Failed to create KDBX file: {}", e))
+            // Atomic write: write to temp file, then rename
+            let temp_path = kdbx_path.with_extension("tmp");
+            let mut file = std::fs::File::create(&temp_path).map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!(
+                    "Failed to create temp KDBX file: {}",
+                    e
+                ))
             })?;
             db.save(
                 &mut file,
@@ -329,6 +356,13 @@ pub async fn delete_account(app: tauri::AppHandle, account_id: String) -> Result
             )
             .map_err(|e| {
                 CommonError::UnexpectedError(anyhow::anyhow!("Failed to save KDBX: {}", e))
+            })?;
+            file.sync_all().map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!("Failed to sync KDBX: {}", e))
+            })?;
+            drop(file);
+            std::fs::rename(&temp_path, &kdbx_path).map_err(|e| {
+                CommonError::UnexpectedError(anyhow::anyhow!("Failed to replace KDBX file: {}", e))
             })?;
         }
         Ok(())

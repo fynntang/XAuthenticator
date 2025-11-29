@@ -72,7 +72,9 @@ export type Value =
     | { type: 'Unprotected', data: string }
     | { type: 'Protected', data: string }; // Note: In TypeScript, we typically don't handle secure memory
 
-export type Node = { type: 'Group' | 'Entry', Group: Group, Entry: Entry };
+export type Node = 
+    | { type: 'Group', Group: Group }
+    | { type: 'Entry', Entry: Entry };
 
 export type NodeRef<T extends Node> =
     T extends { type: 'Group' } ? Group :

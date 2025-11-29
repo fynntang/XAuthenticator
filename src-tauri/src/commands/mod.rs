@@ -166,32 +166,30 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
     if password.is_empty() {
         return Err(CommonError::RequestError("password is empty".to_string()));
     }
-    
+
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut app_state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
-    
+
     let kdbx_path = app_state.config.builder().kdbx_path.clone();
-    
+
     // Try to open the database with the provided password
     if !kdbx_path.exists() {
         return Err(CommonError::KdbxNotInitialized);
     }
-    
-    let mut file = File::open(&kdbx_path)
-        .map_err(|e| CommonError::UnexpectedError(anyhow::anyhow!("Failed to open KDBX file: {}", e)))?;
-    
-    let db = Database::open(
-        &mut file,
-        DatabaseKey::new().with_password(&password),
-    )
-    .map_err(|_| CommonError::InvalidPassword)?;
-    
+
+    let mut file = File::open(&kdbx_path).map_err(|e| {
+        CommonError::UnexpectedError(anyhow::anyhow!("Failed to open KDBX file: {}", e))
+    })?;
+
+    let db = Database::open(&mut file, DatabaseKey::new().with_password(&password))
+        .map_err(|_| CommonError::InvalidPassword)?;
+
     app_state.db = Some(db);
     app_state.master_password = Some(password);
     app_state.is_locked = false;
     app_state.locked_timestamp = None;
     app_state.runtime_timestamp = chrono::Local::now().timestamp() as u64;
-    
+
     Ok(())
 }
 
@@ -199,7 +197,7 @@ pub fn unlock_with_password(app: tauri::AppHandle, password: String) -> Result<(
 pub fn unlock_with_biometric(_app: tauri::AppHandle) {}
 
 #[tauri::command]
-pub fn lock(app: tauri::AppHandle) -> Result<(), String> {
+pub fn lock(app: tauri::AppHandle) -> Result<(), CommonError> {
     let state = app.state::<Arc<Mutex<AppState>>>();
     let mut state = state.lock().map_err(|_| CommonError::MutexLockFailed)?;
     state.is_locked = true;

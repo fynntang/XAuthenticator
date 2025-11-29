@@ -127,7 +127,7 @@
                                             <SidebarMenuItem>
                                                 <SidebarMenuButton>
                                                     {#snippet child({props})}
-                                                        <a href="##" {...props}><span>{tag}</span></a>
+                                                        <button type="button" {...props}><span>{tag}</span></button>
                                                     {/snippet}
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -182,11 +182,13 @@
 
                         <SidebarMenuSub>
                             {#each group.children as subGroup,subIndex(subIndex)}
-                                <SidebarMenuSubItem>
-                                    <SidebarMenuSubButton>
-                                        {subGroup.Group.name}
-                                    </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
+                                {#if subGroup.type === 'Group'}
+                                    <SidebarMenuSubItem>
+                                        <SidebarMenuSubButton>
+                                            {subGroup.Group.name}
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                {/if}
                             {/each}
                         </SidebarMenuSub>
                     </SidebarMenuItem>
