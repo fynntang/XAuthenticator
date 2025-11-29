@@ -21,7 +21,7 @@ export const lockApp = async () => await apiInvoke<void>("lock");
 export const unlockAppWithPassword = async (password: string) => await apiInvoke<void>("unlock_with_password", { password });
 
 export const listGroups = async () => await apiInvoke<Group[]>("list_groups");
-export const listTags = async () => await apiInvoke<String[]>("list_tags");
+export const listTags = async () => await apiInvoke<string[]>("list_tags");
 export const listAccounts = async () => await apiInvoke<Account[]>("list_accounts");
 export const createAccount = async (request: CreateAccountRequest) => await apiInvoke<void>("create_account", { request });
 export const updateAccount = async (request: UpdateAccountRequest) => await apiInvoke<void>("update_account", { request });
