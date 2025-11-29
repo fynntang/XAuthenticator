@@ -387,29 +387,8 @@ pub fn get_code(app: tauri::AppHandle, account_id: String) -> Result<String, Com
         .find(|e| e.uuid.to_string() == account_id)
     {
         if let Some(Value::Unprotected(totp_url)) = entry.fields.get("TOTP") {
-            // Here we would generate the code.
-            // Since we don't have a TOTP library imported in this file, we might need to add one or use a utility.
-            // But wait, the original code had `get_code` returning empty string.
-            // The project description says it supports TOTP.
-            // I should check if there is a TOTP crate or utility.
-            // `Cargo.toml` has `chrono`, `uuid`, `keepass`.
-            // It doesn't seem to have a specific TOTP crate listed in the main Cargo.toml,
-            // but maybe `crates/entity` or `crates/config` or `crates/error` has something?
-            // Or maybe it's in `src-tauri/Cargo.toml`?
-            // Let's check `src-tauri/Cargo.toml`.
-
-            // For now, I will return the TOTP secret/url itself or a placeholder if I can't generate it.
-            // The frontend likely expects the code.
-            // If I can't generate it, I'll return the secret for now or "000000".
-            // Actually, `keepass` crate might have TOTP support if enabled.
-            // `Cargo.toml` says: `keepass = { version = "0.8", features = ["save_kdbx4", "utilities", "_merge", "challenge_response"] }`
-            // It doesn't explicitly say "totp".
-
-            // I'll return the raw value for now, as I don't want to break the build by adding dependencies I'm not sure about.
-            // Or better, I'll leave it as returning empty string or the secret, but I should probably try to implement it if possible.
-            // Given the constraints, I will return the secret string so the frontend can at least see something,
-            // or if the frontend does the generation (unlikely for a backend command).
-
+            // TODO: Implement actual TOTP code generation. Currently returns the raw TOTP secret.
+            // Consider adding a TOTP library like `totp-lite` or similar.
             Ok(totp_url.clone())
         } else {
             Err(CommonError::RequestError("TOTP not configured".to_string()))
