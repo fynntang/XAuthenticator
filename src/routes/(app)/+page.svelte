@@ -1,7 +1,4 @@
 <script lang="ts">
-    import type { PageProps } from "./$types";
-
-    import { SIDEBAR_WIDTH } from "$lib/components/ui/sidebar/constants";
     import {
         ResizableHandle,
         ResizablePane,
@@ -23,10 +20,9 @@
     import { ScrollArea } from "$lib/components/ui/scroll-area";
     import { CardTitle } from "$lib/components/ui/card";
     import { Button } from "$lib/components/ui/button";
-    import { Badge } from "$lib/components/ui/badge";
     import { Separator } from "$lib/components/ui/separator";
     import { Copy, Eye, Globe, Pencil, Share } from "@lucide/svelte";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { listAccounts } from "$lib/api/api";
     import type { Account } from "$lib/api/types";
     import AccountDialog from "$lib/components/account-dialog.svelte";
@@ -37,24 +33,35 @@
 
     let accountsState: Account[] = $state<Account[]>([]);
     let currentAccountState = $state<Account | null>(null);
+    let unsubscribe: (() => void) | undefined;
+
+    const getUrlHost = (url: string): string | null => {
+        try {
+            return new URL(url).host;
+        } catch {
+            return null;
+        }
+    };
 
     onMount(async () => {
         accountsState = await listAccounts();
-        currentAccountState = JSON.parse(
-            localStorage.getItem("currentAccountState") ?? "{}",
-        ) as Account;
+        const storedId = sessionStorage.getItem("currentAccountId");
+        if (storedId) {
+            currentAccountState = accountsState.find(a => a.id === storedId) ?? null;
+        }
 
-        refreshAccountsTrigger.subscribe(async () => {
+        unsubscribe = refreshAccountsTrigger.subscribe(async () => {
             accountsState = await listAccounts();
         });
     });
 
+    onDestroy(() => {
+        unsubscribe?.();
+    });
+
     const changeCurrentAccountState = (currentAccount: Account) => {
         currentAccountState = currentAccount;
-        localStorage.setItem(
-            "currentAccountState",
-            JSON.stringify(currentAccount),
-        );
+        sessionStorage.setItem("currentAccountId", currentAccount.id);
     };
 </script>
 
@@ -78,10 +85,10 @@
                             >
                                 <ItemMedia>
                                     <Avatar>
-                                        {#if account.url}
+                                        {#if account.url && getUrlHost(account.url)}
                                             <AvatarImage
                                                 class="grayscale"
-                                                src={`https://logo.5io.cc/${URL.parse(account.url)?.host}`}
+                                                src={`https://logo.5io.cc/${getUrlHost(account.url)}`}
                                             />
                                         {:else}
                                             <AvatarImage
@@ -121,9 +128,9 @@
                         class="[.border-b]:pb-6 grid auto-rows-min grid-cols-[auto_1fr_auto] items-center gap-4 px-6"
                     >
                         <Avatar class="size-12 rounded-lg">
-                            {#if currentAccountState.url}
+                            {#if currentAccountState.url && getUrlHost(currentAccountState.url)}
                                 <AvatarImage
-                                    src={`https://logo.5io.cc/${URL.parse(currentAccountState.url)?.host}`}
+                                    src={`https://logo.5io.cc/${getUrlHost(currentAccountState.url)}`}
                                 />
                             {:else}
                                 <AvatarImage

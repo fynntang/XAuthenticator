@@ -17,6 +17,7 @@
     } from "$lib/stores/stores";
     import { createAccount, updateAccount } from "$lib/api/api";
     import { toast } from "svelte-sonner";
+    import { onDestroy } from "svelte";
 
     let open = $state(false);
     let mode = $state<"create" | "edit">("create");
@@ -28,7 +29,7 @@
     let notes = $state("");
     let totp = $state("");
 
-    accountDialogState.subscribe((state) => {
+    const unsubscribe = accountDialogState.subscribe((state) => {
         open = state.open;
         mode = state.mode;
         if (state.account) {
@@ -50,11 +51,29 @@
         }
     });
 
+    onDestroy(() => {
+        unsubscribe();
+    });
+
     const onOpenChange = (v: boolean) => {
         accountDialogState.update((s) => ({ ...s, open: v }));
     };
 
     const handleSubmit = async () => {
+        // Validate required fields
+        if (!title.trim()) {
+            toast.error("Title is required");
+            return;
+        }
+        if (!username.trim()) {
+            toast.error("Username is required");
+            return;
+        }
+        if (!password.trim()) {
+            toast.error("Password is required");
+            return;
+        }
+
         try {
             if (mode === "create") {
                 await createAccount({
@@ -63,7 +82,7 @@
                     password,
                     url,
                     notes,
-                    totp,
+                    totp: totp || undefined,
                 });
                 toast.success("Account created successfully");
             } else {
@@ -74,7 +93,7 @@
                     password,
                     url,
                     notes,
-                    totp,
+                    totp: totp || undefined,
                 });
                 toast.success("Account updated successfully");
             }
@@ -82,7 +101,8 @@
             refreshAccountsTrigger.update((n) => n + 1);
         } catch (e) {
             console.error(e);
-            toast.error("Failed to save account");
+            const errorMessage = e instanceof Error ? e.message : "Unknown error occurred";
+            toast.error(`Failed to save account: ${errorMessage}`);
         }
     };
 </script>

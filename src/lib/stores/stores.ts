@@ -1,4 +1,4 @@
-import { get, writable } from "svelte/store";
+import { writable } from "svelte/store";
 import type { AppStateResponse } from "$lib/api/types";
 import { appState } from "$lib/api/api";
 import type { Account } from "$lib/api/types";
@@ -12,7 +12,7 @@ export const refreshAccountsTrigger = writable<number>(0);
 
 export const appStateChange = (v: AppStateResponse) => {
     appStore.set(v);
-    appIsLocked.update(v => get(appStore)?.isLocked ? true : v)
+    appIsLocked.set(v.isLocked ?? false);
 }
 let intervalId: number | undefined;
 
