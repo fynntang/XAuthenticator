@@ -36,7 +36,6 @@
     } from "$lib/stores/stores";
 
     const sidebarWidth = Number(SIDEBAR_WIDTH.replace("rem", "")) * 16;
-    let { data }: PageProps = $props();
     let accountsState: Account[] = $state<Account[]>([]);
     let currentAccountState = $state<Account | null>(null);
 
